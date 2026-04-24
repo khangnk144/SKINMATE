@@ -1,0 +1,89 @@
+// This is your Prisma schema file
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum SkinType {
+  OILY
+  DRY
+  SENSITIVE
+  COMBINATION
+  NORMAL
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SafetyEffect {
+  GOOD
+  BAD
+  NEUTRAL
+}
+
+model User {
+  id            String            @id @default(uuid())
+  username      String            @unique
+  passwordHash  String
+  skinType      SkinType?         @default(NORMAL)
+  role          UserRole          @default(USER)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  histories     AnalysisHistory[]
+}
+
+model Ingredient {
+  id          Int                 @id @default(autoincrement())
+  name        String              @unique // INCI Name in lowercase for matching
+  description String?             @db.Text
+  rules       IngredientRule[]
+  products    ProductIngredient[]
+}
+
+model IngredientRule {
+  id           Int          @id @default(autoincrement())
+  ingredientId Int
+  skinType     SkinType
+  effect       SafetyEffect @default(NEUTRAL)
+  
+  ingredient   Ingredient   @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, skinType]) // One rule per ingredient per skin type
+}
+
+model Product {
+  id          String              @id @default(uuid())
+  name        String
+  brand       String
+  imageUrl    String?
+  ingredients ProductIngredient[]
+  createdAt   DateTime            @default(now())
+}
+
+model ProductIngredient {
+  productId    String
+  ingredientId Int
+  position     Int // Order of ingredient in the list
+
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@id([productId, ingredientId])
+}
+
+model AnalysisHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  rawInput  String   @db.Text
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

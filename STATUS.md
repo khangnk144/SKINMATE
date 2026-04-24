@@ -1,0 +1,390 @@
+# SKINMATE — Project Status & Complete Guide
+
+> **Last Updated:** April 23, 2026  
+> **Current Phase:** Luxury UI Overhaul + Admin Dashboard (Completed)
+
+---
+
+## Table of Contents
+
+1. [What is SKINMATE?](#1-what-is-skinmate)
+2. [File Type Glossary (What Each File Extension Does)](#2-file-type-glossary)
+3. [Full Folder & File Tree (With Explanations)](#3-full-folder--file-tree)
+4. [Why is the Code Structured This Way?](#4-why-is-the-code-structured-this-way)
+5. [Tech Stack Summary](#5-tech-stack-summary)
+6. [Completed Features](#6-completed-features)
+7. [How to Start Everything](#7-how-to-start-everything)
+8. [Next Action Items](#8-next-action-items)
+
+---
+
+## 1. What is SKINMATE?
+
+SKINMATE is a **luxury skincare ingredient analysis web application**. Users can:
+- **Register/Login** to create a personal account.
+- **Set their skin type** (Oily, Dry, Sensitive, Combination, Normal).
+- **Paste an INCI ingredient list** (the list printed on the back of skincare products) and get a color-coded safety analysis based on their skin type.
+- **See product recommendations** that are safe for their skin.
+- **View their analysis history** to revisit past scans.
+- **Admin users** can manage the database of ingredients, safety rules, and products.
+
+---
+
+## 2. File Type Glossary
+
+If you've never coded before, here's what each file extension means and why it exists:
+
+### Code Files
+
+| Extension | Full Name | What It Does |
+|-----------|-----------|--------------|
+| `.ts` | **TypeScript** | A programming language built on top of JavaScript. It adds "types" — like labels that say "this variable is a number" or "this is a piece of text." This prevents bugs. All backend logic is written in `.ts` files. |
+| `.tsx` | **TypeScript + JSX** | Same as `.ts`, but it can also contain **HTML-like code** (called JSX). This is how React/Next.js builds the visual parts of a website — mixing logic and visual layout in one file. All frontend pages and components use `.tsx`. |
+| `.js` | **JavaScript** | The original programming language of the web. Browsers can only run JavaScript natively. Some config files still use plain `.js` because they don't need TypeScript's extra features. |
+| `.mjs` | **JavaScript Module** | Same as `.js` but explicitly tells the system "this file uses the modern `import/export` style." Used for config files like ESLint and PostCSS. |
+| `.css` | **Cascading Style Sheets** | Controls the **visual appearance** of the website — colors, fonts, spacing, sizes, animations. Think of it as the "paint and decoration" of a house. |
+| `.sql` | **SQL (Structured Query Language)** | Database commands. These files contain instructions to create tables, add columns, etc. in the MySQL database. |
+| `.prisma` | **Prisma Schema** | A special file that describes your database structure in human-readable format. Prisma (a tool) reads this and creates the actual database tables for you. |
+| `.svg` | **Scalable Vector Graphics** | An image format that uses math instead of pixels, so it stays sharp at any size. Used for icons and logos. |
+
+### Configuration Files
+
+| Extension / Name | What It Does |
+|------------------|--------------|
+| `.json` | **JavaScript Object Notation** — a universal format for storing structured data (like a settings file). Used for project configs (`package.json`, `tsconfig.json`). |
+| `.toml` | **Tom's Obvious Minimal Language** — another settings file format, simpler than JSON. Used by Prisma for migration locks. |
+| `.env` | **Environment Variables** — a secret settings file that stores sensitive info like database passwords and secret keys. **Never shared publicly.** |
+| `.gitignore` | Tells Git (the version-tracking tool) which files to **NOT** track — like `node_modules/` (too big) or `.env` (too secret). |
+| `.ico` | **Icon file** — the tiny image that appears in the browser tab next to your website title. |
+| `.md` | **Markdown** — a simple text formatting language (like this file!). Used for documentation and README files. |
+
+### Special Naming Conventions
+
+| Name | What It Means |
+|------|---------------|
+| `page.tsx` | In Next.js, any file named `page.tsx` inside a folder under `app/` **automatically becomes a web page**. The folder name becomes the URL. |
+| `layout.tsx` | A "wrapper" page in Next.js. It defines shared structure (like the navigation bar and footer) that appears on **every page**. |
+| `globals.css` | The CSS file that applies styles to the **entire website**, not just one page. |
+| `index.ts` | The "entry point" — the first file that runs when you start the backend server. |
+
+---
+
+## 3. Full Folder & File Tree
+
+Below is every folder and file in the project. Folders marked with 📁, files with 📄.  
+`node_modules/` and `.next/` are excluded (they are auto-generated and contain thousands of files).
+
+```
+SKINMATE/                          ← 🏠 ROOT: The entire project lives here
+│
+├── 📄 STATUS.md                   ← This file! Documents everything about the project
+│
+├── 📁 docs/                       ← 📚 PROJECT DOCUMENTATION (planning & rules)
+│   ├── 📄 README.md               ← Overview of documentation folder
+│   ├── 📄 CONTEXT.md              ← High-level description of what SKINMATE is and its goals
+│   ├── 📄 ARCHITECTURE.md         ← Explains the overall technical design decisions
+│   ├── 📄 DATABASE.md             ← Describes all database tables and their relationships
+│   ├── 📄 API_SPEC.md             ← Lists all backend API endpoints (URLs the frontend calls)
+│   ├── 📄 PROJECT-RULES.md        ← Coding standards and rules the project follows
+│   └── 📁 features/               ← Detailed specs for each feature
+│       ├── 📄 01-auth.md          ← Spec for user registration & login
+│       ├── 📄 02-profile.md       ← Spec for user profile & skin type management
+│       ├── 📄 03-core-analysis.md ← Spec for the INCI ingredient analysis engine
+│       ├── 📄 04-recommendation.md← Spec for safe product recommendations
+│       ├── 📄 05-history.md       ← Spec for analysis history tracking
+│       └── 📄 06-admin-crud.md    ← Spec for admin panel (manage ingredients/rules/products)
+│
+├── 📁 backend/                    ← 🖥️ THE SERVER (processes data, talks to database)
+│   ├── 📄 .env                    ← Secret settings (database connection URL, JWT secret)
+│   ├── 📄 package.json            ← Lists all backend dependencies and run scripts
+│   ├── 📄 package-lock.json       ← Auto-generated: locks exact versions of dependencies
+│   ├── 📄 tsconfig.json           ← TypeScript settings for the backend
+│   ├── 📄 jest.config.js          ← Settings for Jest (the testing tool)
+│   ├── 📁 node_modules/           ← [AUTO-GENERATED] All downloaded library code (do NOT edit)
+│   │
+│   ├── 📁 prisma/                 ← 🗄️ DATABASE DEFINITION & SETUP
+│   │   ├── 📄 schema.prisma       ← THE database blueprint — defines all tables & columns
+│   │   ├── 📄 seed.ts             ← Script to fill the database with sample/test data
+│   │   └── 📁 migrations/         ← Records of every database change ever made
+│   │       ├── 📄 migration_lock.toml  ← Locks the database type (MySQL)
+│   │       └── 📁 20260423040137_init_db/
+│   │           └── 📄 migration.sql    ← SQL commands that created all the initial tables
+│   │
+│   └── 📁 src/                    ← 💻 ALL BACKEND SOURCE CODE
+│       ├── 📄 index.ts            ← THE ENTRY POINT — starts the server, loads all routes
+│       │
+│       ├── 📁 routes/             ← 🛣️ URL DEFINITIONS (maps URLs to controller functions)
+│       │   ├── 📄 auth.routes.ts      ← /api/v1/auth/register & /login
+│       │   ├── 📄 user.routes.ts      ← /api/v1/users/profile (GET & PUT)
+│       │   ├── 📄 analysis.routes.ts  ← /api/v1/analysis/check (POST)
+│       │   ├── 📄 product.routes.ts   ← /api/v1/products/recommendations (GET)
+│       │   ├── 📄 history.routes.ts   ← /api/v1/history (GET)
+│       │   └── 📄 admin.routes.ts     ← /api/v1/admin/* (CRUD for ingredients/rules/products)
+│       │
+│       ├── 📁 controllers/        ← 🎮 REQUEST HANDLERS (receive request → call service → send response)
+│       │   ├── 📄 auth.controller.ts      ← Handles register & login requests
+│       │   ├── 📄 user.controller.ts      ← Handles profile view & update requests
+│       │   ├── 📄 analysis.controller.ts  ← Handles ingredient analysis requests
+│       │   ├── 📄 product.controller.ts   ← Handles product recommendation requests
+│       │   ├── 📄 history.controller.ts   ← Handles history retrieval requests
+│       │   └── 📄 admin.controller.ts     ← Handles all admin CRUD requests
+│       │
+│       ├── 📁 services/           ← ⚙️ BUSINESS LOGIC (the actual "brains" — does the real work)
+│       │   ├── 📄 auth.service.ts      ← Hashes passwords, creates JWT tokens, validates logins
+│       │   ├── 📄 user.service.ts      ← Reads/updates user profile data in the database
+│       │   ├── 📄 analysis.service.ts  ← Parses INCI strings, looks up safety rules per skin type
+│       │   ├── 📄 product.service.ts   ← Filters products to exclude those with bad ingredients
+│       │   └── 📄 admin.service.ts     ← Create/Read/Update/Delete for ingredients, rules, products
+│       │
+│       ├── 📁 middlewares/        ← 🔒 SECURITY GUARDS (run BEFORE a request reaches the controller)
+│       │   ├── 📄 auth.middleware.ts   ← Checks if the user is logged in (valid JWT token)
+│       │   └── 📄 admin.middleware.ts  ← Checks if the user is an ADMIN (not just logged in)
+│       │
+│       ├── 📁 utils/              ← 🔧 SHARED HELPERS (small reusable tools)
+│       │   └── 📄 prisma.ts           ← Creates & exports the database connection object
+│       │
+│       └── 📁 tests/              ← 🧪 AUTOMATED TESTS (verify code works correctly)
+│           ├── 📄 auth.controller.test.ts     ← Tests for register & login
+│           ├── 📄 auth.middleware.test.ts      ← Tests for the login-check middleware
+│           ├── 📄 user.routes.test.ts         ← Tests for profile endpoints
+│           ├── 📄 analysis.controller.test.ts ← Tests for analysis endpoint
+│           ├── 📄 analysis.service.test.ts    ← Tests for INCI parsing logic
+│           ├── 📄 product.service.test.ts     ← Tests for recommendation filtering
+│           ├── 📄 history.controller.test.ts  ← Tests for history endpoint
+│           └── 📄 admin.routes.test.ts        ← Tests for admin CRUD endpoints
+│
+└── 📁 frontend/                   ← 🎨 THE WEBSITE (what users see and interact with)
+    ├── 📄 .gitignore              ← Files that Git should ignore in this folder
+    ├── 📄 AGENTS.md               ← Instructions for AI coding assistants
+    ├── 📄 CLAUDE.md               ← Additional AI assistant instructions
+    ├── 📄 README.md               ← Next.js default readme
+    ├── 📄 package.json            ← Lists all frontend dependencies and run scripts
+    ├── 📄 package-lock.json       ← Auto-generated: locks exact dependency versions
+    ├── 📄 tsconfig.json           ← TypeScript settings for the frontend
+    ├── 📄 next.config.ts          ← Next.js framework configuration
+    ├── 📄 next-env.d.ts           ← Auto-generated: TypeScript type definitions for Next.js
+    ├── 📄 eslint.config.mjs       ← ESLint settings (code quality checker)
+    ├── 📄 postcss.config.mjs      ← PostCSS settings (processes CSS, enables TailwindCSS)
+    ├── 📁 .git/                   ← [AUTO-GENERATED] Git version control data
+    ├── 📁 .next/                  ← [AUTO-GENERATED] Next.js build cache (do NOT edit)
+    ├── 📁 node_modules/           ← [AUTO-GENERATED] Downloaded library code (do NOT edit)
+    │
+    ├── 📁 public/                 ← 🖼️ STATIC ASSETS (images/icons served directly to the browser)
+    │   ├── 📄 favicon.ico         ← Default Next.js icon
+    │   ├── 📄 file.svg            ← Default icon
+    │   ├── 📄 globe.svg           ← Default icon
+    │   ├── 📄 next.svg            ← Next.js logo
+    │   ├── 📄 vercel.svg          ← Vercel logo
+    │   └── 📄 window.svg          ← Default icon
+    │
+    └── 📁 src/                    ← 💻 ALL FRONTEND SOURCE CODE
+        │
+        ├── 📁 context/            ← 🧠 GLOBAL STATE MANAGEMENT
+        │   └── 📄 AuthContext.tsx  ← Stores login state (who is logged in?) across ALL pages
+        │
+        ├── 📁 components/         ← 🧩 REUSABLE UI PIECES (used across multiple pages)
+        │   ├── 📄 Navbar.tsx              ← The navigation bar at the top of every page
+        │   ├── 📄 ProtectedRoute.tsx      ← Wrapper: redirects to login if user is NOT logged in
+        │   ├── 📄 AdminProtectedRoute.tsx ← Wrapper: redirects if user is NOT an admin
+        │   └── 📄 ProductCard.tsx         ← A styled card that displays one product's info
+        │
+        └── 📁 app/                ← 📄 PAGES (each subfolder = one URL/page on the website)
+            ├── 📄 favicon.ico     ← Browser tab icon for the website
+            ├── 📄 globals.css     ← Global styles that apply to every page
+            ├── 📄 layout.tsx      ← Shared layout: header (navbar), footer, fonts, and AuthProvider
+            ├── 📄 page.tsx        ← HOME PAGE (/) — hero section, login/register or analysis buttons
+            │
+            ├── 📁 login/
+            │   └── 📄 page.tsx    ← LOGIN PAGE (/login) — email & password form
+            │
+            ├── 📁 register/
+            │   └── 📄 page.tsx    ← REGISTER PAGE (/register) — create account form
+            │
+            ├── 📁 profile/
+            │   └── 📄 page.tsx    ← PROFILE PAGE (/profile) — view & edit skin type
+            │
+            ├── 📁 analysis/
+            │   └── 📄 page.tsx    ← ANALYSIS PAGE (/analysis) — paste ingredients, see safety results
+            │
+            ├── 📁 history/
+            │   └── 📄 page.tsx    ← HISTORY PAGE (/history) — view past analyses, re-analyze
+            │
+            └── 📁 admin/          ← 🔐 ADMIN SECTION (only accessible by admin users)
+                ├── 📄 layout.tsx  ← Admin layout with sidebar navigation
+                ├── 📄 page.tsx    ← ADMIN DASHBOARD (/admin) — overview & links
+                ├── 📁 ingredients/
+                │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete)
+                ├── 📁 rules/
+                │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete)
+                └── 📁 products/
+                    └── 📄 page.tsx ← Manage products (add/edit/delete)
+```
+
+---
+
+## 4. Why is the Code Structured This Way?
+
+### 4.1 — Why are there TWO separate folders (`backend/` and `frontend/`)?
+
+This is called a **"Decoupled Monorepo"** architecture:
+
+- **`backend/`** = The **server**. Think of it like the kitchen in a restaurant. Customers never see it, but it does all the real work — storing data, checking passwords, running analysis logic.
+- **`frontend/`** = The **website**. Think of it like the dining room in a restaurant. It's what customers see — the menus, the plates, the decorations.
+
+They are **separated** because:
+1. **They do different jobs.** The backend handles data; the frontend handles visuals.
+2. **They can be updated independently.** You can redesign the website without touching the database logic.
+3. **They communicate over the internet** using "API calls" — the frontend sends requests (like "give me this user's profile") to the backend's URLs, and the backend responds with data.
+
+### 4.2 — Why does the backend have `routes/`, `controllers/`, `services/`, and `middlewares/`?
+
+This is called the **"Layered Architecture"** pattern. Imagine processing a letter at a post office:
+
+1. **`routes/`** = The **mailbox slots**. Each slot has a label (URL like `/api/v1/auth/login`). When a request arrives, it gets sorted to the right slot.
+2. **`middlewares/`** = The **security guards**. Before a letter reaches the office worker, guards check IDs. `auth.middleware.ts` checks "are you logged in?" and `admin.middleware.ts` checks "are you an admin?"
+3. **`controllers/`** = The **front desk clerks**. They receive the letter, open it, pass the important content to the specialist, and then write the response letter back.
+4. **`services/`** = The **specialists**. They do the actual intellectual work — calculating results, talking to the database, hashing passwords.
+
+**Why split it this way?** Because if you ever need to change HOW something works (like switching from MySQL to another database), you only change the service file — the routes and controllers stay the same. Each piece has ONE job, making bugs easier to find.
+
+### 4.3 — Why does the frontend have `app/`, `components/`, and `context/`?
+
+- **`app/`** = **Pages**. Next.js uses "file-based routing." This means: *the folder structure IS your website's URL structure.* If you create `app/login/page.tsx`, your website automatically gets a `/login` page. No extra configuration needed.
+- **`components/`** = **Reusable building blocks**. The `Navbar` appears on every page, so instead of copy-pasting the same code into 8 files, you write it once here and import it everywhere.
+- **`context/`** = **Shared memory**. When a user logs in on the login page, every other page needs to know "who is logged in." The `AuthContext` stores this information in one central place that all pages can access.
+
+### 4.4 — Why is there a `prisma/` folder inside `backend/`?
+
+**Prisma** is a tool that acts as a translator between your code and the database:
+- **`schema.prisma`** = You describe your data in simple English-like syntax (like "a User has a username and a skinType"). Prisma reads this and creates the actual MySQL tables for you.
+- **`migrations/`** = Every time you change `schema.prisma` (like adding a new column), Prisma creates a migration file recording what changed. This is like a history book of your database's evolution.
+- **`seed.ts`** = A script that fills your database with sample data for testing.
+
+### 4.5 — Why are there `package.json` files?
+
+Every JavaScript/TypeScript project needs a `package.json`. It serves three purposes:
+1. **Lists dependencies** — all the external libraries (tools) the project uses (like Express, React, Prisma).
+2. **Defines scripts** — shortcuts like `npm run dev` (starts the server) or `npm test` (runs tests).
+3. **Stores metadata** — the project name, version, etc.
+
+The `package-lock.json` is auto-generated and locks the exact version of every dependency so that everyone working on the project gets identical code.
+
+### 4.6 — Why are there `tsconfig.json` files?
+
+TypeScript doesn't run directly in the browser or on the server — it must be **compiled** (translated) into JavaScript first. `tsconfig.json` tells the TypeScript compiler HOW to do this translation (which features to enable, where to put the output, etc.).
+
+### 4.7 — Why are there `tests/` files?
+
+Automated tests are programs that run your code with fake inputs and check if the outputs are correct. They act as a **safety net**: every time you change something, you run the tests to make sure you didn't accidentally break existing features.
+
+---
+
+## 5. Tech Stack Summary
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend Framework** | Next.js 16 (App Router) | Builds the website pages, handles routing |
+| **UI Library** | React 19 | Creates interactive user interfaces |
+| **Styling** | TailwindCSS 4 | Utility-first CSS for rapid, beautiful design |
+| **Frontend Language** | TypeScript | Type-safe JavaScript for fewer bugs |
+| **Backend Framework** | Express.js 4 | Handles HTTP requests on the server |
+| **Backend Language** | TypeScript (Node.js) | Server-side logic |
+| **Database** | MySQL 8.0 (via Docker) | Stores all data (users, ingredients, products) |
+| **ORM** | Prisma 5 | Translates between code and database queries |
+| **Authentication** | bcryptjs + jsonwebtoken | Securely hashes passwords and manages login sessions |
+| **Testing** | Jest + Supertest | Automated testing for backend endpoints |
+| **Icons** | Lucide React | Beautiful, consistent icon library |
+| **Code Quality** | ESLint | Catches code style issues and potential bugs |
+| **Dev Server** | Nodemon | Auto-restarts backend when code changes |
+
+---
+
+## 6. Completed Features
+
+### Feature 01: Authentication (Registration & Login)
+- **Backend:** Secure password hashing with `bcryptjs`, JWT token generation, `/register` and `/login` endpoints.
+- **Frontend:** Luxury-styled login and register forms with form validation and error handling.
+- **Testing:** Full unit tests for auth controller.
+
+### Feature 02: User Profile & Skin Type Management
+- **Backend:** Protected `GET` and `PUT` endpoints for `/api/v1/users/profile`. Auth middleware for route protection.
+- **Frontend:** Profile page where users can view and update their username and skin type.
+- **Testing:** Unit tests for middleware and user endpoints.
+
+### Feature 03: Core INCI Analysis Engine
+- **Database:** Seed script with sample ingredients and skin-type-specific safety rules.
+- **Backend:** `POST /api/v1/analysis/check` — parses INCI strings, normalizes names, queries safety rules based on user's skin type.
+- **Frontend:** Analysis page with textarea input, color-coded results (🟢 GOOD, 🔴 BAD, ⚪ NEUTRAL), and ingredient descriptions.
+- **Testing:** Unit tests for string parsing, rule-matching, and edge cases.
+
+### Feature 04: Safe Product Recommendations
+- **Backend:** `GET /api/v1/products/recommendations` — filters out products containing ingredients flagged as BAD for the user's skin type.
+- **Frontend:** Product cards grid displayed on the analysis page.
+- **Testing:** Unit tests for recommendation filtering logic.
+
+### Feature 05: Analysis History
+- **Backend:** Analysis results are automatically saved. `GET /api/v1/history` retrieves past analyses. `DELETE /api/v1/history/:id` and `DELETE /api/v1/history` (clear all) allow users to manage their data.
+- **Frontend:** Luxury history page with:
+  - List of past analyses with timestamps.
+  - **Re-analyze** button to quickly rerun checks.
+  - **Delete** individual entries with confirmation.
+  - **Clear All** history option.
+  - Responsive layout and smooth animations.
+- **Testing:** Unit tests for history and deletion endpoints.
+
+### Feature 06: Admin Dashboard (CRUD)
+- **Backend:** Full Create/Read/Update/Delete endpoints for ingredients, safety rules, and products under `/api/v1/admin/*`. Protected by admin middleware.
+- **Frontend:** Admin panel with sidebar navigation and dedicated management pages for ingredients, rules, and products. Only accessible to ADMIN role users.
+- **Testing:** Unit tests for admin routes.
+
+### Luxury UI Overhaul
+- Applied a premium design system across all pages using:
+  - **Playfair Display** (serif) for headings and **Inter** (sans-serif) for body text.
+  - Dusty rose and slate color palette.
+  - Glassmorphism effects (frosted glass header).
+  - Micro-animations and hover effects.
+  - Fully responsive layouts (mobile, tablet, desktop).
+
+---
+
+## 7. How to Start Everything (After a Computer Shutdown)
+
+### Step 1: Start the Database
+1. Open **Docker Desktop** from your Windows Start Menu.
+2. Wait a few seconds for the Docker Engine to start.
+3. Open a terminal and run:
+```bash
+docker start skinmate-mysql
+```
+
+### Step 2: Start the Backend Server
+Open a terminal inside the `backend/` folder:
+```bash
+cd backend
+npm run dev
+```
+The backend will run on **http://localhost:5000**.
+
+### Step 3: Start the Frontend Website
+Open a **second** terminal inside the `frontend/` folder:
+```bash
+cd frontend
+npm run dev
+```
+The website will run on **http://localhost:3000**.
+
+### Step 4 (Optional): Open Prisma Studio
+To visually browse your database, open a **third** terminal:
+```bash
+cd backend
+npx prisma studio
+```
+This opens a database viewer at **http://localhost:5555**.
+
+---
+
+## 8. Next Action Items
+
+- [ ] **Product Scanning (OCR/Image)** — Allow users to upload a photo of a product label to automatically extract the INCI ingredient list.
+- [ ] **Advanced Filtering** — Let users filter analysis results or products by category, brand, or safety rating.
+- [ ] **Deployment** — Deploy the app to a cloud hosting service so others can access it online.
