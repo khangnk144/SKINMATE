@@ -371,6 +371,15 @@ Automated tests are programs that run your code with fake inputs and check if th
   - Fully responsive layouts (mobile → tablet → desktop).
   - Next.js `<Image>` configured with `remotePatterns` to support external image hosting (e.g., `i.postimg.cc`).
 
+### Feature 09: AI-Powered Fallback Analysis (Gemini Integration)
+- **Problem Solver:** Prevents unknown ingredients (not in DB) from being incorrectly labeled as NEUTRAL.
+- **Backend Integration:** 
+  - Integrated **Gemini 1.5 Flash API** as a fallback mechanism in the analysis service.
+  - When ingredients are missing from the local database, the system calls Gemini to evaluate them based on the user's specific skin type.
+  - **Auto-Caching:** Results from AI are automatically inserted into the database as new `Ingredient` and `IngredientRule` entries. This reduces API costs and improves speed for future requests.
+  - **Safety Fallback:** If the AI API fails or times out, the system gracefully defaults to NEUTRAL to ensure reliability.
+- **Benefits:** Provides a more comprehensive analysis even for niche or new cosmetic ingredients.
+
 ---
 
 ## 7. How to Start Everything (After a Computer Shutdown)
