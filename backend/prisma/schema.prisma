@@ -1,7 +1,7 @@
 // This is your Prisma schema file
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
