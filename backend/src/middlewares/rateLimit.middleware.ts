@@ -3,6 +3,10 @@ import { AuthRequest } from './auth.middleware';
 
 export const analysisRateLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours window, can be changed depending on requirement
+  skip: (req: AuthRequest) => {
+    // Không giới hạn lượt call cho admin
+    return req.user?.role === 'ADMIN';
+  },
   max: async (req: AuthRequest) => {
     // Determine limit dynamically based on user role (for future "Pro" feature)
     if (req.user && req.user.role === 'PRO') {
