@@ -108,7 +108,7 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │   │   ├── 📄 schema.prisma       ← THE database blueprint — defines all tables & columns
 │   │   ├── 📄 seed.ts             ← Script to fill the database with sample/test data
 │   │   └── 📁 migrations/         ← Records of every database change ever made
-│   │       ├── 📄 migration_lock.toml  ← Locks the database type (MySQL)
+│   │       ├── 📄 migration_lock.toml  ← Locks the database type (PostgreSQL)
 │   │       └── 📁 20260423040137_init_db/
 │   │           └── 📄 migration.sql    ← SQL commands that created all the initial tables
 │   │
@@ -250,7 +250,7 @@ This is called the **"Layered Architecture"** pattern. Imagine processing a lett
 3. **`controllers/`** = The **front desk clerks**. They receive the letter, open it, pass the important content to the specialist, and then write the response letter back.
 4. **`services/`** = The **specialists**. They do the actual intellectual work — calculating results, talking to the database, hashing passwords.
 
-**Why split it this way?** Because if you ever need to change HOW something works (like switching from MySQL to another database), you only change the service file — the routes and controllers stay the same. Each piece has ONE job, making bugs easier to find.
+**Why split it this way?** Because if you ever need to change HOW something works (like switching from PostgreSQL to another database), you only change the service file — the routes and controllers stay the same. Each piece has ONE job, making bugs easier to find.
 
 ### 4.3 — Why does the frontend have `app/`, `components/`, and `context/`?
 
@@ -261,7 +261,7 @@ This is called the **"Layered Architecture"** pattern. Imagine processing a lett
 ### 4.4 — Why is there a `prisma/` folder inside `backend/`?
 
 **Prisma** is a tool that acts as a translator between your code and the database:
-- **`schema.prisma`** = You describe your data in simple English-like syntax (like "a User has a username and a skinType"). Prisma reads this and creates the actual MySQL tables for you.
+- **`schema.prisma`** = You describe your data in simple English-like syntax (like "a User has a username and a skinType"). Prisma reads this and creates the actual PostgreSQL tables for you.
 - **`migrations/`** = Every time you change `schema.prisma` (like adding a new column), Prisma creates a migration file recording what changed. This is like a history book of your database's evolution.
 - **`seed.ts`** = A script that fills your database with sample data for testing.
 
@@ -296,7 +296,7 @@ Automated tests are programs that run your code with fake inputs and check if th
 | **Icons** | Lucide React | Beautiful, consistent icon library |
 | **Backend Framework** | Express.js 4 | Handles HTTP requests on the server |
 | **Backend Language** | TypeScript (Node.js) | Server-side logic |
-| **Database** | MySQL 8.0 (via Docker) | Stores all data (users, ingredients, products) |
+| **Database** | PostgreSQL 15 (via Docker) | Stores all data (users, ingredients, products) |
 | **ORM** | Prisma 5 | Translates between code and database queries |
 | **Authentication** | bcryptjs + jsonwebtoken | Securely hashes passwords and manages login sessions |
 | **Testing** | Jest + Supertest | Automated testing for backend endpoints |
@@ -376,11 +376,27 @@ Automated tests are programs that run your code with fake inputs and check if th
 ## 7. How to Start Everything (After a Computer Shutdown)
 
 ### Step 1: Start the Database
-1. Open **Docker Desktop** from your Windows Start Menu.
-2. Wait a few seconds for the Docker Engine to start.
-3. Open a terminal and run:
+
+**A. If this is your FIRST time running the project (or if you deleted the database):**
+1. Open **Docker Desktop** and wait for it to start.
+2. Open a terminal and run the following command to create the database:
 ```bash
-docker start skinmate-mysql
+docker run --name skinmate-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=skinmate -p 5432:5432 -d postgres
+```
+3. Push the schema and seed the initial data:
+```bash
+cd backend
+npx prisma db push
+npx prisma generate
+npx prisma db seed
+```
+
+**B. For EVERY DAY use (after shutting down your computer):**
+You do **NOT** need to seed the data again. Your data is saved.
+1. Open **Docker Desktop** and wait for it to start.
+2. Open a terminal and simply start the existing database:
+```bash
+docker start skinmate-postgres
 ```
 
 ### Step 2: Start the Backend Server

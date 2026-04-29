@@ -6,14 +6,14 @@ SKINMATE is a luxury web application designed to help users analyze cosmetic ing
 
 ### 1. Prerequisites
 * Node.js (v18+)
-* Docker (for MySQL database)
+* Docker (for PostgreSQL database)
 * npm
 
 ### 2. Database Setup
 1. Open Docker Desktop.
 2. Run the database container:
 ```bash
-docker start skinmate-mysql
+docker start skinmate-postgres
 ```
 *(If setting up for the first time, check `backend/prisma` for migrations and seeding)*
 
@@ -53,5 +53,5 @@ There is also a comprehensive `STATUS.md` file in the root directory that contai
 
 * **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS v4 (Luxury Design System), TypeScript.
 * **Backend:** Node.js, Express.js 4, Prisma 5 ORM, TypeScript.
-* **Database:** MySQL 8.0.
+* **Database:** PostgreSQL 15.
 * **Testing:** Jest.

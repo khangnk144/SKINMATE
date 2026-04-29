@@ -6,7 +6,7 @@
 
 The database is designed to handle skincare ingredient analysis using a normalized relational model. It focuses on fast lookup for ingredient safety based on user skin types.
 
-* **Engine:** MySQL 8.0 (running via Docker container `skinmate-mysql`).
+* **Engine:** PostgreSQL 15 (running via Docker container `skinmate-postgres`).
 * **ORM:** Prisma 5.
 * **Naming Convention:** `snake_case` for database tables/columns, `PascalCase` for Prisma models.
 
@@ -33,7 +33,7 @@ This is the current source-of-truth `prisma/schema.prisma`:
 
 ```prisma
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

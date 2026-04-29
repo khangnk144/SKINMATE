@@ -1,48 +1,88 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const { user, logout, isLoading } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <nav className="flex space-x-8 items-center">
-      <Link href="/analysis" className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  const NavLinks = () => (
+    <>
+      <Link href="/analysis" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
         Analysis
       </Link>
       {!isLoading && (
         user ? (
           <>
-            <Link href="/history" className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
+            <Link href="/history" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
               History
             </Link>
-            <Link href="/profile" className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
+            <Link href="/profile" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
               Profile
             </Link>
             {user.role === 'ADMIN' && (
-              <Link href="/admin" className="text-sm tracking-wide text-emerald-600 hover:text-emerald-700 transition-colors">
+              <Link href="/admin" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-emerald-600 hover:text-emerald-700 transition-colors">
                 Admin Panel
               </Link>
             )}
             <button 
-              onClick={logout}
-              className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors"
+              onClick={() => {
+                logout();
+                setIsOpen(false);
+              }}
+              className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors text-left"
             >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link href="/login" className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
+            <Link href="/login" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
               Sign In
             </Link>
-            <Link href="/register" className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+            <Link href="/register" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md w-max">
               Join Now
             </Link>
           </>
         )
       )}
-    </nav>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Menu */}
+      <nav className="hidden md:flex space-x-8 items-center">
+        <NavLinks />
+      </nav>
+
+      {/* Mobile Menu Button */}
+      <button 
+        className="md:hidden p-2 text-gray-500 hover:text-rose-400 focus:outline-none" 
+        onClick={toggleMenu}
+        aria-label="Toggle menu"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {isOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          )}
+        </svg>
+      </button>
+
+      {/* Mobile Menu Dropdown */}
+      {isOpen && (
+        <div className="absolute top-20 left-0 w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-rose-100 md:hidden z-50 animate-in slide-in-from-top-2">
+          <div className="flex flex-col space-y-6 px-6 py-8">
+            <NavLinks />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

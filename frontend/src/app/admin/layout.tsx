@@ -19,21 +19,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminProtectedRoute>
-      <div className="flex min-h-screen bg-[#FAFAFA] font-sans">
+      <div className="flex flex-col md:flex-row min-h-screen bg-[#FAFAFA] font-sans">
         {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-rose-100 shadow-[4px_0_20px_rgb(0,0,0,0.02)]">
-          <div className="p-8">
+        <div className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-rose-100 shadow-[4px_0_20px_rgb(0,0,0,0.02)]">
+          <div className="p-6 md:p-8">
             <h2 className="text-xl font-serif text-slate-800 tracking-wide">Admin Panel</h2>
             <p className="text-xs text-slate-400 mt-1 tracking-widest uppercase">Management</p>
           </div>
-          <nav className="mt-2 px-4 space-y-1">
+          <nav className="mt-2 px-4 pb-4 md:pb-0 flex flex-wrap md:flex-col gap-2 md:gap-1 md:space-y-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`block py-3 px-4 text-sm tracking-wide rounded-xl transition-all duration-200 ${
+                  className={`block py-2 px-4 md:py-3 text-sm tracking-wide rounded-xl transition-all duration-200 ${
                     isActive
                       ? 'bg-emerald-50 text-emerald-700 font-medium'
                       : 'text-slate-500 hover:bg-gray-50 hover:text-slate-700'
