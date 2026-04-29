@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Products', href: '/admin/products' },
     { name: 'Users', href: '/admin/users' },
     { name: 'Reports', href: '/admin/reports' },
+    { name: 'Import / Export', href: '/admin/import-export' },
   ];
 
   return (

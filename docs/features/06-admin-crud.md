@@ -1,32 +1,57 @@
 # Feature 06: Admin Dashboard & CRUD Operations
 
+> **Status: ✅ Implemented**
+
 ## 1. Overview
-The system requires an admin panel to manage the core data: Ingredients, Rules, and Products. This ensures the database can scale and be updated without manual SQL queries. Only users with the `ADMIN` role can access these features.
 
-## 2. Backend Requirements (/backend)
-* **Admin Middleware:** Create `adminMiddleware.ts` that runs after `authMiddleware`. It should check if `req.user.role === 'ADMIN'`. If not, return a `403 Forbidden`.
-* **Admin Endpoints (Base path: `/api/v1/admin`):**
-  * **Ingredients:**
-    * `GET /ingredients`: List all ingredients.
-    * `POST /ingredients`: Create a new ingredient (name must be converted to lowercase).
-    * `PUT /ingredients/:id`: Update an ingredient.
-    * `DELETE /ingredients/:id`: Delete an ingredient.
-  * **Rules:**
-    * `POST /rules`: Create/Update a safety rule (Good/Bad/Neutral) for a specific ingredient and skin type.
-  * **Products (Optional for MVP, but good to have):**
-    * `POST /products`: Add a new product and link its ingredients.
+The admin panel allows users with the `ADMIN` role to manage the core data driving the analysis engine: Ingredients, Safety Rules, and Products. It is the only way to update the database without writing raw SQL.
 
-## 3. Frontend Requirements (/frontend)
-* **Protected Admin Layout:** Create an `/admin` route. Use client-side logic to redirect users to `/` if their `role` is not `ADMIN`.
-* **UI/UX (Dashboard - Luxury Design System):**
-  * Use TailwindCSS v4 with the SKINMATE Luxury Design System (soft rose accents, serif headings, rounded-3xl cards, soft shadows).
-  * Admin sidebar with sage green (`emerald`) active states.
-* **Data Management Views:**
-  * **Data Table:** Display lists in clean tables with soft rose dividers.
-  * **Actions:** Add "Edit" (sage green) and "Delete" (dusty rose) buttons to each row.
-  * **Modals/Forms:** Use backdrop-blur modals with rounded-3xl cards and rose-focused inputs.
-* **Notifications:** Show success (emerald) / error (rose) toast alerts.
+## 2. Backend Implementation (`/backend`)
+
+**Middleware Stack (applied to ALL `/api/v1/admin/*` routes):**
+1. `authMiddleware` — validates JWT token.
+2. `adminMiddleware` — checks `req.user.role === 'ADMIN'`. Returns `403 Forbidden` if not admin.
+
+**Ingredient Endpoints (`/api/v1/admin/ingredients`):**
+
+| Method | Path | Behavior |
+|--------|------|----------|
+| `GET` | `/ingredients` | List all ingredients, ordered alphabetically |
+| `POST` | `/ingredients` | Create new ingredient. Name auto-normalized to lowercase. Returns 409 if duplicate. |
+| `PUT` | `/ingredients/:id` | Update name/description. Checks for duplicate name conflicts. |
+| `DELETE` | `/ingredients/:id` | Deletes ingredient. Cascades to rules and product-ingredient links. |
+
+**Rule Endpoints (`/api/v1/admin/rules`):**
+
+| Method | Path | Behavior |
+|--------|------|----------|
+| `GET` | `/rules` | List all rules, includes ingredient info, ordered newest first |
+| `POST` | `/rules` | Upsert: creates rule if not exists, updates effect if already exists for that `(ingredientId, skinType)` pair |
+| `DELETE` | `/rules/:id` | Delete a specific rule |
+
+**Product Endpoints (`/api/v1/admin/products`):**
+
+| Method | Path | Behavior |
+|--------|------|----------|
+| `GET` | `/products` | List all products, includes full ingredient list, ordered newest first |
+| `POST` | `/products` | Create product. Accepts `ingredientNames` as array (parsed from INCI string on frontend). Auto-creates any unknown ingredients. |
+| `PUT` | `/products/:id` | Update product. Replaces all ingredient relations. |
+| `DELETE` | `/products/:id` | Delete product. Cascades to product-ingredient links. |
+
+## 3. Frontend Implementation (`/frontend`)
+
+* **Route guard:** `AdminProtectedRoute.tsx` wraps all admin pages and redirects non-admin users to the home page.
+* **Layout:** `admin/layout.tsx` provides a sidebar with navigation links to each management section.
+* **Product INCI input:** The product form uses a **text area** where admins paste an INCI string. The frontend parses it (split by comma, trim) and sends the resulting array as `ingredientNames` to the backend.
+* **Management pages:**
+  - `/admin/ingredients` — Table with Edit/Delete actions per row, modal form for add/edit.
+  - `/admin/rules` — Table with Delete action, form for creating/updating rules.
+  - `/admin/products` — Table with Edit/Delete actions, modal form with INCI textarea input.
 
 ## 4. Testing
-* **Security Testing:** This is critical. Write tests to verify that a normal `USER` receives a 403 Forbidden error when trying to access ANY `/api/v1/admin/*` route.
-* Write basic tests for the Ingredient creation endpoint to ensure it correctly normalizes the data (lowercasing).
+
+Tests in `admin.routes.test.ts` verify:
+* A user with `role: USER` receives `403 Forbidden` on any `/api/v1/admin/*` route.
+* A user with `role: ADMIN` can successfully call CRUD endpoints.
+* Ingredient creation correctly normalizes names to lowercase.
+* Duplicate ingredient name creation returns an error.

@@ -1,24 +1,43 @@
 # Feature 05: Analysis History
 
+> **Status: ✅ Implemented**
+
 ## 1. Overview
-Users should be able to view their past INCI string analyses. This requires updating the core analysis engine to save the raw input to the database upon a successful check, and creating a new UI for users to browse their history.
 
-## 2. Backend Requirements (/backend)
-* **Update POST /api/v1/analysis/check:**
-  * Modify the existing endpoint from Feature 03. After successfully calculating the results, asynchronously save the `rawInput` (the original INCI string) and the `userId` into the `AnalysisHistory` table (Prisma).
-* **GET /api/v1/history:**
-  * **Middleware:** Requires `authMiddleware`.
-  * **Logic:** Fetch all records from `AnalysisHistory` for the authenticated user, ordered by `createdAt` descending (newest first).
-  * **Response:** Array of history objects.
+Every time a user submits an INCI string for analysis, the raw input is automatically saved to their `AnalysisHistory`. Users can view their past analyses, re-run them, delete individual entries, or clear all history at once.
 
-## 3. Frontend Requirements (/frontend)
-* **Page `/history`:**
-  * **Protection:** Must be protected (logged-in users only).
-  * **UI/UX:** Use TailwindCSS. Display the history as a list of cards or a clean table. 
-  * **Card Details:** Each item should show the formatted date (e.g., "Oct 24, 2023"), a truncated snippet of the `rawInput` (e.g., "Water, Niacinamide, ..."), and a "Re-analyze" button.
-  * **Behavior:** Clicking "Re-analyze" should either route the user back to `/analysis` with the string pre-filled, or trigger the analysis calculation right there.
-* **Navigation:** Add a link to the "History" page in the main navigation bar or profile dropdown.
+## 2. Backend Implementation (`/backend`)
+
+**Auto-save on Analysis:**
+* `POST /api/v1/analysis/check` — after computing the analysis results, the `rawInput` string and `userId` are saved to the `AnalysisHistory` table before the response is sent.
+
+**History Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/v1/history` | Returns all history entries for the authenticated user, ordered by `createdAt` descending (newest first) |
+| `DELETE` | `/api/v1/history/:id` | Deletes a specific history entry. Authorization check ensures users can only delete their own records. |
+| `DELETE` | `/api/v1/history` | Clears ALL history entries for the authenticated user |
+
+All routes are protected by `authMiddleware`.
+
+## 3. Frontend Implementation (`/frontend`)
+
+**Page `/history`** — Protected route (logged-in users only):
+* Displays a list of past analyses as luxury-styled cards.
+* Each card shows: formatted timestamp, truncated INCI string preview.
+* **Re-analyze** button: navigates back to `/analysis` with the INCI string pre-populated.
+* **Delete** button: triggers a confirmation prompt before deleting the individual entry.
+* **Clear All** button: triggers a confirmation prompt before clearing all history.
+* Smooth animations and fully responsive layout.
+
+**Navigation:**
+* Link to `/history` is included in the main `Navbar.tsx`.
 
 ## 4. Testing
-* Update the analysis tests to verify that a history record is created in the database.
-* Write a new test for the `GET /api/v1/history` endpoint to ensure it returns the correct user's history in the right order.
+
+Tests in `history.controller.test.ts` verify:
+* `GET /history` returns the correct user's history in newest-first order.
+* `DELETE /history/:id` removes the correct entry.
+* `DELETE /history` removes all entries for the user.
+* Authorization: users cannot delete another user's history entries.

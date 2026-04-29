@@ -2,6 +2,15 @@ import { Router } from 'express';
 import { adminController } from '../controllers/admin.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { adminMiddleware } from '../middlewares/admin.middleware';
+import {
+  exportIngredientsExcel,
+  exportRulesExcel,
+  exportProductsExcel,
+  importIngredientsExcel,
+  importRulesExcel,
+  importProductsExcel,
+  excelUploadMiddleware,
+} from '../controllers/excel.controller';
 
 const router = Router();
 
@@ -32,5 +41,15 @@ router.delete('/users/:id', adminController.deleteUser);
 
 // Reports
 router.get('/reports', adminController.getReports);
+
+// Excel Export
+router.get('/export/ingredients', exportIngredientsExcel);
+router.get('/export/rules', exportRulesExcel);
+router.get('/export/products', exportProductsExcel);
+
+// Excel Import
+router.post('/import/ingredients', excelUploadMiddleware, importIngredientsExcel);
+router.post('/import/rules', excelUploadMiddleware, importRulesExcel);
+router.post('/import/products', excelUploadMiddleware, importProductsExcel);
 
 export default router;

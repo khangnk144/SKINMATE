@@ -26,91 +26,226 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center py-20 px-4">
-      {/* Background Blobs & Aura */}
-      <div className="absolute top-[-25%] right-[-15%] w-[1000px] h-[1000px] bg-rose-200/40 rounded-full blur-[140px] -z-10 animate-pulse duration-[10s]"></div>
-      <div className="absolute bottom-[-25%] left-[-15%] w-[1000px] h-[1000px] bg-pink-200/30 rounded-full blur-[140px] -z-10 animate-pulse duration-[15s]"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[150%] bg-[radial-gradient(circle_at_center,rgba(255,200,210,0.5)_0%,transparent_70%)] -z-20"></div>
-      <div className="absolute top-[10%] left-[10%] w-[500px] h-[500px] bg-rose-100/40 rounded-full blur-[100px] -z-10"></div>
-      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-pink-50/50 rounded-full blur-[120px] -z-10"></div>
+    <div className="min-h-[calc(100vh-5rem)] relative overflow-hidden">
+      {/* Soft Pastel Gradient Background */}
+      <div className="fixed inset-0 -z-20 bg-gradient-to-br from-[#fef5f8] via-[#fffbfc] to-[#ffffff]"></div>
 
-      {/* Hero Section */}
-      <section className="text-center space-y-8 max-w-4xl relative z-10">
-        <div className="inline-flex items-center gap-3 px-5 py-2 bg-white/50 backdrop-blur-sm border border-rose-100 rounded-full mb-4 animate-in fade-in slide-in-from-top-4 duration-1000">
-          <span className="w-1.5 h-1.5 rounded-full bg-rose-300"></span>
-          <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em]">Est. 2026 • Science-Backed Beauty</span>
-        </div>
+      {/* Dreamy Blur Overlays */}
+      <div className="fixed top-0 right-0 w-[800px] h-[800px] -z-10 opacity-50 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(252,232,238,0.3)_0%,rgba(254,245,248,0.2)_50%,transparent_100%)] blur-3xl rounded-full"></div>
+      </div>
+      <div className="fixed bottom-0 left-0 w-[600px] h-[600px] -z-10 opacity-35 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(248,250,249,0.4)_0%,rgba(254,254,254,0.2)_50%,transparent_100%)] blur-3xl rounded-full"></div>
+      </div>
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] -z-10 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,240,245,0.2)_0%,transparent_100%)] blur-[100px] rounded-full"></div>
+      </div>
 
-        <h1 className="text-6xl md:text-8xl font-serif text-slate-900 tracking-tighter leading-[0.9] animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          Unveil the <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-rose-400 italic">Truth</span>
-        </h1>
+      <main className="pt-10 pb-20 relative">
+        {/* Hero Section */}
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+          {/* Background Images with Gradient Overlay */}
+          <div className="absolute inset-0 z-0">
+            {/* Main hero image */}
+            <div className="absolute inset-0">
+              <img
+                src="https://images.unsplash.com/photo-1519084278803-b94f11e1c63b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
+                alt="Luxury skincare"
+                className="w-full h-full object-cover opacity-15"
+              />
+            </div>
 
-        <p className="text-xl md:text-2xl text-slate-500 font-light leading-relaxed max-w-2xl mx-auto animate-in fade-in duration-1000 delay-300">
-          Elevate your daily ritual with luxury ingredient intelligence. Discover exactly what you're applying to your skin.
-        </p>
-      </section>
-
-      {/* Action Card */}
-      <div className="mt-16 w-full max-w-xl bg-white/40 backdrop-blur-xl rounded-[3rem] border border-white/60 p-12 md:p-16 text-center shadow-[0_20px_50px_rgba(0,0,0,0.03)] animate-in zoom-in-95 duration-1000 delay-500">
-        <h2 className="text-3xl font-serif text-slate-800 mb-10 tracking-tight leading-tight">
-          {user ? (
-            <>Welcome back, <span className="text-rose-400">{user.name || 'Beautiful'}</span></>
-          ) : (
-            'Begin Your Transformation'
-          )}
-        </h2>
-
-        {!isLoading && (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            {user ? (
-              <>
-                <Link href="/analysis" className="group w-full sm:w-auto px-10 py-5 text-xs font-black tracking-[0.2em] uppercase text-white bg-slate-900 rounded-2xl hover:bg-slate-800 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-rose-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <span className="relative">Run Analysis</span>
-                </Link>
-                <Link href="/profile" className="w-full sm:w-auto px-10 py-5 text-xs font-black tracking-[0.2em] uppercase text-slate-600 bg-white border border-stone-100 rounded-2xl hover:bg-stone-50 transition-all duration-500 hover:-translate-y-1">
-                  My Profile
-                </Link>
-                <button onClick={logout} className="mt-6 sm:mt-0 sm:ml-4 text-[10px] font-bold text-slate-300 hover:text-rose-400 uppercase tracking-widest transition-colors">
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/register" className="group w-full sm:w-auto px-12 py-5 text-xs font-black tracking-[0.2em] uppercase text-white bg-rose-400 rounded-2xl hover:bg-rose-500 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <span className="relative">Get Started</span>
-                </Link>
-                <Link href="/login" className="w-full sm:w-auto px-12 py-5 text-xs font-black tracking-[0.2em] uppercase text-slate-700 bg-white border border-stone-100 rounded-2xl hover:bg-stone-50 transition-all duration-500 hover:-translate-y-1">
-                  Sign In
-                </Link>
-              </>
-            )}
+            {/* Gradient overlays for readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-[#fffbfc]/95 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#fef9fa]/50 via-transparent to-white/40" />
           </div>
-        )}
-      </div>
 
-      {/* Subtle Status */}
-      <div className="mt-24 opacity-40 hover:opacity-100 transition-opacity duration-700">
-        <div className="flex items-center gap-4 text-[10px] font-black tracking-[0.3em] uppercase text-slate-400">
-          <div className="h-px w-8 bg-slate-200"></div>
-          {error ? (
-            <span className="text-rose-400 flex items-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-rose-400 animate-pulse"></span>
-              {error}
-            </span>
-          ) : healthStatus ? (
-            <span className="text-emerald-500 flex items-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-              Cloud Sync Active
-            </span>
-          ) : (
-            <span>Connecting...</span>
-          )}
-          <div className="h-px w-8 bg-slate-200"></div>
+          <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Content */}
+              <div className="text-left">
+                <h1
+                  className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl mb-6 text-[var(--gray-800)] tracking-tight leading-[1.1]"
+                  style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}
+                >
+                  Discover Your
+                  <br />
+                  <span
+                    className="text-[var(--rose-500)]"
+                    style={{ fontWeight: 600 }}
+                  >
+                    Perfect Skin
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-[var(--gray-600)] max-w-xl mb-12 leading-relaxed">
+                  Luxury skincare analysis powered by AI. Personalized
+                  recommendations for your unique beauty journey.
+                </p>
+
+                {/* CTA Buttons */}
+                {!isLoading && (
+                  <div className="flex flex-wrap items-center gap-4">
+                    {user ? (
+                      <>
+                        <Link
+                          href="/analysis"
+                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          Run Analysis
+                        </Link>
+                        <Link
+                          href="/profile"
+                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
+                        >
+                          My Profile
+                        </Link>
+                        <button
+                          onClick={logout}
+                          className="px-6 py-4 text-sm font-bold text-gray-400 hover:text-rose-400 uppercase tracking-widest transition-colors"
+                        >
+                          Sign Out
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/register"
+                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          Start Analysis
+                        </Link>
+                        <Link
+                          href="/login"
+                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
+                        >
+                          Sign in
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Right: Lifestyle Images */}
+              <div className="hidden lg:grid grid-cols-2 gap-6">
+                {/* Image 1 - Large */}
+                <div className="col-span-2 relative group">
+                  <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-black/10">
+                    <img
+                      src="https://images.unsplash.com/photo-1632127469349-ed0845142227?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                      alt="Woman applying luxury serum"
+                      className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--rose-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </div>
+                </div>
+
+                {/* Image 2 - Small Left */}
+                <div className="relative group">
+                  <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
+                    <img
+                      src="https://images.unsplash.com/photo-1644915695094-d452a018e936?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
+                      alt="Luxury skincare products"
+                      className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--sage-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </div>
+                </div>
+
+                {/* Image 3 - Small Right */}
+                <div className="relative group mt-8">
+                  <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
+                    <img
+                      src="https://images.unsplash.com/photo-1585652757141-8837d676fac8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
+                      alt="Minimal skincare aesthetic"
+                      className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--rose-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Soft Decorative Blobs */}
+          <div className="absolute top-1/4 right-[10%] w-72 h-72 bg-[radial-gradient(circle_at_center,rgba(252,232,238,0.2)_0%,transparent_100%)] rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/4 left-[5%] w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(245,250,248,0.15)_0%,transparent_100%)] rounded-full blur-[140px] pointer-events-none" />
+        </section>
+
+        <div className="max-w-[1200px] mx-auto px-6 mt-12">
+          {/* Feature Cards */}
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'AI Analysis',
+                description: 'Advanced skin analysis using cutting-edge AI technology',
+                color: 'rose',
+              },
+              {
+                title: 'Personalized Care',
+                description: 'Tailored skincare routines designed just for you',
+                color: 'sage',
+              },
+              {
+                title: 'Expert Guidance',
+                description: 'Professional recommendations from skincare specialists',
+                color: 'rose',
+              },
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="group bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-lg shadow-black/5 border border-black/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-black/10"
+              >
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
+                    feature.color === 'rose'
+                      ? 'from-[var(--rose-100)] to-[var(--rose-200)]'
+                      : 'from-[var(--sage-100)] to-[var(--sage-200)]'
+                  } mb-6 flex items-center justify-center transition-all duration-500 group-hover:scale-110`}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-lg ${
+                      feature.color === 'rose'
+                        ? 'bg-[var(--rose-400)]'
+                        : 'bg-[var(--sage-400)]'
+                    }`}
+                  />
+                </div>
+                <h3
+                  className="text-2xl mb-3 text-[var(--gray-800)]"
+                  style={{ fontFamily: 'var(--font-serif)', fontWeight: 500 }}
+                >
+                  {feature.title}
+                </h3>
+                <p className="text-[var(--gray-600)] leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+
+        {/* Subtle Status */}
+        <div className="max-w-[1200px] mx-auto px-6 mt-24 opacity-40 hover:opacity-100 transition-opacity duration-700 flex justify-center">
+          <div className="flex items-center gap-4 text-[10px] font-black tracking-[0.3em] uppercase text-slate-400">
+            <div className="h-px w-8 bg-slate-200"></div>
+            {error ? (
+              <span className="text-rose-400 flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-rose-400 animate-pulse"></span>
+                {error}
+              </span>
+            ) : healthStatus ? (
+              <span className="text-emerald-500 flex items-center gap-2">
+                <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                Cloud Sync Active
+              </span>
+            ) : (
+              <span>Connecting...</span>
+            )}
+            <div className="h-px w-8 bg-slate-200"></div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

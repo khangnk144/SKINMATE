@@ -1,11 +1,16 @@
 # SKINMATE - API Specification (v1)
 
+> **Last Updated:** April 29, 2026  
+> **Status:** All endpoints implemented.
+
 ## 1. General Info
 * **Base URL:** `/api/v1`
 * **Content-Type:** `application/json`
 * **Authentication:** Bearer Token (JWT) in the `Authorization` header.
+* **Server Port:** `5000` (development)
 
 ## 2. Standard Response Format
+
 ### Success
 ```json
 {
@@ -13,10 +18,9 @@
   "data": { ... },
   "meta": { "timestamp": "..." }
 }
-````
+```
 
 ### Error
-
 ```json
 {
   "success": false,
@@ -28,53 +32,99 @@
 }
 ```
 
-## 3\. Core Endpoints
+## 3. Core Endpoints
 
-### Auth
+### Auth (`/api/v1/auth`)
 
-  * `POST /auth/register`: Register new user (Username, Password, SkinType).
-  * `POST /auth/login`: Returns JWT.
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/auth/register` | ❌ | Register a new user (`username`, `password`, `skinType`) |
+| `POST` | `/auth/login` | ❌ | Returns JWT token. Rejects locked accounts (`isActive: false`) |
 
-### Analysis (The Core Feature)
+### User Profile (`/api/v1/users`)
 
-  * **POST /analysis/check**
-      * **Body:** `{ "inciString": "Water, Glycerin, ..." }`
-      * **Logic:** Requires Auth. Matches ingredients against User's skin type.
-      * **Response:** List of ingredients with safety effects (GOOD/BAD/NEUTRAL).
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/users/profile` | ✅ User | Get authenticated user's profile |
+| `PUT` | `/users/profile` | ✅ User | Update skin type and/or username |
 
-### Products
+### Analysis (`/api/v1/analysis`)
 
-  * `GET /products/recommendations`: Returns top safe products based on user's skin type.
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/analysis/check` | ✅ User | Analyze an INCI string. Saves result to history automatically. |
 
-### History
+**Request Body:**
+```json
+{ "inciString": "Water, Glycerin, Niacinamide, ..." }
+```
+**Response:** Array of ingredient results with `originalName`, `mappedName`, `effect` (`GOOD`/`BAD`/`NEUTRAL`), and `description`.
 
-  * `GET /history`: Returns the authenticated user's analysis history, ordered by most recent.
+### Products (`/api/v1/products`)
 
-### User Profile
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/products/recommendations` | ✅ User | Returns all products safe for the user's skin type (excludes any product with a BAD ingredient for that skin type) |
 
-  * `GET /users/profile`: Get authenticated user's profile.
-  * `PUT /users/profile`: Update authenticated user's skin type.
+### History (`/api/v1/history`)
 
-### Admin CRUD (Protected - ADMIN role only)
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/history` | ✅ User | Returns the authenticated user's analysis history, ordered by most recent |
+| `DELETE` | `/history/:id` | ✅ User | Deletes a specific history entry by ID |
+| `DELETE` | `/history` | ✅ User | Clears ALL history entries for the authenticated user |
 
-  * **Ingredients:**
-    * `GET /admin/ingredients`: List all ingredients.
-    * `POST /admin/ingredients`: Create a new ingredient.
-    * `PUT /admin/ingredients/:id`: Update an ingredient.
-    * `DELETE /admin/ingredients/:id`: Delete an ingredient.
-  * **Rules:**
-    * `GET /admin/rules`: List all safety rules.
-    * `POST /admin/rules`: Create/Update a safety rule.
-    * `DELETE /admin/rules/:id`: Delete a safety rule.
-  * **Products:**
-    * `GET /admin/products`: List all products.
-    * `POST /admin/products`: Create a new product.
-    * `PUT /admin/products/:id`: Update a product.
-    * `DELETE /admin/products/:id`: Delete a product.
+### Admin CRUD — Ingredients (`/api/v1/admin/ingredients`)
 
-## 4\. Error Codes
+> All admin routes require **both** `authMiddleware` AND `adminMiddleware`.
 
-  * `AUTH_FAILED`: Invalid credentials.
-  * `UNAUTHORIZED`: Missing or invalid token.
-  * `VALIDATION_ERROR`: Input format is incorrect (e.g., empty INCI string).
-  * `DB_ERROR`: Database connection or query issue.
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/ingredients` | List all ingredients |
+| `POST` | `/admin/ingredients` | Create a new ingredient (name auto-normalized to lowercase) |
+| `PUT` | `/admin/ingredients/:id` | Update an ingredient's name or description |
+| `DELETE` | `/admin/ingredients/:id` | Delete an ingredient (cascades to rules and product links) |
+
+### Admin CRUD — Rules (`/api/v1/admin/rules`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/rules` | List all safety rules (includes ingredient info) |
+| `POST` | `/admin/rules` | Create or update a rule (`ingredientId`, `skinType`, `effect`) |
+| `DELETE` | `/admin/rules/:id` | Delete a specific rule |
+
+### Admin CRUD — Products (`/api/v1/admin/products`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/products` | List all products (includes ingredient list) |
+| `POST` | `/admin/products` | Create a product. Accepts `name`, `brand`, `imageUrl`, `ingredientNames` (INCI string parsed automatically) |
+| `PUT` | `/admin/products/:id` | Update a product. Replaces ingredient relations |
+| `DELETE` | `/admin/products/:id` | Delete a product (cascades to product-ingredient links) |
+
+### Admin — User Management (`/api/v1/admin/users`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/users` | List all users (excludes `passwordHash`). Includes `skinType`, `role`, `isActive` |
+| `PATCH` | `/admin/users/:id/status` | Toggle `isActive` for a user (lock/unlock account) |
+| `DELETE` | `/admin/users/:id` | Permanently delete a user account |
+
+### Admin — Reports (`/api/v1/admin/reports`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/reports` | Returns: `totalUsers`, `totalAnalyses`, `skinTypeDistribution` (array of `{ type, count }`) |
+
+## 4. Error Codes
+
+| Code | Meaning |
+|------|---------|
+| `AUTH_FAILED` | Invalid credentials (wrong password or username) |
+| `ACCOUNT_LOCKED` | Account has been locked by an administrator |
+| `UNAUTHORIZED` | Missing or invalid JWT token |
+| `FORBIDDEN` | Authenticated but insufficient role (e.g., non-admin on admin route) |
+| `VALIDATION_ERROR` | Input format is incorrect (e.g., empty INCI string) |
+| `NOT_FOUND` | Requested resource does not exist |
+| `CONFLICT` | Resource already exists (e.g., duplicate ingredient name) |
+| `DB_ERROR` | Database connection or query issue |

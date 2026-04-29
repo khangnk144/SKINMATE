@@ -1,7 +1,7 @@
 # SKINMATE — Project Status & Complete Guide
 
-> **Last Updated:** April 23, 2026  
-> **Current Phase:** Luxury UI Overhaul + Admin Dashboard (Completed)
+> **Last Updated:** April 29, 2026  
+> **Current Phase:** MVP Complete — All Features Implemented & Deployed Locally
 
 ---
 
@@ -21,12 +21,12 @@
 ## 1. What is SKINMATE?
 
 SKINMATE is a **luxury skincare ingredient analysis web application**. Users can:
-- **Register/Login** to create a personal account.
+- **Register/Login** to create a personal account (locked accounts are blocked from logging in).
 - **Set their skin type** (Oily, Dry, Sensitive, Combination, Normal).
 - **Paste an INCI ingredient list** (the list printed on the back of skincare products) and get a color-coded safety analysis based on their skin type.
-- **See product recommendations** that are safe for their skin.
-- **View their analysis history** to revisit past scans.
-- **Admin users** can manage the database of ingredients, safety rules, and products.
+- **See product recommendations** that are safe for their skin — products with any ingredient flagged as BAD for the user's skin type are automatically excluded.
+- **View and manage their analysis history** — re-analyze past entries or delete individual/all records.
+- **Admin users** can manage the full database of ingredients, safety rules, and products, as well as view statistical reports and manage user accounts (lock/unlock/delete).
 
 ---
 
@@ -43,7 +43,6 @@ If you've never coded before, here's what each file extension means and why it e
 | `.js` | **JavaScript** | The original programming language of the web. Browsers can only run JavaScript natively. Some config files still use plain `.js` because they don't need TypeScript's extra features. |
 | `.mjs` | **JavaScript Module** | Same as `.js` but explicitly tells the system "this file uses the modern `import/export` style." Used for config files like ESLint and PostCSS. |
 | `.css` | **Cascading Style Sheets** | Controls the **visual appearance** of the website — colors, fonts, spacing, sizes, animations. Think of it as the "paint and decoration" of a house. |
-| `.sql` | **SQL (Structured Query Language)** | Database commands. These files contain instructions to create tables, add columns, etc. in the MySQL database. |
 | `.prisma` | **Prisma Schema** | A special file that describes your database structure in human-readable format. Prisma (a tool) reads this and creates the actual database tables for you. |
 | `.svg` | **Scalable Vector Graphics** | An image format that uses math instead of pixels, so it stays sharp at any size. Used for icons and logos. |
 
@@ -78,6 +77,7 @@ Below is every folder and file in the project. Folders marked with 📁, files w
 SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │
 ├── 📄 STATUS.md                   ← This file! Documents everything about the project
+├── 📄 .gitignore                  ← Root-level gitignore (excludes .env, node_modules, etc.)
 │
 ├── 📁 docs/                       ← 📚 PROJECT DOCUMENTATION (planning & rules)
 │   ├── 📄 README.md               ← Overview of documentation folder
@@ -92,7 +92,9 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       ├── 📄 03-core-analysis.md ← Spec for the INCI ingredient analysis engine
 │       ├── 📄 04-recommendation.md← Spec for safe product recommendations
 │       ├── 📄 05-history.md       ← Spec for analysis history tracking
-│       └── 📄 06-admin-crud.md    ← Spec for admin panel (manage ingredients/rules/products)
+│       ├── 📄 06-admin-crud.md    ← Spec for admin panel (manage ingredients/rules/products)
+│       ├── 📄 07-admin-users-reports.md ← Spec for admin user management & statistical reports
+│       └── 📄 08-design-system.md ← Spec for the luxury UI/UX design system
 │
 ├── 📁 backend/                    ← 🖥️ THE SERVER (processes data, talks to database)
 │   ├── 📄 .env                    ← Secret settings (database connection URL, JWT secret)
@@ -118,23 +120,23 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   ├── 📄 user.routes.ts      ← /api/v1/users/profile (GET & PUT)
 │       │   ├── 📄 analysis.routes.ts  ← /api/v1/analysis/check (POST)
 │       │   ├── 📄 product.routes.ts   ← /api/v1/products/recommendations (GET)
-│       │   ├── 📄 history.routes.ts   ← /api/v1/history (GET)
-│       │   └── 📄 admin.routes.ts     ← /api/v1/admin/* (CRUD for ingredients/rules/products)
+│       │   ├── 📄 history.routes.ts   ← /api/v1/history (GET, DELETE /:id, DELETE /)
+│       │   └── 📄 admin.routes.ts     ← /api/v1/admin/* (CRUD + users + reports)
 │       │
 │       ├── 📁 controllers/        ← 🎮 REQUEST HANDLERS (receive request → call service → send response)
 │       │   ├── 📄 auth.controller.ts      ← Handles register & login requests
 │       │   ├── 📄 user.controller.ts      ← Handles profile view & update requests
 │       │   ├── 📄 analysis.controller.ts  ← Handles ingredient analysis requests
 │       │   ├── 📄 product.controller.ts   ← Handles product recommendation requests
-│       │   ├── 📄 history.controller.ts   ← Handles history retrieval requests
-│       │   └── 📄 admin.controller.ts     ← Handles all admin CRUD requests
+│       │   ├── 📄 history.controller.ts   ← Handles history retrieval & deletion requests
+│       │   └── 📄 admin.controller.ts     ← Handles all admin CRUD, user mgmt & reports
 │       │
 │       ├── 📁 services/           ← ⚙️ BUSINESS LOGIC (the actual "brains" — does the real work)
-│       │   ├── 📄 auth.service.ts      ← Hashes passwords, creates JWT tokens, validates logins
+│       │   ├── 📄 auth.service.ts      ← Hashes passwords, creates JWT tokens, validates logins, blocks locked accounts
 │       │   ├── 📄 user.service.ts      ← Reads/updates user profile data in the database
 │       │   ├── 📄 analysis.service.ts  ← Parses INCI strings, looks up safety rules per skin type
-│       │   ├── 📄 product.service.ts   ← Filters products to exclude those with bad ingredients
-│       │   └── 📄 admin.service.ts     ← Create/Read/Update/Delete for ingredients, rules, products
+│       │   ├── 📄 product.service.ts   ← Safety-first filter: excludes products with BAD ingredients for user's skin type
+│       │   └── 📄 admin.service.ts     ← CRUD for ingredients/rules/products + user management + reports
 │       │
 │       ├── 📁 middlewares/        ← 🔒 SECURITY GUARDS (run BEFORE a request reaches the controller)
 │       │   ├── 📄 auth.middleware.ts   ← Checks if the user is logged in (valid JWT token)
@@ -144,14 +146,14 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   └── 📄 prisma.ts           ← Creates & exports the database connection object
 │       │
 │       └── 📁 tests/              ← 🧪 AUTOMATED TESTS (verify code works correctly)
-│           ├── 📄 auth.controller.test.ts     ← Tests for register & login
+│           ├── 📄 auth.controller.test.ts     ← Tests for register & login (incl. locked account)
 │           ├── 📄 auth.middleware.test.ts      ← Tests for the login-check middleware
 │           ├── 📄 user.routes.test.ts         ← Tests for profile endpoints
 │           ├── 📄 analysis.controller.test.ts ← Tests for analysis endpoint
 │           ├── 📄 analysis.service.test.ts    ← Tests for INCI parsing logic
-│           ├── 📄 product.service.test.ts     ← Tests for recommendation filtering
-│           ├── 📄 history.controller.test.ts  ← Tests for history endpoint
-│           └── 📄 admin.routes.test.ts        ← Tests for admin CRUD endpoints
+│           ├── 📄 product.service.test.ts     ← Tests for safety-first recommendation filtering
+│           ├── 📄 history.controller.test.ts  ← Tests for history GET & DELETE endpoints
+│           └── 📄 admin.routes.test.ts        ← Tests for admin CRUD & authorization
 │
 └── 📁 frontend/                   ← 🎨 THE WEBSITE (what users see and interact with)
     ├── 📄 .gitignore              ← Files that Git should ignore in this folder
@@ -161,11 +163,10 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
     ├── 📄 package.json            ← Lists all frontend dependencies and run scripts
     ├── 📄 package-lock.json       ← Auto-generated: locks exact dependency versions
     ├── 📄 tsconfig.json           ← TypeScript settings for the frontend
-    ├── 📄 next.config.ts          ← Next.js framework configuration
+    ├── 📄 next.config.ts          ← Next.js configuration (incl. allowed image domains)
     ├── 📄 next-env.d.ts           ← Auto-generated: TypeScript type definitions for Next.js
     ├── 📄 eslint.config.mjs       ← ESLint settings (code quality checker)
     ├── 📄 postcss.config.mjs      ← PostCSS settings (processes CSS, enables TailwindCSS)
-    ├── 📁 .git/                   ← [AUTO-GENERATED] Git version control data
     ├── 📁 .next/                  ← [AUTO-GENERATED] Next.js build cache (do NOT edit)
     ├── 📁 node_modules/           ← [AUTO-GENERATED] Downloaded library code (do NOT edit)
     │
@@ -192,10 +193,10 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
             ├── 📄 favicon.ico     ← Browser tab icon for the website
             ├── 📄 globals.css     ← Global styles that apply to every page
             ├── 📄 layout.tsx      ← Shared layout: header (navbar), footer, fonts, and AuthProvider
-            ├── 📄 page.tsx        ← HOME PAGE (/) — hero section, login/register or analysis buttons
+            ├── 📄 page.tsx        ← HOME PAGE (/) — luxury hero section with gradient aura background
             │
             ├── 📁 login/
-            │   └── 📄 page.tsx    ← LOGIN PAGE (/login) — email & password form
+            │   └── 📄 page.tsx    ← LOGIN PAGE (/login) — split-screen glassmorphism form
             │
             ├── 📁 register/
             │   └── 📄 page.tsx    ← REGISTER PAGE (/register) — create account form
@@ -204,10 +205,10 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
             │   └── 📄 page.tsx    ← PROFILE PAGE (/profile) — view & edit skin type
             │
             ├── 📁 analysis/
-            │   └── 📄 page.tsx    ← ANALYSIS PAGE (/analysis) — paste ingredients, see safety results
+            │   └── 📄 page.tsx    ← ANALYSIS PAGE (/analysis) — paste ingredients, see safety results + recommendations
             │
             ├── 📁 history/
-            │   └── 📄 page.tsx    ← HISTORY PAGE (/history) — view past analyses, re-analyze
+            │   └── 📄 page.tsx    ← HISTORY PAGE (/history) — view/delete past analyses, re-analyze
             │
             └── 📁 admin/          ← 🔐 ADMIN SECTION (only accessible by admin users)
                 ├── 📄 layout.tsx  ← Admin layout with sidebar navigation
@@ -216,8 +217,12 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
                 │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete)
                 ├── 📁 rules/
                 │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete)
-                └── 📁 products/
-                    └── 📄 page.tsx ← Manage products (add/edit/delete)
+                ├── 📁 products/
+                │   └── 📄 page.tsx ← Manage products with INCI string input (add/edit/delete)
+                ├── 📁 users/
+                │   └── 📄 page.tsx ← Manage user accounts (lock/unlock/delete with confirmation modal)
+                └── 📁 reports/
+                    └── 📄 page.tsx ← Statistical dashboard (total users, analyses, skin type pie chart)
 ```
 
 ---
@@ -287,13 +292,14 @@ Automated tests are programs that run your code with fake inputs and check if th
 | **UI Library** | React 19 | Creates interactive user interfaces |
 | **Styling** | TailwindCSS 4 | Utility-first CSS for rapid, beautiful design |
 | **Frontend Language** | TypeScript | Type-safe JavaScript for fewer bugs |
+| **Charts** | Recharts 3 | Data visualization for admin reports (Pie Charts) |
+| **Icons** | Lucide React | Beautiful, consistent icon library |
 | **Backend Framework** | Express.js 4 | Handles HTTP requests on the server |
 | **Backend Language** | TypeScript (Node.js) | Server-side logic |
 | **Database** | MySQL 8.0 (via Docker) | Stores all data (users, ingredients, products) |
 | **ORM** | Prisma 5 | Translates between code and database queries |
 | **Authentication** | bcryptjs + jsonwebtoken | Securely hashes passwords and manages login sessions |
 | **Testing** | Jest + Supertest | Automated testing for backend endpoints |
-| **Icons** | Lucide React | Beautiful, consistent icon library |
 | **Code Quality** | ESLint | Catches code style issues and potential bugs |
 | **Dev Server** | Nodemon | Auto-restarts backend when code changes |
 
@@ -302,9 +308,9 @@ Automated tests are programs that run your code with fake inputs and check if th
 ## 6. Completed Features
 
 ### Feature 01: Authentication (Registration & Login)
-- **Backend:** Secure password hashing with `bcryptjs`, JWT token generation, `/register` and `/login` endpoints.
-- **Frontend:** Luxury-styled login and register forms with form validation and error handling.
-- **Testing:** Full unit tests for auth controller.
+- **Backend:** Secure password hashing with `bcryptjs`, JWT token generation, `/register` and `/login` endpoints. Login is **blocked for locked accounts** (`isActive: false`) with a clear error message.
+- **Frontend:** Luxury split-screen login and register forms with glassmorphism card, form validation, and error handling.
+- **Testing:** Full unit tests for auth controller including locked account scenario.
 
 ### Feature 02: User Profile & Skin Type Management
 - **Backend:** Protected `GET` and `PUT` endpoints for `/api/v1/users/profile`. Auth middleware for route protection.
@@ -313,37 +319,57 @@ Automated tests are programs that run your code with fake inputs and check if th
 
 ### Feature 03: Core INCI Analysis Engine
 - **Database:** Seed script with sample ingredients and skin-type-specific safety rules.
-- **Backend:** `POST /api/v1/analysis/check` — parses INCI strings, normalizes names, queries safety rules based on user's skin type.
-- **Frontend:** Analysis page with textarea input, color-coded results (🟢 GOOD, 🔴 BAD, ⚪ NEUTRAL), and ingredient descriptions.
+- **Backend:** `POST /api/v1/analysis/check` — parses INCI strings, normalizes names, queries safety rules based on user's skin type. Results are automatically saved to `AnalysisHistory`.
+- **Frontend:** Analysis page with split-screen layout, textarea input, color-coded results (🟢 GOOD, 🔴 BAD, ⚪ NEUTRAL), and ingredient descriptions.
 - **Testing:** Unit tests for string parsing, rule-matching, and edge cases.
 
 ### Feature 04: Safe Product Recommendations
-- **Backend:** `GET /api/v1/products/recommendations` — filters out products containing ingredients flagged as BAD for the user's skin type.
-- **Frontend:** Product cards grid displayed on the analysis page.
-- **Testing:** Unit tests for recommendation filtering logic.
+- **Backend:** `GET /api/v1/products/recommendations` — uses a **safety-first filter**: excludes any product that contains an ingredient flagged as `BAD` for the user's skin type. All remaining safe products are returned.
+- **Frontend:** "Recommended for You" section on the analysis page, rendered **only after** the user submits an INCI string for analysis. Displays product cards in a responsive grid.
+- **Testing:** Unit tests verifying that the returned products contain zero BAD ingredients for the user's skin type.
 
 ### Feature 05: Analysis History
-- **Backend:** Analysis results are automatically saved. `GET /api/v1/history` retrieves past analyses. `DELETE /api/v1/history/:id` and `DELETE /api/v1/history` (clear all) allow users to manage their data.
+- **Backend:**
+  - Analysis results are automatically saved to `AnalysisHistory` on every successful check.
+  - `GET /api/v1/history` — retrieves past analyses ordered by newest first.
+  - `DELETE /api/v1/history/:id` — deletes a specific history entry.
+  - `DELETE /api/v1/history` — clears all history for the authenticated user.
 - **Frontend:** Luxury history page with:
   - List of past analyses with timestamps.
   - **Re-analyze** button to quickly rerun checks.
-  - **Delete** individual entries with confirmation.
+  - **Delete** individual entries with confirmation prompt.
   - **Clear All** history option.
   - Responsive layout and smooth animations.
-- **Testing:** Unit tests for history and deletion endpoints.
+- **Testing:** Unit tests for history retrieval and both deletion endpoints.
 
-### Feature 06: Admin Dashboard (CRUD)
-- **Backend:** Full Create/Read/Update/Delete endpoints for ingredients, safety rules, and products under `/api/v1/admin/*`. Protected by admin middleware.
-- **Frontend:** Admin panel with sidebar navigation and dedicated management pages for ingredients, rules, and products. Only accessible to ADMIN role users.
-- **Testing:** Unit tests for admin routes.
+### Feature 06: Admin Dashboard — Ingredients, Rules & Products CRUD
+- **Backend:** Full Create/Read/Update/Delete endpoints for ingredients, safety rules, and products under `/api/v1/admin/*`. Protected by both `authMiddleware` and `adminMiddleware`.
+  - Products accept an INCI string as input; ingredients are auto-resolved (found or created) from the string.
+- **Frontend:** Admin panel with sidebar navigation and dedicated management pages for ingredients, rules, and products. Only accessible to `ADMIN` role users.
+- **Testing:** Unit tests for admin routes including 403 Forbidden enforcement for non-admin users.
 
-### Luxury UI Overhaul
-- Applied a premium design system across all pages using:
-  - **Playfair Display** (serif) for headings and **Inter** (sans-serif) for body text.
-  - Dusty rose and slate color palette.
-  - Glassmorphism effects (frosted glass header).
-  - Micro-animations and hover effects.
-  - Fully responsive layouts (mobile, tablet, desktop).
+### Feature 07: Admin — User Management & Statistical Reports
+- **Database:** `User` model includes `isActive Boolean @default(true)` for account status tracking.
+- **Backend:**
+  - `GET /api/v1/admin/users` — lists all users (excluding password hash).
+  - `PATCH /api/v1/admin/users/:id/status` — toggles `isActive` (lock/unlock account).
+  - `DELETE /api/v1/admin/users/:id` — permanently deletes a user account.
+  - `GET /api/v1/admin/reports` — aggregates: total users, total analyses, skin type distribution.
+- **Frontend:**
+  - **Users tab:** Data table with Lock/Unlock toggle and Delete button. All destructive actions trigger a **confirmation modal**.
+  - **Reports tab:** Summary metric cards (Total Users, Total Analyses) + Pie Chart (skin type distribution via `recharts`).
+- **Testing:** Endpoints verified through admin routes test suite.
+
+### Feature 08: Luxury UI/UX Design System
+- Applied a premium, high-end design system across all pages using:
+  - **Playfair Display** (serif) for headings and **Inter** (sans-serif) for body text (via Google Fonts).
+  - Dusty rose and sage green color palette as the core visual language.
+  - **Glassmorphism** effects — frosted glass cards with `backdrop-blur` and `border-white/20`.
+  - **Gradient aura backgrounds** — soft pink blurred blobs on the home page and key sections.
+  - Split-screen layouts on auth and analysis pages.
+  - Micro-animations and hover effects throughout.
+  - Fully responsive layouts (mobile → tablet → desktop).
+  - Next.js `<Image>` configured with `remotePatterns` to support external image hosting (e.g., `i.postimg.cc`).
 
 ---
 
@@ -387,4 +413,5 @@ This opens a database viewer at **http://localhost:5555**.
 
 - [ ] **Product Scanning (OCR/Image)** — Allow users to upload a photo of a product label to automatically extract the INCI ingredient list.
 - [ ] **Advanced Filtering** — Let users filter analysis results or products by category, brand, or safety rating.
-- [ ] **Deployment** — Deploy the app to a cloud hosting service so others can access it online.
+- [ ] **Weighted Scoring System** — Rank recommendations by a composite score based on the number and weight of GOOD ingredients, not just the absence of BAD ones.
+- [ ] **Deployment** — Deploy the app to a cloud hosting service (e.g., Vercel for frontend, Railway/Render for backend) so others can access it online.

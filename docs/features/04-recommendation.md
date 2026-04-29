@@ -1,29 +1,33 @@
 # Feature 04: Safe Product Recommendations
 
+> **Status: ✅ Implemented**
+
 ## 1. Overview
-After analyzing ingredients or based on the user's profile, the system should recommend the Top 3 skincare products that are completely safe for their specific `skinType`. A product is considered "safe" if it does NOT contain any ingredients marked as `BAD` for that user's skin type.
 
-## 2. Backend Requirements (/backend)
-* **GET /api/v1/products/recommendations:**
-  * **Middleware:** Requires `authMiddleware` (to extract the user's `skinType`).
-  * **Logic Pipeline:**
-    1. Query the `Product` table.
-    2. Join the `ProductIngredient` and `Ingredient` tables.
-    3. **Crucial Filtering:** Exclude any product that contains an ingredient where the `IngredientRule` for the user's `skinType` is `BAD`. 
-    4. Limit the result to 3 products.
-  * **Response:** Array of product objects including `id`, `name`, `brand`, and `imageUrl`.
+After the user submits an INCI ingredient list for analysis, the system automatically shows the "Recommended for You" section. Only products that are **completely safe** for the user's specific `skinType` are shown. A product is considered safe if it does **NOT** contain any ingredient marked as `BAD` for that user's skin type.
 
-## 3. Database Seeding Update
-* Update `prisma/seed.ts` to include at least 5 dummy `Product` records.
-* Link these products to ingredients via the `ProductIngredient` table. Ensure some products contain "BAD" ingredients for certain skin types, and some are completely safe, so the filtering logic can be accurately tested.
+## 2. Backend Implementation (`/backend`)
 
-## 4. Frontend Requirements (/frontend)
-* **Integration:** Display this feature on the `/analysis` page, right below the INCI analysis results.
-* **UI/UX:** Use TailwindCSS to build a "Recommended for You" section.
-  * Display the 3 products using a clean `ProductCard` component.
-  * Each card should show a placeholder image (e.g., using a generic UI avatars/images service or a gray block), the product `brand` (small text), and `name` (bold text).
-  * Use a responsive grid (1 column on mobile, 3 columns on desktop).
-* **Behavior:** Fetch these recommendations automatically when the user visits the page or finishes an analysis.
+**`GET /api/v1/products/recommendations`**
+* **Middleware:** `authMiddleware` (extracts the user's `skinType` from JWT).
+* **Logic Pipeline (in `product.service.ts`):**
+  1. Fetch ALL products from the database, including their ingredients and the skin-type-specific rules.
+  2. **Safety-first filter:** Exclude any product where at least one ingredient has `effect === 'BAD'` for the user's `skinType`.
+  3. Return all remaining safe products.
+* **Response:** Array of `{ id, name, brand, imageUrl }` objects.
 
-## 5. Testing
-* Write backend tests to verify that the returned products DO NOT contain any "BAD" ingredients for the mocked user's skin type.
+> **Note:** There is no limit on the number of results — all safe products are returned. The frontend handles display.
+
+## 3. Frontend Implementation (`/frontend`)
+
+* **Integration:** Rendered on the `/analysis` page below the INCI analysis results.
+* **Conditional rendering:** The "Recommended for You" section is **hidden on initial page load** and only appears after the user submits an ingredient list for analysis. This prevents a confusing empty state.
+* **UI/UX:** Uses `ProductCard` component in a responsive grid (1 column on mobile, up to 3 columns on desktop).
+* **Image support:** Next.js `next.config.ts` is configured with `remotePatterns` to allow external image domains (e.g., `i.postimg.cc`).
+
+## 4. Testing
+
+Backend tests in `product.service.test.ts` verify:
+* Returned products contain **zero** BAD ingredients for the mocked user's skin type.
+* Products with even a single BAD ingredient for the target skin type are excluded.
+* Products with no ingredients, or ingredients with no rules, are included (safe by default).

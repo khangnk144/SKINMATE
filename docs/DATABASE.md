@@ -1,24 +1,37 @@
 # SKINMATE - Database Documentation
 
+> **Last Updated:** April 29, 2026
+
 ## 1. Overview
+
 The database is designed to handle skincare ingredient analysis using a normalized relational model. It focuses on fast lookup for ingredient safety based on user skin types.
 
-* **Engine:** MySQL.
-* **ORM:** Prisma.
+* **Engine:** MySQL 8.0 (running via Docker container `skinmate-mysql`).
+* **ORM:** Prisma 5.
 * **Naming Convention:** `snake_case` for database tables/columns, `PascalCase` for Prisma models.
 
-## 2. Entity Relationship Diagram (Conceptual)
-- **User** (1) ---- (N) **AnalysisHistory**
-- **Ingredient** (1) ---- (N) **IngredientRule**
-- **Ingredient** (1) ---- (N) **ProductIngredient**
-- **Product** (1) ---- (N) **ProductIngredient**
+## 2. Entity Relationship Diagram
 
-## 3. Data Models (Prisma Schema)
-Copy this content into your `prisma/schema.prisma` file. This is the source of truth for the database setup.
+```
+User (1) ──────────────── (N) AnalysisHistory
+  │ id, username, passwordHash,
+  │ skinType, role, isActive,
+  │ createdAt, updatedAt
+
+Ingredient (1) ──────────── (N) IngredientRule
+  │ id, name, description          │ id, ingredientId, skinType, effect
+  │                                │ UNIQUE(ingredientId, skinType)
+
+Ingredient (1) ──────────── (N) ProductIngredient (N) ──────────── (1) Product
+                                  │ productId, ingredientId, position
+                                  │ PRIMARY KEY(productId, ingredientId)
+```
+
+## 3. Data Models (Live Prisma Schema)
+
+This is the current source-of-truth `prisma/schema.prisma`:
 
 ```prisma
-// This is your Prisma schema file
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -53,6 +66,7 @@ model User {
   passwordHash  String
   skinType      SkinType?         @default(NORMAL)
   role          UserRole          @default(USER)
+  isActive      Boolean           @default(true)   // false = locked account
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   histories     AnalysisHistory[]
@@ -89,7 +103,7 @@ model Product {
 model ProductIngredient {
   productId    String
   ingredientId Int
-  position     Int // Order of ingredient in the list
+  position     Int // Order of ingredient in the list (1-indexed)
 
   product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
@@ -107,12 +121,79 @@ model AnalysisHistory {
 }
 ```
 
-## 4. Key Implementation Rules
-* **Standardization:** All ingredient names must be converted to `lowercase` before being saved or queried to ensure matching accuracy.
-* **Referential Integrity:** Use `onDelete: Cascade` for relationships so that deleting a user or ingredient cleans up related records.
-* **Indexing:** The `name` field in the `Ingredient` table is indexed (Unique) to ensure O(1) or O(log n) lookup speed during analysis.
+## 4. Field Reference
 
-## 5. Migration Workflow
-1. Modify the `schema.prisma` file.
+### User
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | UUID string | Primary key |
+| `username` | String | Unique, used for login |
+| `passwordHash` | String | bcryptjs hash, never exposed via API |
+| `skinType` | Enum (SkinType?) | Nullable; defaults to `NORMAL` |
+| `role` | Enum (UserRole) | `USER` or `ADMIN`; defaults to `USER` |
+| `isActive` | Boolean | `false` = locked. Login is rejected for locked accounts |
+| `createdAt` | DateTime | Auto-set on creation |
+| `updatedAt` | DateTime | Auto-updated on every change |
+
+### Ingredient
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | Int | Auto-increment primary key |
+| `name` | String | Unique, **always lowercase** for matching accuracy |
+| `description` | Text? | Optional explanation for display in analysis results |
+
+### IngredientRule
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | Int | Auto-increment primary key |
+| `ingredientId` | Int | FK → Ingredient |
+| `skinType` | Enum (SkinType) | Which skin type this rule applies to |
+| `effect` | Enum (SafetyEffect) | `GOOD`, `BAD`, or `NEUTRAL` |
+| *(unique)* | — | `(ingredientId, skinType)` is unique — one rule per pair |
+
+### Product
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | UUID string | Primary key |
+| `name` | String | Product display name |
+| `brand` | String | Brand name |
+| `imageUrl` | String? | Optional URL to product image |
+| `createdAt` | DateTime | Auto-set on creation |
+
+### ProductIngredient (Junction Table)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `productId` | String | FK → Product |
+| `ingredientId` | Int | FK → Ingredient |
+| `position` | Int | 1-indexed order in the INCI list |
+| *(PK)* | — | Composite PK: `(productId, ingredientId)` |
+
+### AnalysisHistory
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | UUID string | Primary key |
+| `userId` | String | FK → User |
+| `rawInput` | Text | The original INCI string the user submitted |
+| `createdAt` | DateTime | Timestamp of the analysis |
+
+## 5. Key Implementation Rules
+
+* **Ingredient Name Normalization:** All ingredient names MUST be converted to `lowercase` before being saved or queried. This is enforced in `admin.service.ts` (`createIngredient`, `updateIngredient`, `findOrCreateIngredients`) and `analysis.service.ts`.
+* **Referential Integrity:** `onDelete: Cascade` is used on all foreign key relations to ensure that deleting a parent record (User, Ingredient, Product) automatically cleans up all dependent child records.
+* **Unique Rule Constraint:** The `@@unique([ingredientId, skinType])` constraint on `IngredientRule` prevents duplicate rules. The admin service uses an upsert pattern (find → update if exists, else create).
+* **Indexing:** The `name` field in `Ingredient` is indexed (Unique) to ensure O(log n) lookup speed during analysis.
+
+## 6. Migration Workflow
+
+1. Modify `prisma/schema.prisma`.
 2. Run `npx prisma migrate dev --name <migration_name>`.
-3. AI must generate seed data for common ingredients to test the "Dusty Rose/Sage Green" (BAD/GOOD) logic.
+3. Run `npx prisma generate` to regenerate the Prisma Client.
+4. Run `npx prisma db seed` to (re-)populate sample data.
+
+> ⚠️ **Never modify the schema without explicit user confirmation.** Migrations are permanent database changes.
