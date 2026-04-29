@@ -19,6 +19,8 @@ Register/Login
   → Paste INCI string (comma-separated)
   → System splits & trims, normalizes to lowercase
   → System matches against IngredientRules for the user's skin type
+  → Unknown ingredients (not in DB) → AI Fallback via Gemini 1.5 Flash
+  → AI results are auto-cached to DB (upsert) for future speed
   → Return visual color-coded results
   → Save raw input to AnalysisHistory
   → Show safe product recommendations (excluding products with BAD ingredients)
@@ -45,8 +47,10 @@ Register/Login
 | **Frontend** | Next.js 16 (App Router), React 19, TailwindCSS v4, TypeScript |
 | **Charts** | Recharts 3 (admin reports) |
 | **Backend** | Node.js, Express.js 4, TypeScript |
-| **Database** | MySQL 8.0 via Docker, Prisma 5 ORM |
+| **Database** | PostgreSQL 15 via Docker (`skinmate-postgres`), Prisma 5 ORM |
 | **Auth** | bcryptjs (password hashing) + jsonwebtoken (JWT, 24h expiry) |
+| **AI Integration** | Google Gemini 1.5 Flash API (ingredient analysis fallback) |
+| **Rate Limiting** | express-rate-limit (25 analyses/24h per user; unlimited for ADMIN) |
 | **Testing** | Jest & Supertest |
 | **Package Manager** | `npm` |
 

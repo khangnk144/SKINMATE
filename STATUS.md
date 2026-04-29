@@ -139,11 +139,13 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   └── 📄 admin.service.ts     ← CRUD for ingredients/rules/products + user management + reports
 │       │
 │       ├── 📁 middlewares/        ← 🔒 SECURITY GUARDS (run BEFORE a request reaches the controller)
-│       │   ├── 📄 auth.middleware.ts   ← Checks if the user is logged in (valid JWT token)
-│       │   └── 📄 admin.middleware.ts  ← Checks if the user is an ADMIN (not just logged in)
+│       │   ├── 📄 auth.middleware.ts      ← Checks if the user is logged in (valid JWT token)
+│       │   ├── 📄 admin.middleware.ts     ← Checks if the user is an ADMIN (not just logged in)
+│       │   └── 📄 rateLimit.middleware.ts ← Limits analysis to 25 calls/24h per user; ADMIN role is exempt
 │       │
 │       ├── 📁 utils/              ← 🔧 SHARED HELPERS (small reusable tools)
-│       │   └── 📄 prisma.ts           ← Creates & exports the database connection object
+│       │   ├── 📄 prisma.ts           ← Creates & exports the database connection object
+│       │   └── 📄 gemini.ts           ← Gemini AI client — calls Gemini 1.5 Flash for unknown ingredient analysis
 │       │
 │       └── 📁 tests/              ← 🧪 AUTOMATED TESTS (verify code works correctly)
 │           ├── 📄 auth.controller.test.ts     ← Tests for register & login (incl. locked account)
@@ -439,4 +441,5 @@ This opens a database viewer at **http://localhost:5555**.
 - [ ] **Product Scanning (OCR/Image)** — Allow users to upload a photo of a product label to automatically extract the INCI ingredient list.
 - [ ] **Advanced Filtering** — Let users filter analysis results or products by category, brand, or safety rating.
 - [ ] **Weighted Scoring System** — Rank recommendations by a composite score based on the number and weight of GOOD ingredients, not just the absence of BAD ones.
-- [ ] **Deployment** — Deploy the app to a cloud hosting service (e.g., Vercel for frontend, Railway/Render for backend) so others can access it online.
+- [ ] **AI Coverage Expansion** — Extend Gemini AI fallback to also evaluate product-level safety holistically, not just per-ingredient.
+- [x] **Deployment** — *(Completed)* Frontend on Vercel, backend + DB on Render. Production environment is live.
