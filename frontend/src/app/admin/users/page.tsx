@@ -33,7 +33,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/v1/admin/users', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch users');
@@ -66,11 +66,11 @@ export default function AdminUsers() {
   const handleAction = async () => {
     const { type, userId } = confirmModal;
     try {
-      let url = `http://localhost:5000/api/v1/admin/users/${userId}`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/users/${userId}`;
       let method = 'DELETE';
 
       if (type === 'lock' || type === 'unlock') {
-        url = `http://localhost:5000/api/v1/admin/users/${userId}/status`;
+        url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/users/${userId}/status`;
         method = 'PATCH';
       }
 

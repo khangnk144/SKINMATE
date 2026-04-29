@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     async function checkHealth() {
       try {
-        const response = await fetch('http://localhost:5000/api/v1/health');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/health`);
         if (!response.ok) {
           throw new Error('Backend Connection Error');
         }

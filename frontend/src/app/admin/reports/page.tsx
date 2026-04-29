@@ -36,7 +36,7 @@ export default function AdminReports() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/v1/admin/reports', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/reports`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Failed to fetch reports');

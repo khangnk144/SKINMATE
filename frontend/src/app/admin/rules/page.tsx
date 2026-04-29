@@ -35,8 +35,8 @@ export default function AdminRules() {
   const fetchData = async () => {
     try {
       const [ingRes, rulesRes] = await Promise.all([
-        fetch('http://localhost:5000/api/v1/admin/ingredients', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('http://localhost:5000/api/v1/admin/rules', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (!ingRes.ok || !rulesRes.ok) throw new Error('Failed to fetch data');
@@ -67,7 +67,7 @@ export default function AdminRules() {
     setSuccess('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/admin/rules', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export default function AdminRules() {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this rule?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/admin/rules/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

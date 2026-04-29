@@ -48,7 +48,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
   const handleExport = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/admin/export/${entity}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/export/${entity}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Export failed');
@@ -125,7 +125,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
     formData.append('file', file);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/admin/import/${entity}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/import/${entity}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

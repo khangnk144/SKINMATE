@@ -56,7 +56,7 @@ function AnalysisContent() {
     setRecLoading(true);
     try {
       const query = ingredients.length > 0 ? `?ingredients=${encodeURIComponent(ingredients.join(','))}` : '';
-      const response = await fetch(`http://localhost:5000/api/v1/products/recommendations${query}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/products/recommendations${query}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,7 +108,7 @@ function AnalysisContent() {
     setResults(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/analysis/check', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/analysis/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

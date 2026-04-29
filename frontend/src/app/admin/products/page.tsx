@@ -33,7 +33,7 @@ export default function AdminProducts() {
 
   const fetchData = async () => {
     try {
-      const prodRes = await fetch('http://localhost:5000/api/v1/admin/products', { 
+      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products`, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       
@@ -74,8 +74,8 @@ export default function AdminProducts() {
     setSuccess('');
 
     const url = editingId 
-      ? `http://localhost:5000/api/v1/admin/products/${editingId}`
-      : `http://localhost:5000/api/v1/admin/products`;
+      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products/${editingId}`
+      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products`;
 
     try {
       const res = await fetch(url, {
@@ -108,7 +108,7 @@ export default function AdminProducts() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/admin/products/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -22,7 +22,7 @@ export default function AdminIngredients() {
 
   const fetchIngredients = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/v1/admin/ingredients', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch ingredients');
@@ -66,8 +66,8 @@ export default function AdminIngredients() {
     setError('');
     
     const url = editingIngredient 
-      ? `http://localhost:5000/api/v1/admin/ingredients/${editingIngredient.id}`
-      : 'http://localhost:5000/api/v1/admin/ingredients';
+      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients/${editingIngredient.id}`
+      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`;
     
     const method = editingIngredient ? 'PUT' : 'POST';
 
@@ -101,7 +101,7 @@ export default function AdminIngredients() {
     if (!confirm('Are you sure you want to delete this ingredient?')) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/v1/admin/ingredients/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
