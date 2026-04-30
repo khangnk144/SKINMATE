@@ -67,6 +67,15 @@ export const adminController = {
     }
   },
 
+  deleteAllIngredients: async (req: Request, res: Response): Promise<void> => {
+    try {
+      await adminService.deleteAllIngredients();
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to delete all ingredients' });
+    }
+  },
+
   createRule: async (req: Request, res: Response): Promise<void> => {
     try {
       const { ingredientId, skinType, effect } = req.body;
@@ -113,6 +122,15 @@ export const adminController = {
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to delete rule' });
+    }
+  },
+
+  deleteAllRules: async (req: Request, res: Response): Promise<void> => {
+    try {
+      await adminService.deleteAllRules();
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to delete all rules' });
     }
   },
 
@@ -165,6 +183,15 @@ export const adminController = {
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to delete product' });
+    }
+  },
+
+  deleteAllProducts: async (req: Request, res: Response): Promise<void> => {
+    try {
+      await adminService.deleteAllProducts();
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to delete all products' });
     }
   },
 

@@ -56,6 +56,10 @@ export const adminService = {
     });
   },
 
+  async deleteAllIngredients() {
+    return await prisma.ingredient.deleteMany();
+  },
+
   async createOrUpdateRule(ingredientId: number, skinType: SkinType, effect: SafetyEffect) {
     const existingRule = await prisma.ingredientRule.findUnique({
       where: {
@@ -93,6 +97,10 @@ export const adminService = {
     return await prisma.ingredientRule.delete({
       where: { id }
     });
+  },
+
+  async deleteAllRules() {
+    return await prisma.ingredientRule.deleteMany();
   },
   
   async findOrCreateIngredients(names: string[]) {
@@ -174,6 +182,10 @@ export const adminService = {
     return await prisma.product.delete({
       where: { id }
     });
+  },
+
+  async deleteAllProducts() {
+    return await prisma.product.deleteMany();
   },
 
   async getUsers() {

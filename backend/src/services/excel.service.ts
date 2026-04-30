@@ -88,7 +88,14 @@ export interface ImportResult {
 export const importIngredients = async (fileBuffer: Buffer): Promise<ImportResult> => {
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rows = rowsRaw.map((row) => {
+    const normalized: Record<string, unknown> = {};
+    for (const key of Object.keys(row)) {
+      normalized[key.toLowerCase().trim()] = row[key];
+    }
+    return normalized;
+  });
 
   const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
 
@@ -131,7 +138,14 @@ export const importIngredients = async (fileBuffer: Buffer): Promise<ImportResul
 export const importRules = async (fileBuffer: Buffer): Promise<ImportResult> => {
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rows = rowsRaw.map((row) => {
+    const normalized: Record<string, unknown> = {};
+    for (const key of Object.keys(row)) {
+      normalized[key.toLowerCase().trim()] = row[key];
+    }
+    return normalized;
+  });
 
   const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
 
@@ -234,7 +248,14 @@ export const importRules = async (fileBuffer: Buffer): Promise<ImportResult> => 
 export const importProducts = async (fileBuffer: Buffer): Promise<ImportResult> => {
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
+  const rows = rowsRaw.map((row) => {
+    const normalized: Record<string, unknown> = {};
+    for (const key of Object.keys(row)) {
+      normalized[key.toLowerCase().trim()] = row[key];
+    }
+    return normalized;
+  });
 
   const result: ImportResult = { created: 0, updated: 0, skipped: 0, errors: [] };
 
@@ -253,7 +274,7 @@ export const importProducts = async (fileBuffer: Buffer): Promise<ImportResult> 
 
     // Parse ingredient names from INCI string
     const ingredientNames = inciString
-      .split(',')
+      .split(/[,;\n]+/)
       .map((s: string) => s.trim().toLowerCase())
       .filter((s: string) => s.length > 0);
 

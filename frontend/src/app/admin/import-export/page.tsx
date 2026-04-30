@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Download, Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, ChevronDown } from 'lucide-react';
+import { Download, Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, ChevronDown, Trash2 } from 'lucide-react';
 
 type EntityType = 'ingredients' | 'rules' | 'products';
 
@@ -282,6 +282,69 @@ function ImportCard({ entity }: { entity: EntityType }) {
   );
 }
 
+function DeleteAllCard({ entity }: { entity: EntityType }) {
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const config = ENTITY_CONFIG[entity];
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm(`Are you absolutely sure you want to delete ALL ${config.label.toLowerCase()}? This action cannot be undone.`)) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/${entity}/all`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (!res.ok) throw new Error('Delete all failed');
+      alert(`All ${config.label.toLowerCase()} have been successfully deleted.`);
+    } catch {
+      alert(`Failed to delete all ${config.label.toLowerCase()}. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-3xl border border-red-50 shadow-[0_4px_20px_rgb(0,0,0,0.03)] p-8 flex flex-col gap-5 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className={`inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full border bg-red-50 border-red-100 text-red-700 mb-3`}>
+            <Trash2 size={11} />
+            Danger Zone
+          </div>
+          <h3 className="text-lg font-serif text-slate-800 tracking-tight">Delete All {config.label}</h3>
+          <p className="text-sm text-slate-400 font-light mt-1">Permanently remove all {config.label.toLowerCase()}</p>
+        </div>
+        <div className="bg-red-50 rounded-2xl p-3">
+          <Trash2 size={20} className="text-red-400" />
+        </div>
+      </div>
+
+      <button
+        onClick={handleDeleteAll}
+        disabled={loading}
+        className="mt-auto w-full flex items-center justify-center gap-2 py-3 px-6 bg-red-600 text-white text-sm font-medium rounded-full hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+      >
+        {loading ? (
+          <>
+            <Loader2 size={15} className="animate-spin" />
+            Deleting...
+          </>
+        ) : (
+          <>
+            <Trash2 size={15} />
+            Delete All
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
 export default function ImportExportPage() {
   const entities: EntityType[] = ['ingredients', 'rules', 'products'];
 
@@ -340,6 +403,24 @@ export default function ImportExportPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {entities.map((entity) => (
             <ImportCard key={entity} entity={entity} />
+          ))}
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="border-t border-rose-50 mb-12 mt-12" />
+
+      {/* Section: Danger Zone */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-red-600 rounded-full p-2">
+            <Trash2 size={14} className="text-white" />
+          </div>
+          <h2 className="text-lg font-serif text-slate-800 tracking-tight">Danger Zone (Delete All)</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {entities.map((entity) => (
+            <DeleteAllCard key={entity} entity={entity} />
           ))}
         </div>
       </section>

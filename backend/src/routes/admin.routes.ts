@@ -20,17 +20,20 @@ router.use(adminMiddleware);
 // Ingredients
 router.get('/ingredients', adminController.getIngredients);
 router.post('/ingredients', adminController.createIngredient);
+router.delete('/ingredients/all', adminController.deleteAllIngredients);
 router.put('/ingredients/:id', adminController.updateIngredient);
 router.delete('/ingredients/:id', adminController.deleteIngredient);
 
 // Rules
 router.get('/rules', adminController.getRules);
 router.post('/rules', adminController.createRule);
+router.delete('/rules/all', adminController.deleteAllRules);
 router.delete('/rules/:id', adminController.deleteRule);
 
 // Products
 router.get('/products', adminController.getProducts);
 router.post('/products', adminController.createProduct);
+router.delete('/products/all', adminController.deleteAllProducts);
 router.put('/products/:id', adminController.updateProduct);
 router.delete('/products/:id', adminController.deleteProduct);
 
