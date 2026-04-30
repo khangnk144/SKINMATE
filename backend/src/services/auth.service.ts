@@ -6,13 +6,13 @@ import { SkinType } from '@prisma/client';
 export const registerUser = async (username: string, passwordRaw: string, skinType: SkinType) => {
   // Validate input length
   if (passwordRaw.length < 6) {
-    throw new Error('Password must be at least 6 characters long.');
+    throw new Error('Mật khẩu phải dài ít nhất 6 ký tự.');
   }
 
   // Check if username exists
   const existingUser = await prisma.user.findUnique({ where: { username } });
   if (existingUser) {
-    throw new Error('Username already exists.');
+    throw new Error('Tên đăng nhập đã tồn tại.');
   }
 
   // Hash password
@@ -41,18 +41,18 @@ export const registerUser = async (username: string, passwordRaw: string, skinTy
 export const loginUser = async (username: string, passwordRaw: string) => {
   const user = await prisma.user.findUnique({ where: { username } });
   if (!user) {
-    throw new Error('Invalid username or password.');
+    throw new Error('Tên đăng nhập hoặc mật khẩu không hợp lệ.');
   }
 
   // Check if user is active
   if (!user.isActive) {
-    throw new Error('Your account has been locked by an Administrator.');
+    throw new Error('Tài khoản của bạn đã bị khóa bởi Quản trị viên.');
   }
 
   // Compare passwords
   const isMatch = await bcrypt.compare(passwordRaw, user.passwordHash);
   if (!isMatch) {
-    throw new Error('Invalid username or password.');
+    throw new Error('Tên đăng nhập hoặc mật khẩu không hợp lệ.');
   }
 
   // Generate Token

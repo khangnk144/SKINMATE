@@ -33,16 +33,16 @@ export default function HistoryPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to fetch history');
+        throw new Error('Tải lịch sử thất bại');
       }
 
       const data = await res.json();
       setHistory(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message || 'An error occurred while fetching history');
+        setError(err.message || 'Đã xảy ra lỗi khi tải lịch sử');
       } else {
-        setError('An error occurred while fetching history');
+        setError('Đã xảy ra lỗi khi tải lịch sử');
       }
     } finally {
       setFetching(false);
@@ -56,7 +56,7 @@ export default function HistoryPage() {
   }, [user, token, isLoading]);
 
   const deleteItem = async (id: string) => {
-    if (!token || !confirm('Are you sure you want to delete this analysis?')) return;
+    if (!token || !confirm('Bạn có chắc chắn muốn xóa phân tích này không?')) return;
     
     setDeletingId(id);
     try {
@@ -68,19 +68,19 @@ export default function HistoryPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete item');
+        throw new Error('Xóa mục thất bại');
       }
 
       setHistory(prev => prev.filter(item => item.id !== id));
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to delete item');
+      alert(err instanceof Error ? err.message : 'Xóa mục thất bại');
     } finally {
       setDeletingId(null);
     }
   };
 
   const clearAllHistory = async () => {
-    if (!token || !confirm('Are you sure you want to clear ALL analysis history? This cannot be undone.')) return;
+    if (!token || !confirm('Bạn có chắc chắn muốn xóa TẤT CẢ lịch sử phân tích không? Hành động này không thể hoàn tác.')) return;
     
     setIsClearingAll(true);
     try {
@@ -92,12 +92,12 @@ export default function HistoryPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to clear history');
+        throw new Error('Xóa lịch sử thất bại');
       }
 
       setHistory([]);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to clear history');
+      alert(err instanceof Error ? err.message : 'Xóa lịch sử thất bại');
     } finally {
       setIsClearingAll(false);
     }
@@ -107,7 +107,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 text-rose-300 animate-spin mb-4" />
-        <p className="text-lg font-light text-gray-400 tracking-wide">Loading...</p>
+        <p className="text-lg font-light text-gray-400 tracking-wide">Đang tải...</p>
       </div>
     );
   }
@@ -124,14 +124,14 @@ export default function HistoryPage() {
             className="text-2xl mb-4 text-gray-800 tracking-tight"
             style={{ fontFamily: 'var(--font-serif)' }}
           >
-            Please Sign In
+            Vui Lòng Đăng Nhập
           </h2>
-          <p className="mb-8 text-gray-500 leading-relaxed">You need to be signed in to view your analysis history.</p>
+          <p className="mb-8 text-gray-500 leading-relaxed">Bạn cần đăng nhập để xem lịch sử phân tích của mình.</p>
           <Link
             href="/login"
             className="block px-8 py-4 bg-gray-900 text-white text-sm font-medium tracking-wide rounded-full hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 w-full"
           >
-            Sign In
+            Đăng Nhập
           </Link>
         </div>
       </div>
@@ -150,9 +150,9 @@ export default function HistoryPage() {
               className="text-5xl text-gray-900 tracking-tight mb-2"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
-              Analysis History
+              Lịch Sử Phân Tích
             </h1>
-            <p className="text-gray-400 text-sm tracking-widest uppercase">Track your past ingredient checks</p>
+            <p className="text-gray-400 text-sm tracking-widest uppercase">Theo dõi các lần kiểm tra thành phần trước đây của bạn</p>
           </div>
           <div className="flex items-center gap-4">
             {history.length > 0 && (
@@ -162,14 +162,14 @@ export default function HistoryPage() {
                 className="text-sm text-gray-400 hover:text-rose-500 transition-colors flex items-center gap-2 px-4 py-2"
               >
                 {isClearingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                Clear All
+                Xóa Tất Cả
               </button>
             )}
             <Link
               href="/"
               className="text-sm tracking-wide text-rose-400 hover:text-rose-500 font-medium transition-colors flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full shadow-sm border border-rose-50/50"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Home
+              <ArrowLeft className="w-4 h-4" /> Về Trang Chủ
             </Link>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function HistoryPage() {
           <div className="flex flex-col items-center py-20">
             <Loader2 className="w-16 h-16 text-rose-300 animate-spin mb-4" />
             <p className="text-gray-400" style={{ fontFamily: 'var(--font-serif)' }}>
-              Loading your history...
+              Đang tải lịch sử của bạn...
             </p>
           </div>
         ) : history.length === 0 ? (
@@ -197,13 +197,13 @@ export default function HistoryPage() {
               className="text-gray-500 mb-8 text-xl"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
-              You have no analysis history yet.
+              Bạn chưa có lịch sử phân tích nào.
             </p>
             <Link
               href="/analysis"
               className="px-8 py-4 bg-rose-400 text-white text-sm font-medium tracking-wide rounded-full hover:bg-rose-500 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 inline-block"
             >
-              Analyze Your First Product
+              Phân Tích Sản Phẩm Đầu Tiên
             </Link>
           </div>
         ) : (
@@ -231,13 +231,13 @@ export default function HistoryPage() {
                     onClick={() => router.push(`/analysis?inci=${encodeURIComponent(item.rawInput)}`)}
                     className="flex-1 md:flex-none px-6 py-3 bg-rose-50 text-rose-500 text-sm font-medium tracking-wide rounded-full hover:bg-rose-100 transition-all duration-300 whitespace-nowrap"
                   >
-                    Re-analyze
+                    Phân Tích Lại
                   </button>
                   <button
                     onClick={() => deleteItem(item.id)}
                     disabled={deletingId === item.id}
                     className="p-3 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all duration-300 disabled:opacity-50"
-                    title="Delete record"
+                    title="Xóa bản ghi"
                   >
                     {deletingId === item.id ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

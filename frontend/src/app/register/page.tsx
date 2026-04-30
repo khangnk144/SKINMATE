@@ -6,11 +6,11 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 const SKIN_TYPES = [
-  { value: "NORMAL", label: "Normal" },
-  { value: "OILY", label: "Oily" },
-  { value: "DRY", label: "Dry" },
-  { value: "SENSITIVE", label: "Sensitive" },
-  { value: "COMBINATION", label: "Combination" },
+  { value: "NORMAL", label: "Bình thường" },
+  { value: "OILY", label: "Dầu" },
+  { value: "DRY", label: "Khô" },
+  { value: "SENSITIVE", label: "Nhạy cảm" },
+  { value: "COMBINATION", label: "Hỗn hợp" },
 ];
 
 export default function RegisterPage() {
@@ -28,12 +28,12 @@ export default function RegisterPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Mật khẩu không khớp.");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+      setError("Mật khẩu phải dài ít nhất 6 ký tự.");
       return;
     }
 
@@ -49,7 +49,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Registration failed");
+        throw new Error(data.error || "Đăng ký thất bại");
       }
 
       // Automatically login after registration
@@ -71,7 +71,7 @@ export default function RegisterPage() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Registration failed");
+        setError("Đăng ký thất bại");
       }
     } finally {
       setLoading(false);
@@ -97,9 +97,9 @@ export default function RegisterPage() {
               className="text-3xl mb-2 tracking-tight"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
-              Begin Your Journey
+              Bắt Đầu Hành Trình
             </p>
-            <p className="text-white/80 text-sm tracking-widest uppercase">Personalized skincare starts here</p>
+            <p className="text-white/80 text-sm tracking-widest uppercase">Chăm sóc da cá nhân hóa bắt đầu từ đây</p>
           </div>
         </div>
 
@@ -111,10 +111,10 @@ export default function RegisterPage() {
                 className="text-3xl text-gray-800 mb-3 tracking-tight"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                Create Account
+                Tạo Tài Khoản
               </h2>
               <p className="text-gray-500 leading-relaxed">
-                Join Skinmate and discover your perfect skincare routine with AI-powered analysis.
+                Tham gia Skinmate và khám phá quy trình chăm sóc da hoàn hảo với phân tích AI.
               </p>
             </div>
 
@@ -130,7 +130,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="username" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Username
+                  Tên đăng nhập
                 </label>
                 <input
                   id="username"
@@ -139,13 +139,13 @@ export default function RegisterPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
-                  placeholder="Choose a username"
+                  placeholder="Chọn tên đăng nhập"
                 />
               </div>
 
               <div>
                 <label htmlFor="skinType" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Skin Type
+                  Loại da
                 </label>
                 <div className="relative">
                   <select
@@ -170,7 +170,7 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="password" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Password
+                  Mật khẩu
                 </label>
                 <input
                   id="password"
@@ -179,13 +179,13 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
-                  placeholder="At least 6 characters"
+                  placeholder="Ít nhất 6 ký tự"
                 />
               </div>
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Confirm Password
+                  Xác nhận mật khẩu
                 </label>
                 <input
                   id="confirmPassword"
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
-                  placeholder="Confirm your password"
+                  placeholder="Xác nhận mật khẩu của bạn"
                 />
               </div>
 
@@ -207,19 +207,19 @@ export default function RegisterPage() {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-300/20 to-emerald-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <span className="relative text-white text-sm font-semibold tracking-widest uppercase">
-                  {loading ? 'Creating Account...' : 'Create Account'}
+                  {loading ? 'Đang tạo tài khoản...' : 'Tạo Tài Khoản'}
                 </span>
               </button>
             </form>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-400">
-                Already have an account?{' '}
+                Đã có tài khoản?{' '}
                 <Link
                   href="/login"
                   className="text-rose-400 hover:text-rose-500 font-medium underline underline-offset-4 decoration-rose-200 transition-colors"
                 >
-                  Sign In
+                  Đăng Nhập
                 </Link>
               </p>
             </div>

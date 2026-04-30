@@ -164,8 +164,33 @@ export const importRules = async (fileBuffer: Buffer): Promise<ImportResult> => 
       continue;
     }
 
-    const skinType = String(row['skin_type'] ?? '').trim().toUpperCase();
-    const effect = String(row['effect'] ?? '').trim().toUpperCase();
+    const skinTypeRaw = String(row['skin_type'] ?? '').trim().toUpperCase();
+    const effectRaw = String(row['effect'] ?? '').trim().toUpperCase();
+
+    const skinTypeMap: Record<string, string> = {
+      'BÌNH THƯỜNG': 'NORMAL',
+      'DA DẦU': 'OILY',
+      'DA KHÔ': 'DRY',
+      'DA HỖN HỢP': 'COMBINATION',
+      'DA NHẠY CẢM': 'SENSITIVE',
+      'OILY': 'OILY',
+      'NORMAL': 'NORMAL',
+      'DRY': 'DRY',
+      'COMBINATION': 'COMBINATION',
+      'SENSITIVE': 'SENSITIVE',
+    };
+
+    const effectMap: Record<string, string> = {
+      'TỐT': 'GOOD',
+      'XẤU': 'BAD',
+      'TRUNG BÌNH': 'NEUTRAL',
+      'GOOD': 'GOOD',
+      'BAD': 'BAD',
+      'NEUTRAL': 'NEUTRAL',
+    };
+
+    const skinType = skinTypeMap[skinTypeRaw] || skinTypeRaw;
+    const effect = effectMap[effectRaw] || effectRaw;
 
     if (!validSkinTypes.includes(skinType as SkinType)) {
       result.errors.push(`Row ${i + 2}: Invalid skin_type "${skinType}". Must be one of: ${validSkinTypes.join(', ')}.`);

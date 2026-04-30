@@ -14,12 +14,12 @@ export default function Home() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/health`);
         if (!response.ok) {
-          throw new Error('Backend Connection Error');
+          throw new Error('Lỗi kết nối máy chủ');
         }
         const data = await response.json();
         setHealthStatus(data.message);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Backend Offline');
+        setError(err instanceof Error ? err.message : 'Máy chủ ngoại tuyến');
       }
     }
     checkHealth();
@@ -68,18 +68,18 @@ export default function Home() {
                   className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl mb-6 text-[var(--gray-800)] tracking-tight leading-[1.1]"
                   style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}
                 >
-                  Discover Your
+                  Khám Phá
                   <br />
+                  Làn Da{' '}
                   <span
-                    className="text-[var(--rose-500)]"
+                    className="text-[var(--rose-500)] whitespace-nowrap"
                     style={{ fontWeight: 600 }}
                   >
-                    Perfect Skin
+                    Hoàn Hảo
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-[var(--gray-600)] max-w-xl mb-12 leading-relaxed">
-                  Luxury skincare analysis powered by AI. Personalized
-                  recommendations for your unique beauty journey.
+                  Phân tích chăm sóc da cao cấp bằng AI. Đề xuất cá nhân hóa cho hành trình làm đẹp độc đáo của bạn.
                 </p>
 
                 {/* CTA Buttons */}
@@ -91,19 +91,19 @@ export default function Home() {
                           href="/analysis"
                           className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                         >
-                          Run Analysis
+                          Phân Tích Ngay
                         </Link>
                         <Link
                           href="/profile"
                           className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
                         >
-                          My Profile
+                          Hồ Sơ Của Tôi
                         </Link>
                         <button
                           onClick={logout}
                           className="px-6 py-4 text-sm font-bold text-gray-400 hover:text-rose-400 uppercase tracking-widest transition-colors"
                         >
-                          Sign Out
+                          Đăng Xuất
                         </button>
                       </>
                     ) : (
@@ -112,13 +112,13 @@ export default function Home() {
                           href="/register"
                           className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                         >
-                          Start Analysis
+                          Bắt Đầu Ngay
                         </Link>
                         <Link
                           href="/login"
                           className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
                         >
-                          Sign in
+                          Đăng Nhập
                         </Link>
                       </>
                     )}
@@ -177,18 +177,18 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: 'AI Analysis',
-                description: 'Advanced skin analysis using cutting-edge AI technology',
+                title: 'Phân tích AI',
+                description: 'Phân tích da chuyên sâu sử dụng công nghệ AI tiên tiến',
                 color: 'rose',
               },
               {
-                title: 'Personalized Care',
-                description: 'Tailored skincare routines designed just for you',
+                title: 'Chăm sóc cá nhân hóa',
+                description: 'Quy trình chăm sóc da thiết kế riêng cho bạn',
                 color: 'sage',
               },
               {
-                title: 'Expert Guidance',
-                description: 'Professional recommendations from skincare specialists',
+                title: 'Hướng dẫn chuyên gia',
+                description: 'Đề xuất chuyên môn từ các chuyên gia da liễu',
                 color: 'rose',
               },
             ].map((feature, index) => (
@@ -237,10 +237,10 @@ export default function Home() {
             ) : healthStatus ? (
               <span className="text-emerald-500 flex items-center gap-2">
                 <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-                Cloud Sync Active
+                Đồng bộ đám mây hoạt động
               </span>
             ) : (
-              <span>Connecting...</span>
+              <span>Đang kết nối...</span>
             )}
             <div className="h-px w-8 bg-slate-200"></div>
           </div>

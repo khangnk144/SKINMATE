@@ -28,7 +28,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || "Đăng nhập thất bại");
       }
 
       login(data.token, data.user);
@@ -37,7 +37,7 @@ export default function LoginPage() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Login failed");
+        setError("Đăng nhập thất bại");
       }
     } finally {
       setLoading(false);
@@ -63,9 +63,9 @@ export default function LoginPage() {
               className="text-3xl mb-2 tracking-tight"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
-              Welcome Back
+              Chào mừng trở lại
             </p>
-            <p className="text-white/80 text-sm tracking-widest uppercase">Continue your skincare journey</p>
+            <p className="text-white/80 text-sm tracking-widest uppercase">Tiếp tục hành trình chăm sóc da của bạn</p>
           </div>
         </div>
 
@@ -77,10 +77,10 @@ export default function LoginPage() {
                 className="text-3xl text-gray-800 mb-3 tracking-tight"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                Sign In
+                Đăng Nhập
               </h2>
               <p className="text-gray-500 leading-relaxed">
-                Welcome back! Please enter your credentials to access your personalized skincare profile.
+                Chào mừng trở lại! Vui lòng nhập thông tin đăng nhập để truy cập hồ sơ chăm sóc da cá nhân của bạn.
               </p>
             </div>
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
 
               <div>
                 <label htmlFor="username" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Username
+                  Tên đăng nhập
                 </label>
                 <input
                   id="username"
@@ -105,13 +105,13 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
-                  placeholder="Enter your username"
+                  placeholder="Nhập tên đăng nhập"
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Password
+                  Mật khẩu
                 </label>
                 <input
                   id="password"
@@ -133,19 +133,19 @@ export default function LoginPage() {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-300/20 to-emerald-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <span className="relative text-white text-sm font-semibold tracking-widest uppercase">
-                  {loading ? 'Signing In...' : 'Sign In'}
+                  {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </span>
               </button>
             </form>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-400">
-                Don't have an account?{' '}
+                Chưa có tài khoản?{' '}
                 <Link
                   href="/register"
                   className="text-rose-400 hover:text-rose-500 font-medium underline underline-offset-4 decoration-rose-200 transition-colors"
                 >
-                  Join Skinmate
+                  Tham gia Skinmate
                 </Link>
               </p>
             </div>

@@ -48,7 +48,7 @@ describe('Auth Controller', () => {
 
       expect(statusMock).toHaveBeenCalledWith(201);
       expect(jsonMock).toHaveBeenCalledWith({
-        message: 'User registered successfully',
+        message: 'Đăng ký người dùng thành công',
         user: mockUser
       });
     });
@@ -59,7 +59,7 @@ describe('Auth Controller', () => {
       await register(mockReq as Request, mockRes as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'All fields are required.' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Tất cả các trường là bắt buộc.' });
     });
 
     it('should return 400 for duplicate username', async () => {
@@ -67,12 +67,12 @@ describe('Auth Controller', () => {
         body: { username: 'duplicate', password: 'password123', skinType: 'NORMAL' }
       };
 
-      (authService.registerUser as jest.Mock).mockRejectedValue(new Error('Username already exists.'));
+      (authService.registerUser as jest.Mock).mockRejectedValue(new Error('Tên đăng nhập đã tồn tại.'));
 
       await register(mockReq as Request, mockRes as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Username already exists.' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Tên đăng nhập đã tồn tại.' });
     });
 
     it('should return 400 for password too short', async () => {
@@ -80,12 +80,12 @@ describe('Auth Controller', () => {
         body: { username: 'testuser', password: '123', skinType: 'NORMAL' }
       };
 
-      (authService.registerUser as jest.Mock).mockRejectedValue(new Error('Password must be at least 6 characters long.'));
+      (authService.registerUser as jest.Mock).mockRejectedValue(new Error('Mật khẩu phải dài ít nhất 6 ký tự.'));
 
       await register(mockReq as Request, mockRes as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Password must be at least 6 characters long.' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Mật khẩu phải dài ít nhất 6 ký tự.' });
     });
   });
 
@@ -119,7 +119,7 @@ describe('Auth Controller', () => {
       await login(mockReq as Request, mockRes as Response);
 
       expect(statusMock).toHaveBeenCalledWith(400);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Username and password are required.' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Tên đăng nhập và mật khẩu là bắt buộc.' });
     });
 
     it('should return 401 for wrong password or username', async () => {
@@ -127,12 +127,12 @@ describe('Auth Controller', () => {
         body: { username: 'testuser', password: 'wrongpassword' }
       };
 
-      (authService.loginUser as jest.Mock).mockRejectedValue(new Error('Invalid username or password.'));
+      (authService.loginUser as jest.Mock).mockRejectedValue(new Error('Tên đăng nhập hoặc mật khẩu không hợp lệ.'));
 
       await login(mockReq as Request, mockRes as Response);
 
       expect(statusMock).toHaveBeenCalledWith(401);
-      expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid username or password.' });
+      expect(jsonMock).toHaveBeenCalledWith({ error: 'Tên đăng nhập hoặc mật khẩu không hợp lệ.' });
     });
   });
 });

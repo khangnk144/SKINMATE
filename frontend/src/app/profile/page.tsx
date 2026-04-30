@@ -5,6 +5,13 @@ import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const SKIN_TYPES = ["OILY", "DRY", "SENSITIVE", "COMBINATION", "NORMAL"];
+const SKIN_TYPE_LABELS: Record<string, string> = {
+  OILY: "Dầu",
+  DRY: "Khô",
+  SENSITIVE: "Nhạy cảm",
+  COMBINATION: "Hỗn hợp",
+  NORMAL: "Bình thường"
+};
 
 interface ProfileData {
   username: string;
@@ -35,7 +42,7 @@ export default function ProfilePage() {
         });
 
         if (!res.ok) {
-          throw new Error("Failed to fetch profile");
+          throw new Error("Tải hồ sơ thất bại");
         }
 
         const data = await res.json();
@@ -54,11 +61,11 @@ export default function ProfilePage() {
   const handlePasswordChange = async () => {
     if (!token) return;
     if (passwords.new !== passwords.confirm) {
-      setMessage({ type: "error", text: "New passwords do not match" });
+      setMessage({ type: "error", text: "Mật khẩu mới không khớp" });
       return;
     }
     if (passwords.new.length < 6) {
-      setMessage({ type: "error", text: "New password must be at least 6 characters long" });
+      setMessage({ type: "error", text: "Mật khẩu mới phải dài ít nhất 6 ký tự" });
       return;
     }
 
@@ -78,17 +85,17 @@ export default function ProfilePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to change password");
+        throw new Error(data.error || "Đổi mật khẩu thất bại");
       }
 
-      setMessage({ type: "success", text: "Password changed successfully!" });
+      setMessage({ type: "success", text: "Đổi mật khẩu thành công!" });
       setPasswords({ current: "", new: "", confirm: "" });
       setShowPasswordForm(false);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setMessage({ type: "error", text: err.message });
       } else {
-        setMessage({ type: "error", text: "An error occurred" });
+        setMessage({ type: "error", text: "Đã xảy ra lỗi" });
       }
     } finally {
       setSavingPassword(false);
@@ -113,11 +120,11 @@ export default function ProfilePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to update profile");
+        throw new Error(data.error || "Cập nhật hồ sơ thất bại");
       }
 
       setProfile(data);
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      setMessage({ type: "success", text: "Cập nhật hồ sơ thành công!" });
       
       // Update local context user data
       if (user) {
@@ -127,7 +134,7 @@ export default function ProfilePage() {
       if (err instanceof Error) {
         setMessage({ type: "error", text: err.message });
       } else {
-        setMessage({ type: "error", text: "An error occurred" });
+        setMessage({ type: "error", text: "Đã xảy ra lỗi" });
       }
     } finally {
       setSaving(false);
@@ -138,7 +145,7 @@ export default function ProfilePage() {
     return (
       <ProtectedRoute>
         <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
-          <div className="text-lg font-light text-gray-400 animate-pulse tracking-wide">Loading profile...</div>
+          <div className="text-lg font-light text-gray-400 animate-pulse tracking-wide">Đang tải hồ sơ...</div>
         </div>
       </ProtectedRoute>
     );
@@ -157,16 +164,16 @@ export default function ProfilePage() {
                 className="text-4xl text-gray-900 tracking-tight mb-2"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                Your Profile
+                Hồ Sơ Của Bạn
               </h1>
-              <p className="text-gray-400 text-sm tracking-widest uppercase">Personal Settings</p>
+              <p className="text-gray-400 text-sm tracking-widest uppercase">Cài Đặt Cá Nhân</p>
             </div>
             <button
               onClick={() => window.history.back()}
               className="group flex items-center gap-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-all duration-300"
             >
               <span className="w-8 h-px bg-gray-200 group-hover:w-12 group-hover:bg-rose-300 transition-all duration-500"></span>
-              Back
+              Quay lại
             </button>
           </div>
 
@@ -186,17 +193,17 @@ export default function ProfilePage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Username
+                  Tên đăng nhập
                 </label>
                 <div className="flex items-center px-6 py-4 bg-gray-100 rounded-2xl border border-gray-200 text-gray-500 cursor-not-allowed">
                   {profile?.username}
                 </div>
-                <p className="mt-2 text-xs text-gray-400 ml-1">Your username cannot be changed.</p>
+                <p className="mt-2 text-xs text-gray-400 ml-1">Tên đăng nhập của bạn không thể thay đổi.</p>
               </div>
 
               <div>
                 <label htmlFor="skinType" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
-                  Skin Type
+                  Loại da
                 </label>
                 <div className="relative">
                   <select
@@ -207,7 +214,7 @@ export default function ProfilePage() {
                   >
                     {SKIN_TYPES.map((type) => (
                       <option key={type} value={type}>
-                        {type.charAt(0) + type.slice(1).toLowerCase()}
+                        {SKIN_TYPE_LABELS[type]}
                       </option>
                     ))}
                   </select>
@@ -217,15 +224,15 @@ export default function ProfilePage() {
                     </svg>
                   </div>
                 </div>
-                <p className="mt-2 text-xs text-gray-400 ml-1">Select the skin type that best describes you.</p>
+                <p className="mt-2 text-xs text-gray-400 ml-1">Chọn loại da mô tả đúng nhất về bạn.</p>
               </div>
 
               {/* Security Settings Section */}
               <div className="pt-6 mt-6 border-t border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-lg text-gray-800" style={{ fontFamily: 'var(--font-serif)' }}>Security Settings</h3>
-                    <p className="text-xs text-gray-400 mt-1">Manage your account security and password</p>
+                    <h3 className="text-lg text-gray-800" style={{ fontFamily: 'var(--font-serif)' }}>Cài Đặt Bảo Mật</h3>
+                    <p className="text-xs text-gray-400 mt-1">Quản lý bảo mật tài khoản và mật khẩu của bạn</p>
                   </div>
                   <button
                     onClick={() => {
@@ -235,7 +242,7 @@ export default function ProfilePage() {
                     }}
                     className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
                   >
-                    {showPasswordForm ? "Cancel" : "Change Password"}
+                    {showPasswordForm ? "Hủy" : "Đổi Mật Khẩu"}
                   </button>
                 </div>
 
@@ -244,7 +251,7 @@ export default function ProfilePage() {
                     <div>
                       <input
                         type="password"
-                        placeholder="Current Password"
+                        placeholder="Mật khẩu hiện tại"
                         value={passwords.current}
                         onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                         className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
@@ -253,7 +260,7 @@ export default function ProfilePage() {
                     <div>
                       <input
                         type="password"
-                        placeholder="New Password"
+                        placeholder="Mật khẩu mới"
                         value={passwords.new}
                         onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                         className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
@@ -262,7 +269,7 @@ export default function ProfilePage() {
                     <div>
                       <input
                         type="password"
-                        placeholder="Confirm New Password"
+                        placeholder="Xác nhận mật khẩu mới"
                         value={passwords.confirm}
                         onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                         className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
@@ -284,10 +291,10 @@ export default function ProfilePage() {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Updating...
+                            Đang cập nhật...
                           </>
                         ) : (
-                          'Update Password'
+                          'Cập Nhật Mật Khẩu'
                         )}
                       </span>
                     </button>
@@ -313,10 +320,10 @@ export default function ProfilePage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Saving...
+                        Đang lưu...
                       </>
                     ) : (
-                      'Save Changes'
+                      'Lưu Thay Đổi'
                     )}
                   </span>
                 </button>

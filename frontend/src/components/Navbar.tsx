@@ -13,20 +13,20 @@ export default function Navbar() {
   const NavLinks = () => (
     <>
       <Link href="/analysis" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
-        Analysis
+        Phân tích
       </Link>
       {!isLoading && (
         user ? (
           <>
             <Link href="/history" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
-              History
+              Lịch sử
             </Link>
             <Link href="/profile" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
-              Profile
+              Hồ sơ
             </Link>
             {user.role === 'ADMIN' && (
               <Link href="/admin" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-emerald-600 hover:text-emerald-700 transition-colors">
-                Admin Panel
+                Quản trị
               </Link>
             )}
             <button 
@@ -36,16 +36,16 @@ export default function Navbar() {
               }}
               className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors text-left"
             >
-              Logout
+              Đăng xuất
             </button>
           </>
         ) : (
           <>
             <Link href="/login" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
-              Sign In
+              Đăng nhập
             </Link>
             <Link href="/register" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md w-max">
-              Join Now
+              Tham gia ngay
             </Link>
           </>
         )
@@ -64,7 +64,7 @@ export default function Navbar() {
       <button 
         className="md:hidden p-2 text-gray-500 hover:text-rose-400 focus:outline-none" 
         onClick={toggleMenu}
-        aria-label="Toggle menu"
+        aria-label="Mở menu"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {isOpen ? (
