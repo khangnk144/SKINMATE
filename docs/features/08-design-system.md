@@ -28,10 +28,14 @@ Both fonts are loaded via `next/font/google` in `frontend/src/app/layout.tsx`.
 
 ## 4. Core Visual Patterns
 
-### Glassmorphism Cards
-Used on auth forms, analysis cards, and modals:
+### Glassmorphism Cards & Menus
+Used on auth forms, analysis cards, modals, and the user navigation menu:
 ```html
 <div class="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+```
+For the **User Menu Dropdown**, a tighter radius and specific shadow are used:
+```html
+<div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
 ```
 
 ### Gradient Aura Backgrounds
@@ -62,6 +66,7 @@ Login, Register, and Analysis pages use a two-column grid on large screens:
 | Badges (GOOD) | Sage green background, rounded-full |
 | Badges (BAD) | Dusty rose background, rounded-full |
 | Badges (NEUTRAL) | Soft gray background, rounded-full |
+| Badges (OFFICIAL) | **Rose-Slate Style**: Slate-700 text, Rose-50 bg, Rose-100 border |
 
 ## 6. Animations & Interactions
 
@@ -83,3 +88,4 @@ Login, Register, and Analysis pages use a two-column grid on large screens:
 * ❌ No plain colors (pure red, pure blue) — always use the curated rose/sage palette.
 * ❌ No sharp corners — use `rounded-2xl` or `rounded-3xl` on cards/inputs.
 * ❌ No default browser fonts — always apply Playfair Display or Inter.
+* ❌ No neon or high-contrast emerald for navigation — use the refined **Rose-Slate** palette for official badges.

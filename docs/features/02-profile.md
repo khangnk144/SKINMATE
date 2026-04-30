@@ -37,7 +37,14 @@ Allow logged-in users to view their profile and update their `displayName` and `
   * **Save Button:** Enabled when either `skinType` or `displayName` differs from the currently saved values. On success, the AuthContext is updated immediately so the navbar greeting reflects the change without a page reload.
   * **Security Settings:** A collapsible section with Current Password, New Password, and Confirm New Password. Handles success/error messages clearly.
 * **Navbar:**
-  * When logged in, show **Xin chào, [displayName]** (falls back to `username` if `displayName` is null) as a styled italic serif greeting in rose-400, followed by a `·` separator and a **Hồ sơ** link. Both form a single anchor that navigates to `/profile`.
+  * **Admin Panel:** For administrators, a refined **Quản trị** badge is displayed inline next to the main navigation. It uses a sophisticated **Rose-Slate** style (slate-700 text, rose-50 background, rose-100 border) and a `LayoutDashboard` icon.
+  * **User Menu:** A separate, elegant dropdown trigger on the far right featuring:
+    * A circular **Avatar** with the first letter of the user's name.
+    * The **Display Name** (or username) in Playfair Display (non-italic).
+  * **Dropdown Panel:** A glassmorphism menu (`backdrop-blur-xl`) containing:
+    * **Hồ sơ** (User icon)
+    * **Lịch sử** (History icon)
+    * **Đăng xuất** (LogOut icon) - separated by a subtle divider.
 
 ## 4. Testing
 * Write unit tests for `authMiddleware`.
