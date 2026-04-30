@@ -47,6 +47,17 @@
 |--------|------|------|-------------|
 | `GET` | `/users/profile` | ✅ User | Get authenticated user's profile |
 | `PUT` | `/users/profile` | ✅ User | Update skin type and/or username |
+| `PUT` | `/users/change-password` | ✅ User | Change user password |
+
+**Change Password Request Body:**
+```json
+{
+  "oldPassword": "current_password",
+  "newPassword": "new_password"
+}
+```
+**Success Response:** `200 OK` with `{ "message": "Password changed successfully." }`
+**Error Codes:** `INVALID_PASSWORD` (wrong old password or new password < 6 chars), `USER_NOT_FOUND`.
 
 ### Analysis (`/api/v1/analysis`)
 
@@ -121,6 +132,7 @@
 | Code | Meaning |
 |------|---------|
 | `AUTH_FAILED` | Invalid credentials (wrong password or username) |
+| `INVALID_PASSWORD` | Current password does not match or new password is invalid |
 | `ACCOUNT_LOCKED` | Account has been locked by an administrator |
 | `UNAUTHORIZED` | Missing or invalid JWT token |
 | `FORBIDDEN` | Authenticated but insufficient role (e.g., non-admin on admin route) |

@@ -13,13 +13,19 @@ Allow logged-in users to view their profile and update their `skinType`. This is
   * **Action:** Update the user's `skinType` in the database.
   * **Middleware:** Requires `authMiddleware`.
   * **Response:** Return the updated user object.
+* **PUT /api/v1/users/change-password:**
+  * **Input:** `oldPassword` and `newPassword`.
+  * **Action:** Verifies `oldPassword` using `bcrypt.compare`, hashes `newPassword`, and updates `passwordHash` in the database.
+  * **Middleware:** Requires `authMiddleware`.
+  * **Response:** Return success message or error (e.g., INVALID_PASSWORD).
 
 ## 3. Frontend Requirements (/frontend)
 * **Protected Routes Logic:** Implement a Higher-Order Component (HOC), wrapper, or middleware in Next.js to protect the `/profile` page. If an unauthenticated user tries to access it, redirect them to `/login`.
 * **Page `/profile`:**
   * **UI/UX:** Use TailwindCSS to create a clean, modern, and aesthetically pleasing layout (e.g., a centered card with nice padding, shadows, and clear typography).
-  * **Content:** Display the user's `username`. Provide a styled `<select>` dropdown or interactive buttons to choose their `skinType`.
+  * **Content:** Display the user's `username`. Provide a styled `<select>` dropdown or interactive buttons to choose their `skinType`. Include a 'Security Settings' section below the skin type selection.
   * **Behavior:** Fetch the current profile on mount. When the user changes their skin type and clicks "Save", send the PUT request and display a success message (e.g., a toast notification or inline green text).
+  * **Password Change Flow:** Provide a button to toggle a password change form containing Current Password, New Password, and Confirm New Password. Handle success/error messages clearly using the existing message state.
 
 ## 4. Testing
 * Write unit tests for `authMiddleware`.

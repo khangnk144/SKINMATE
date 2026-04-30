@@ -315,8 +315,8 @@ Automated tests are programs that run your code with fake inputs and check if th
 - **Testing:** Full unit tests for auth controller including locked account scenario.
 
 ### Feature 02: User Profile & Skin Type Management
-- **Backend:** Protected `GET` and `PUT` endpoints for `/api/v1/users/profile`. Auth middleware for route protection.
-- **Frontend:** Profile page where users can view and update their username and skin type.
+- **Backend:** Protected `GET` and `PUT` endpoints for `/api/v1/users/profile`. Auth middleware for route protection. `PUT /api/v1/users/change-password` endpoint to securely change passwords with old password verification.
+- **Frontend:** Profile page where users can view and update their username and skin type. 'Security Settings' section with a toggleable form for changing the password.
 - **Testing:** Unit tests for middleware and user endpoints.
 
 ### Feature 03: Core INCI Analysis Engine

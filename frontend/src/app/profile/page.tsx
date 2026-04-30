@@ -19,6 +19,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
+  const [savingPassword, setSavingPassword] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       if (!token) return;
@@ -46,6 +50,50 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, [token]);
+
+  const handlePasswordChange = async () => {
+    if (!token) return;
+    if (passwords.new !== passwords.confirm) {
+      setMessage({ type: "error", text: "New passwords do not match" });
+      return;
+    }
+    if (passwords.new.length < 6) {
+      setMessage({ type: "error", text: "New password must be at least 6 characters long" });
+      return;
+    }
+
+    setSavingPassword(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/users/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword: passwords.current, newPassword: passwords.new }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to change password");
+      }
+
+      setMessage({ type: "success", text: "Password changed successfully!" });
+      setPasswords({ current: "", new: "", confirm: "" });
+      setShowPasswordForm(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage({ type: "error", text: err.message });
+      } else {
+        setMessage({ type: "error", text: "An error occurred" });
+      }
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!token) return;
@@ -172,7 +220,82 @@ export default function ProfilePage() {
                 <p className="mt-2 text-xs text-gray-400 ml-1">Select the skin type that best describes you.</p>
               </div>
 
-              <div className="pt-4">
+              {/* Security Settings Section */}
+              <div className="pt-6 mt-6 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg text-gray-800" style={{ fontFamily: 'var(--font-serif)' }}>Security Settings</h3>
+                    <p className="text-xs text-gray-400 mt-1">Manage your account security and password</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowPasswordForm(!showPasswordForm);
+                      setMessage(null);
+                      setPasswords({ current: "", new: "", confirm: "" });
+                    }}
+                    className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    {showPasswordForm ? "Cancel" : "Change Password"}
+                  </button>
+                </div>
+
+                {showPasswordForm && (
+                  <div className="space-y-4 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div>
+                      <input
+                        type="password"
+                        placeholder="Current Password"
+                        value={passwords.current}
+                        onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                        className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="password"
+                        placeholder="New Password"
+                        value={passwords.new}
+                        onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                        className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="password"
+                        placeholder="Confirm New Password"
+                        value={passwords.confirm}
+                        onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                        className="block w-full appearance-none rounded-2xl border border-gray-100 bg-gray-50/50 px-6 py-4 text-gray-700 focus:border-rose-400 focus:outline-none focus:ring-4 focus:ring-rose-50 focus:bg-white transition-all"
+                      />
+                    </div>
+                    <button
+                      onClick={handlePasswordChange}
+                      disabled={savingPassword || !passwords.current || !passwords.new || !passwords.confirm}
+                      className={`group relative w-full py-4 rounded-[2rem] overflow-hidden transition-all duration-500 ${
+                        savingPassword || !passwords.current || !passwords.new || !passwords.confirm
+                          ? 'bg-gray-200 cursor-not-allowed'
+                          : 'bg-rose-400 hover:bg-rose-500 hover:shadow-[0_10px_20px_rgba(251,113,133,0.2)]'
+                      }`}
+                    >
+                      <span className="relative text-white text-sm font-semibold tracking-widest uppercase flex items-center justify-center gap-3">
+                        {savingPassword ? (
+                          <>
+                            <svg className="animate-spin h-5 w-5 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Updating...
+                          </>
+                        ) : (
+                          'Update Password'
+                        )}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-6 mt-6 border-t border-gray-100">
                 <button
                   onClick={handleSave}
                   disabled={saving || skinType === profile?.skinType}
