@@ -21,12 +21,18 @@ export default function Navbar() {
             <Link href="/history" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors">
               Lịch sử
             </Link>
-            <Link href="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors group">
-              <span className="text-rose-400 font-medium italic" style={{ fontFamily: 'var(--font-serif)' }}>
-                Xin chào, {user.displayName || user.username}
+            <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
+              className="group flex items-center gap-1 text-sm tracking-wide text-gray-500 hover:text-gray-700 transition-colors duration-300"
+            >
+              Hồ sơ của&nbsp;
+              <span
+                className="italic text-rose-400 group-hover:text-rose-500 transition-colors duration-300 underline-offset-4 decoration-rose-200 group-hover:underline"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                {user.displayName || user.username}
               </span>
-              <span className="text-gray-300 group-hover:text-rose-200 transition-colors">·</span>
-              <span>Hồ sơ</span>
             </Link>
             {user.role === 'ADMIN' && (
               <Link href="/admin" onClick={() => setIsOpen(false)} className="text-sm tracking-wide text-emerald-600 hover:text-emerald-700 transition-colors">
