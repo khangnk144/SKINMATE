@@ -4,7 +4,7 @@ import { SkinType } from '@prisma/client';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, password, skinType } = req.body;
+    const { username, password, skinType, displayName } = req.body;
 
     if (!username || !password || !skinType) {
       res.status(400).json({ error: 'Tất cả các trường là bắt buộc.' });
@@ -16,7 +16,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const newUser = await registerUser(username, password, skinType as SkinType);
+    const newUser = await registerUser(username, password, skinType as SkinType, displayName);
     res.status(201).json({ message: 'Đăng ký người dùng thành công', user: newUser });
   } catch (error: any) {
     if (error.message === 'Mật khẩu phải dài ít nhất 6 ký tự.' || error.message === 'Tên đăng nhập đã tồn tại.') {

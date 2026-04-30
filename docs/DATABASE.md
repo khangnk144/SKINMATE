@@ -1,6 +1,6 @@
 # SKINMATE - Database Documentation
 
-> **Last Updated:** April 29, 2026
+> **Last Updated:** April 30, 2026
 
 ## 1. Overview
 
@@ -14,9 +14,9 @@ The database is designed to handle skincare ingredient analysis using a normaliz
 
 ```
 User (1) ──────────────── (N) AnalysisHistory
-  │ id, username, passwordHash,
-  │ skinType, role, isActive,
-  │ createdAt, updatedAt
+  │ id, username, displayName,
+  │ passwordHash, skinType,
+  │ role, isActive, createdAt, updatedAt
 
 Ingredient (1) ──────────── (N) IngredientRule
   │ id, name, description          │ id, ingredientId, skinType, effect
@@ -63,6 +63,7 @@ enum SafetyEffect {
 model User {
   id            String            @id @default(uuid())
   username      String            @unique
+  displayName   String?                              // Optional friendly name shown in UI
   passwordHash  String
   skinType      SkinType?         @default(NORMAL)
   role          UserRole          @default(USER)
@@ -128,7 +129,8 @@ model AnalysisHistory {
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | UUID string | Primary key |
-| `username` | String | Unique, used for login |
+| `username` | String | Unique, immutable login ID |
+| `displayName` | String? | Optional friendly name shown in the navbar and profile page |
 | `passwordHash` | String | bcryptjs hash, never exposed via API |
 | `skinType` | Enum (SkinType?) | Nullable; defaults to `NORMAL` |
 | `role` | Enum (UserRole) | `USER` or `ADMIN`; defaults to `USER` |

@@ -14,6 +14,7 @@ const SKIN_TYPES = [
 ];
 
 export default function RegisterPage() {
+  const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -43,7 +44,7 @@ export default function RegisterPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, skinType }),
+        body: JSON.stringify({ username, password, skinType, displayName: displayName.trim() || undefined }),
       });
 
       const data = await res.json();
@@ -127,6 +128,20 @@ export default function RegisterPage() {
                   {error}
                 </div>
               )}
+
+              <div>
+                <label htmlFor="displayName" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
+                  Họ và tên
+                </label>
+                <input
+                  id="displayName"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
+                  placeholder="Tên hiển thị của bạn (tuỳ chọn)"
+                />
+              </div>
 
               <div>
                 <label htmlFor="username" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">

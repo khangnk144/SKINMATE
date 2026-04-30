@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import { SkinType } from '@prisma/client';
 
-export const registerUser = async (username: string, passwordRaw: string, skinType: SkinType) => {
+export const registerUser = async (username: string, passwordRaw: string, skinType: SkinType, displayName?: string) => {
   // Validate input length
   if (passwordRaw.length < 6) {
     throw new Error('Mật khẩu phải dài ít nhất 6 ký tự.');
@@ -23,12 +23,14 @@ export const registerUser = async (username: string, passwordRaw: string, skinTy
   const newUser = await prisma.user.create({
     data: {
       username,
+      displayName: displayName || null,
       passwordHash,
       skinType,
     },
     select: {
       id: true,
       username: true,
+      displayName: true,
       skinType: true,
       role: true,
       createdAt: true
@@ -72,6 +74,7 @@ export const loginUser = async (username: string, passwordRaw: string) => {
     user: {
       id: user.id,
       username: user.username,
+      displayName: user.displayName,
       skinType: user.skinType,
       role: user.role,
     }

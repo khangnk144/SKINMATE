@@ -8,6 +8,7 @@ type SkinType = 'OILY' | 'DRY' | 'SENSITIVE' | 'COMBINATION' | 'NORMAL';
 export interface User {
   id: string;
   username: string;
+  displayName: string | null;
   skinType: SkinType;
   role: UserRole;
 }

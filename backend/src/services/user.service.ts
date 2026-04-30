@@ -8,6 +8,7 @@ export const getUserProfile = async (userId: string) => {
     select: {
       id: true,
       username: true,
+      displayName: true,
       skinType: true,
       role: true,
       createdAt: true,
@@ -29,6 +30,28 @@ export const updateUserSkinType = async (userId: string, skinType: SkinType) => 
     select: {
       id: true,
       username: true,
+      displayName: true,
+      skinType: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedUser;
+};
+
+export const updateUserProfile = async (userId: string, skinType: SkinType, displayName?: string) => {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      skinType,
+      ...(displayName !== undefined ? { displayName } : {}),
+    },
+    select: {
+      id: true,
+      username: true,
+      displayName: true,
       skinType: true,
       role: true,
       createdAt: true,

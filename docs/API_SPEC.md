@@ -1,6 +1,6 @@
 # SKINMATE - API Specification (v1)
 
-> **Last Updated:** April 29, 2026  
+> **Last Updated:** April 30, 2026  
 > **Status:** All endpoints implemented.
 
 ## 1. General Info
@@ -38,16 +38,25 @@
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `POST` | `/auth/register` | ❌ | Register a new user (`username`, `password`, `skinType`) |
-| `POST` | `/auth/login` | ❌ | Returns JWT token. Rejects locked accounts (`isActive: false`) |
+| `POST` | `/auth/register` | ❌ | Register a new user (`username`, `password`, `skinType`, `displayName?`) |
+| `POST` | `/auth/login` | ❌ | Returns JWT token + user object (includes `displayName`). Rejects locked accounts (`isActive: false`) |
 
 ### User Profile (`/api/v1/users`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/users/profile` | ✅ User | Get authenticated user's profile |
-| `PUT` | `/users/profile` | ✅ User | Update skin type and/or username |
+| `GET` | `/users/profile` | ✅ User | Get authenticated user's profile (includes `displayName`) |
+| `PUT` | `/users/profile` | ✅ User | Update `skinType` and/or `displayName` |
 | `PUT` | `/users/change-password` | ✅ User | Change user password |
+
+**Update Profile Request Body:**
+```json
+{
+  "skinType": "OILY",
+  "displayName": "Nguyễn Thị An"
+}
+```
+> `displayName` is optional. Send `null` to clear it. `username` cannot be changed via this endpoint.
 
 **Change Password Request Body:**
 ```json

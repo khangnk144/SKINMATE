@@ -15,6 +15,7 @@ const SKIN_TYPE_LABELS: Record<string, string> = {
 
 interface ProfileData {
   username: string;
+  displayName: string | null;
   skinType: string;
 }
 
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const { token, user, login } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [skinType, setSkinType] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -48,6 +50,7 @@ export default function ProfilePage() {
         const data = await res.json();
         setProfile(data);
         setSkinType(data.skinType || "NORMAL");
+        setDisplayName(data.displayName || "");
       } catch (err) {
         console.error("Error fetching profile:", err);
       } finally {
@@ -114,7 +117,7 @@ export default function ProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ skinType }),
+        body: JSON.stringify({ skinType, displayName: displayName.trim() || null }),
       });
 
       const data = await res.json();
@@ -126,9 +129,9 @@ export default function ProfilePage() {
       setProfile(data);
       setMessage({ type: "success", text: "Cập nhật hồ sơ thành công!" });
       
-      // Update local context user data
+      // Update local context user data so the navbar greeting refreshes
       if (user) {
-        login(token, { ...user, skinType: data.skinType });
+        login(token, { ...user, skinType: data.skinType, displayName: data.displayName ?? null });
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -199,6 +202,21 @@ export default function ProfilePage() {
                   {profile?.username}
                 </div>
                 <p className="mt-2 text-xs text-gray-400 ml-1">Tên đăng nhập của bạn không thể thay đổi.</p>
+              </div>
+
+              <div>
+                <label htmlFor="displayName" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
+                  Tên hiển thị
+                </label>
+                <input
+                  id="displayName"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-6 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all text-gray-700 placeholder:text-gray-300"
+                  placeholder="Họ và tên của bạn"
+                />
+                <p className="mt-2 text-xs text-gray-400 ml-1">Tên này sẽ được hiển thị trên thanh điều hướng.</p>
               </div>
 
               <div>
@@ -305,9 +323,9 @@ export default function ProfilePage() {
               <div className="pt-6 mt-6 border-t border-gray-100">
                 <button
                   onClick={handleSave}
-                  disabled={saving || skinType === profile?.skinType}
+                  disabled={saving || (skinType === profile?.skinType && displayName.trim() === (profile?.displayName ?? ""))}
                   className={`group relative w-full py-5 rounded-[2rem] overflow-hidden transition-all duration-500 ${
-                    saving || skinType === profile?.skinType
+                    saving || (skinType === profile?.skinType && displayName.trim() === (profile?.displayName ?? ""))
                       ? 'bg-gray-200 cursor-not-allowed'
                       : 'bg-gray-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1'
                   }`}

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
-import { getUserProfile, updateUserSkinType, changePassword as changePasswordService } from '../services/user.service';
+import { getUserProfile, updateUserProfile, changePassword as changePasswordService } from '../services/user.service';
 import { SkinType } from '@prisma/client';
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -27,7 +27,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const { skinType } = req.body;
+    const { skinType, displayName } = req.body;
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -44,7 +44,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    const updatedUser = await updateUserSkinType(userId, skinType as SkinType);
+    const updatedUser = await updateUserProfile(userId, skinType as SkinType, displayName);
     res.status(200).json(updatedUser);
   } catch (error: any) {
     console.error('Update profile error:', error);
