@@ -40,7 +40,7 @@ export default function Navbar() {
         {/* Always-visible link */}
         <Link
           href="/analysis"
-          className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors duration-300"
+          className="text-base tracking-wide text-gray-500 hover:text-rose-400 transition-colors duration-300"
         >
           Phân tích
         </Link>
@@ -51,7 +51,7 @@ export default function Navbar() {
             {user?.role === "ADMIN" && (
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-1.5 text-sm tracking-wide text-slate-700 bg-rose-50/50 border border-rose-100 px-3.5 py-1.5 rounded-full hover:bg-rose-100/80 transition-all duration-300"
+                className="inline-flex items-center gap-1.5 text-base tracking-wide text-slate-700 bg-rose-50/50 border border-rose-100 px-3.5 py-1.5 rounded-full hover:bg-rose-100/80 transition-all duration-300"
               >
                 <LayoutDashboard className="w-3.5 h-3.5 text-rose-400" />
                 Quản trị
@@ -68,12 +68,12 @@ export default function Navbar() {
                   aria-label="Mở menu người dùng"
                 >
                   {/* Avatar circle */}
-                  <span className="w-8 h-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center text-xs font-semibold tracking-wide ring-2 ring-white group-hover:ring-rose-200 transition-all duration-300">
+                  <span className="w-9 h-9 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center text-sm font-semibold tracking-wide ring-2 ring-white group-hover:ring-rose-200 transition-all duration-300">
                     {avatarLetter}
                   </span>
                   {/* Display name */}
                   <span
-                    className="text-sm text-rose-400 group-hover:text-rose-500 transition-colors duration-300"
+                    className="text-base text-rose-400 group-hover:text-rose-500 transition-colors duration-300"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {displayLabel}
@@ -94,11 +94,11 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-3 w-52 bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
                     {/* Name header inside dropdown */}
                     <div className="px-4 pt-4 pb-3 border-b border-rose-50">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
                         Đang đăng nhập
                       </p>
                       <p
-                        className="text-sm text-slate-800 truncate"
+                        className="text-base text-slate-800 truncate"
                         style={{ fontFamily: "var(--font-serif)" }}
                       >
                         {displayLabel}
@@ -110,7 +110,7 @@ export default function Navbar() {
                       <Link
                         href="/profile"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
                       >
                         <User className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors duration-200" />
                         Hồ sơ
@@ -118,7 +118,7 @@ export default function Navbar() {
                       <Link
                         href="/history"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
                       >
                         <History className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors duration-200" />
                         Lịch sử
@@ -129,7 +129,7 @@ export default function Navbar() {
                     <div className="px-1.5 pb-2 border-t border-rose-50">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl text-sm text-gray-500 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group text-left"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl text-base text-gray-500 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group text-left"
                       >
                         <LogOut className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors duration-200" />
                         Đăng xuất
@@ -143,13 +143,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="text-sm tracking-wide text-gray-500 hover:text-rose-400 transition-colors duration-300"
+                  className="text-base tracking-wide text-gray-500 hover:text-rose-400 transition-colors duration-300"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                  className="inline-flex items-center justify-center px-6 py-2.5 text-base font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                 >
                   Tham gia ngay
                 </Link>
@@ -186,9 +186,9 @@ export default function Navbar() {
                   {avatarLetter}
                 </span>
                 <div>
-                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Đang đăng nhập</p>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Đang đăng nhập</p>
                   <p
-                    className="text-sm text-slate-800"
+                    className="text-base text-slate-800"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {displayLabel}
@@ -201,7 +201,7 @@ export default function Navbar() {
             <Link
               href="/analysis"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
             >
               Phân tích
             </Link>
@@ -211,7 +211,7 @@ export default function Navbar() {
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
                 >
                   <User className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors" />
                   Hồ sơ
@@ -219,7 +219,7 @@ export default function Navbar() {
                 <Link
                   href="/history"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group"
                 >
                   <History className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors" />
                   Lịch sử
@@ -229,7 +229,7 @@ export default function Navbar() {
                   <Link
                     href="/admin"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-700 bg-rose-50/50 border border-rose-100 hover:bg-rose-100/80 transition-all duration-200 group"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-slate-700 bg-rose-50/50 border border-rose-100 hover:bg-rose-100/80 transition-all duration-200 group"
                   >
                     <LayoutDashboard className="w-4 h-4 text-rose-400" />
                     Quản trị
@@ -239,7 +239,7 @@ export default function Navbar() {
                 <div className="pt-3 mt-3 border-t border-rose-50">
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-500 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-500 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200 group text-left"
                   >
                     <LogOut className="w-4 h-4 text-gray-400 group-hover:text-rose-400 transition-colors" />
                     Đăng xuất
@@ -253,7 +253,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-base text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
                 >
                   Đăng nhập
                 </Link>
@@ -261,7 +261,7 @@ export default function Navbar() {
                   <Link
                     href="/register"
                     onClick={() => setIsOpen(false)}
-                    className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300"
+                    className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-medium tracking-wide text-white bg-rose-400 hover:bg-rose-500 rounded-full transition-all duration-300"
                   >
                     Tham gia ngay
                   </Link>

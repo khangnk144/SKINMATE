@@ -37,7 +37,7 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center h-20">
                 <div className="flex-shrink-0 flex items-center">
-                  <Link href="/" className="font-serif text-2xl tracking-widest text-slate-900 uppercase">
+                  <Link href="/" className="font-serif text-3xl tracking-widest text-slate-900 uppercase">
                     Skinmate
                   </Link>
                 </div>
@@ -52,11 +52,11 @@ export default function RootLayout({
 
           <footer className="bg-transparent border-t border-rose-100 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-              <p className="font-serif text-xl tracking-widest text-slate-900 uppercase mb-4">Skinmate</p>
-              <p className="text-sm text-gray-400 text-center max-w-md">
+              <p className="font-serif text-2xl tracking-widest text-slate-900 uppercase mb-4">Skinmate</p>
+              <p className="text-base text-gray-400 text-center max-w-md">
                 Nâng tầm hành trình chăm sóc da của bạn với những thông tin chi tiết dựa trên cơ sở khoa học và sự sang trọng tuyệt đối.
               </p>
-              <p className="text-xs text-gray-300 mt-8 uppercase tracking-widest">
+              <p className="text-sm text-gray-300 mt-8 uppercase tracking-widest">
                 &copy; {new Date().getFullYear()} Skinmate. All rights reserved.
               </p>
             </div>
