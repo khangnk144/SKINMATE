@@ -73,7 +73,7 @@ export default function Navbar() {
                   </span>
                   {/* Display name */}
                   <span
-                    className="text-sm italic text-rose-400 group-hover:text-rose-500 transition-colors duration-300"
+                    className="text-sm text-rose-400 group-hover:text-rose-500 transition-colors duration-300"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {displayLabel}
@@ -98,7 +98,7 @@ export default function Navbar() {
                         Đang đăng nhập
                       </p>
                       <p
-                        className="text-sm italic text-slate-800 truncate"
+                        className="text-sm text-slate-800 truncate"
                         style={{ fontFamily: "var(--font-serif)" }}
                       >
                         {displayLabel}
@@ -188,7 +188,7 @@ export default function Navbar() {
                 <div>
                   <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Đang đăng nhập</p>
                   <p
-                    className="text-sm italic text-slate-800"
+                    className="text-sm text-slate-800"
                     style={{ fontFamily: "var(--font-serif)" }}
                   >
                     {displayLabel}
