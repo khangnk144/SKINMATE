@@ -89,19 +89,19 @@ export default function Home() {
                       <>
                         <Link
                           href="/analysis"
-                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                         >
                           Phân Tích Ngay
                         </Link>
                         <Link
                           href="/profile"
-                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 text-lg font-medium transition-all duration-300"
+                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
                         >
                           Hồ Sơ Của Tôi
                         </Link>
                         <button
                           onClick={logout}
-                          className="px-6 py-4 text-base font-bold text-gray-400 hover:text-rose-400 uppercase tracking-widest transition-colors"
+                          className="px-6 py-4 text-sm font-bold text-gray-400 hover:text-rose-400 uppercase tracking-widest transition-colors"
                         >
                           Đăng Xuất
                         </button>
@@ -110,13 +110,13 @@ export default function Home() {
                       <>
                         <Link
                           href="/register"
-                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white text-lg font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                          className="px-8 py-4 rounded-full bg-rose-400 hover:bg-rose-500 text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                         >
                           Bắt Đầu Ngay
                         </Link>
                         <Link
                           href="/login"
-                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 text-lg font-medium transition-all duration-300"
+                          className="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-600 hover:text-rose-400 hover:border-rose-400 font-medium transition-all duration-300"
                         >
                           Đăng Nhập
                         </Link>
@@ -212,12 +212,12 @@ export default function Home() {
                   />
                 </div>
                 <h3
-                  className="text-3xl mb-3 text-[var(--gray-800)]"
+                  className="text-2xl mb-3 text-[var(--gray-800)]"
                   style={{ fontFamily: 'var(--font-serif)', fontWeight: 500 }}
                 >
                   {feature.title}
                 </h3>
-                <p className="text-lg text-[var(--gray-600)] leading-relaxed">
+                <p className="text-[var(--gray-600)] leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -227,7 +227,7 @@ export default function Home() {
 
         {/* Subtle Status */}
         <div className="max-w-[1200px] mx-auto px-6 mt-24 opacity-40 hover:opacity-100 transition-opacity duration-700 flex justify-center">
-          <div className="flex items-center gap-4 text-[12px] font-black tracking-[0.3em] uppercase text-slate-400">
+          <div className="flex items-center gap-4 text-[10px] font-black tracking-[0.3em] uppercase text-slate-400">
             <div className="h-px w-8 bg-slate-200"></div>
             {error ? (
               <span className="text-rose-400 flex items-center gap-2">

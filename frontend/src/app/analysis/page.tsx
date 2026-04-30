@@ -157,9 +157,9 @@ function AnalysisContent() {
         <div className="flex justify-between items-center mb-12">
           <div>
             <h1 className="text-5xl font-serif text-slate-900 tracking-tight mb-2">Phân Tích</h1>
-            <p className="text-slate-400 text-base tracking-widest uppercase">Thấu hiểu thành phần</p>
+            <p className="text-slate-400 text-sm tracking-widest uppercase">Thấu hiểu thành phần</p>
           </div>
-          <Link href="/" className="group flex items-center gap-3 text-base font-medium text-slate-500 hover:text-slate-800 transition-all duration-300">
+          <Link href="/" className="group flex items-center gap-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all duration-300">
             <span className="w-8 h-px bg-slate-200 group-hover:w-12 group-hover:bg-rose-300 transition-all duration-500"></span>
             Về Trang Chủ
           </Link>
@@ -179,7 +179,7 @@ function AnalysisContent() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
             <div className="absolute bottom-12 left-12 right-12 text-white">
               <p className="font-serif text-3xl mb-2 tracking-tight">Công Thức Tinh Khiết</p>
-              <p className="text-white/80 text-base tracking-widest uppercase font-light">Được tạo ra cho làn da độc đáo của bạn</p>
+              <p className="text-white/80 text-sm tracking-widest uppercase font-light">Được tạo ra cho làn da độc đáo của bạn</p>
             </div>
           </div>
 
@@ -189,7 +189,7 @@ function AnalysisContent() {
               <div className="mb-10">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-full border border-rose-100 mb-6">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                  <span className="text-[12px] font-bold text-rose-500 uppercase tracking-[0.15em]">Cá nhân hóa cho da {user.skinType}</span>
+                  <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.15em]">Cá nhân hóa cho da {user.skinType}</span>
                 </div>
                 <h2 className="text-3xl font-serif text-slate-800 mb-4 tracking-tight">Kiểm Tra Thành Phần</h2>
                 <p className="text-slate-500 font-light leading-relaxed">
@@ -199,7 +199,7 @@ function AnalysisContent() {
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[12px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Danh sách INCI</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Danh sách INCI</label>
                   <textarea
                     className="w-full h-56 p-8 bg-stone-50/50 border border-slate-100 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-rose-50 focus:border-rose-200 focus:bg-white transition-all resize-none text-slate-700 text-lg font-light leading-relaxed placeholder:text-slate-300"
                     placeholder="Water, Glycerin, Niacinamide..."
@@ -211,22 +211,22 @@ function AnalysisContent() {
                 {/* Improved Profile & Mode Selectors */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="group">
-                    <label className="block text-[12px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Hồ Sơ Của Bạn</label>
-                    <div className="w-full min-h-[60px] px-6 py-4 bg-stone-50/50 border border-slate-100 rounded-2xl text-slate-600 text-base font-medium flex items-center justify-between gap-4 group-hover:bg-white group-hover:border-rose-100 transition-all duration-300">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Hồ Sơ Của Bạn</label>
+                    <div className="w-full min-h-[60px] px-6 py-4 bg-stone-50/50 border border-slate-100 rounded-2xl text-slate-600 text-sm font-medium flex items-center justify-between gap-4 group-hover:bg-white group-hover:border-rose-100 transition-all duration-300">
                       <span className="truncate uppercase tracking-wider">{user.skinType}</span>
-                      <Link href="/profile" className="flex-shrink-0 text-rose-400 text-sm font-bold hover:text-rose-500 underline underline-offset-4 decoration-rose-200">Thay Đổi</Link>
+                      <Link href="/profile" className="flex-shrink-0 text-rose-400 text-xs font-bold hover:text-rose-500 underline underline-offset-4 decoration-rose-200">Thay Đổi</Link>
                     </div>
                   </div>
                   <div className="group">
-                    <label className="block text-[12px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Chế Độ Phân Tích</label>
-                    <div className="w-full min-h-[60px] px-6 py-4 bg-stone-50/50 border border-slate-100 rounded-2xl text-slate-600 text-base font-medium flex items-center group-hover:bg-white group-hover:border-emerald-100 transition-all duration-300">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Chế Độ Phân Tích</label>
+                    <div className="w-full min-h-[60px] px-6 py-4 bg-stone-50/50 border border-slate-100 rounded-2xl text-slate-600 text-sm font-medium flex items-center group-hover:bg-white group-hover:border-emerald-100 transition-all duration-300">
                       <span className="truncate">An Toàn & Hiệu Quả</span>
                     </div>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-2xl text-rose-600 text-base animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center gap-3 p-4 bg-rose-50/50 border border-rose-100 rounded-2xl text-rose-600 text-sm animate-in fade-in slide-in-from-top-2">
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0116 0z"></path></svg>
                     {error}
                   </div>
@@ -242,7 +242,7 @@ function AnalysisContent() {
               }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-rose-300/20 to-emerald-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative text-white text-base font-semibold tracking-[0.25em] uppercase flex items-center justify-center gap-3">
+              <span className="relative text-white text-sm font-semibold tracking-[0.25em] uppercase flex items-center justify-center gap-3">
                 {loading ? (
                   <>
                     <svg className="animate-spin h-5 w-5 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -273,7 +273,7 @@ function AnalysisContent() {
                   <button
                     key={idx}
                     onClick={() => setSelectedIngredient(result)}
-                    className={`px-8 py-3 rounded-full border text-sm font-semibold tracking-widest uppercase transition-all duration-500 hover:-translate-y-1 hover:shadow-md active:scale-95 ${getEffectClasses(
+                    className={`px-8 py-3 rounded-full border text-xs font-semibold tracking-widest uppercase transition-all duration-500 hover:-translate-y-1 hover:shadow-md active:scale-95 ${getEffectClasses(
                       result.effect
                     )}`}
                   >
@@ -288,7 +288,7 @@ function AnalysisContent() {
               </div>
               
               <div className="mt-12 pt-8 border-t border-stone-100 text-center">
-                <p className="text-slate-400 text-sm tracking-widest uppercase font-bold">Nhấp vào một thành phần để xem thông tin chi tiết</p>
+                <p className="text-slate-400 text-xs tracking-widest uppercase font-bold">Nhấp vào một thành phần để xem thông tin chi tiết</p>
               </div>
             </div>
           </div>
@@ -298,7 +298,7 @@ function AnalysisContent() {
         {results && (
           <div className="animate-in fade-in duration-1000">
             <div className="flex flex-col items-center mb-16">
-              <p className="text-rose-400 text-[12px] font-black tracking-[0.3em] uppercase mb-4">Lựa Chọn Tuyển Tập</p>
+              <p className="text-rose-400 text-[10px] font-black tracking-[0.3em] uppercase mb-4">Lựa Chọn Tuyển Tập</p>
               <h2 className="text-5xl font-serif text-slate-800 tracking-tight">Đề Xuất Cho Bạn</h2>
             </div>
 
@@ -320,7 +320,7 @@ function AnalysisContent() {
                 <div className="max-w-md mx-auto">
                   <svg className="w-12 h-12 text-stone-200 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                   <p className="text-slate-500 text-xl font-serif italic mb-2">Chờ Tương Thích</p>
-                  <p className="text-slate-400 text-base font-light">Chúng tôi không thể tìm thấy sản phẩm hoàn hảo cho hồ sơ da và thành phần hiện tại của bạn. Hãy thử khám phá danh mục của chúng tôi.</p>
+                  <p className="text-slate-400 text-sm font-light">Chúng tôi không thể tìm thấy sản phẩm hoàn hảo cho hồ sơ da và thành phần hiện tại của bạn. Hãy thử khám phá danh mục của chúng tôi.</p>
                 </div>
               </div>
             )}
@@ -346,7 +346,7 @@ function AnalysisContent() {
                        <span className={`w-2 h-2 rounded-full ${
                         selectedIngredient.effect === 'GOOD' ? 'bg-emerald-400' : selectedIngredient.effect === 'BAD' ? 'bg-rose-400' : 'bg-slate-400'
                       }`}></span>
-                      <span className="text-[12px] font-black tracking-[0.2em] uppercase text-slate-400">Thông Tin Thành Phân</span>
+                      <span className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-400">Thông Tin Thành Phần</span>
                     </div>
                     <h3 className="text-4xl font-serif text-slate-800 capitalize leading-tight tracking-tight">{selectedIngredient.mappedName}</h3>
                   </div>
@@ -359,7 +359,7 @@ function AnalysisContent() {
                 </div>
 
                 <div className="mb-10">
-                  <span className={`inline-flex items-center px-6 py-2 rounded-full text-[12px] font-bold tracking-[0.2em] uppercase border ${
+                  <span className={`inline-flex items-center px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase border ${
                     selectedIngredient.effect === 'GOOD' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
                     selectedIngredient.effect === 'BAD' ? 'bg-rose-50 text-rose-700 border-rose-100' : 
                     'bg-stone-50 text-slate-500 border-stone-100'
@@ -374,11 +374,11 @@ function AnalysisContent() {
                   </p>
                   
                   <div className="pt-8 mt-8 border-t border-stone-100">
-                    <p className="text-[12px] font-bold text-slate-300 uppercase tracking-[0.1em]">Hành Động Khuyến Nghị</p>
-                    <p className="text-slate-500 text-base mt-2">
-                      {selectedIngredient.effect === 'BAD' ? 'Chúng tôi khuyên bạn nên tránh các sản phẩm có thành phân này do độ nhạy cảm của da bạn.' : 
-                       selectedIngredient.effect === 'GOOD' ? 'Thành phân này rất tương thích với loại da của bạn và sẽ mang lại lợi ích đáng kể.' : 
-                       'Thành phân này nói chung là an toàn cho hầu hết người dùng có hồ sơ của bạn.'}
+                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Hành Động Khuyến Nghị</p>
+                    <p className="text-slate-500 text-sm mt-2">
+                      {selectedIngredient.effect === 'BAD' ? 'Chúng tôi khuyên bạn nên tránh các sản phẩm có thành phần này do độ nhạy cảm của da bạn.' : 
+                       selectedIngredient.effect === 'GOOD' ? 'Thành phần này rất tương thích với loại da của bạn và sẽ mang lại lợi ích đáng kể.' : 
+                       'Thành phần này nói chung là an toàn cho hầu hết người dùng có hồ sơ của bạn.'}
                     </p>
                   </div>
                 </div>
