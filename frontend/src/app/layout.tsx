@@ -57,7 +57,7 @@ export default function RootLayout({
                 Nâng tầm hành trình chăm sóc da của bạn với những thông tin chi tiết dựa trên cơ sở khoa học và sự sang trọng tuyệt đối.
               </p>
               <p className="text-xs text-gray-300 mt-8 uppercase tracking-widest">
-                &copy; {new Date().getFullYear()} Skinmate. Mọi quyền được bảo lưu.
+                &copy; {new Date().getFullYear()} Skinmate. All rights reserved.
               </p>
             </div>
           </footer>

@@ -52,13 +52,31 @@ export default function AdminReports() {
     if (token) fetchReports();
   }, [token]);
 
-  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Generating statistical reports...</div>;
+  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tạo báo cáo thống kê...</div>;
+
+  const downloadCSV = () => {
+    if (!data) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Type,Count\n";
+    data.skinTypeDistribution.forEach(row => {
+      csvContent += `${row.type},${row.count}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "skinmate_reports.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="animate-in fade-in duration-700">
       <div className="mb-10">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">System Reports</h1>
-        <p className="text-slate-500 mt-2 font-light">Overview of SKINMATE platform usage and user demographics.</p>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Báo Cáo Hệ Thống</h1>
+        <p className="text-slate-500 mt-2 font-light">Tổng quan về việc sử dụng nền tảng SKINMATE và nhân khẩu học người dùng.</p>
       </div>
 
       {error && (
@@ -70,19 +88,19 @@ export default function AdminReports() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-rose-50/50 transition-all hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] group">
-          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Total Platform Users</h3>
+          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Tổng Số Người Dùng</h3>
           <div className="flex items-baseline gap-4">
             <p className="text-5xl font-serif text-slate-900 leading-none">{data?.totalUsers || 0}</p>
-            <span className="text-emerald-500 text-sm font-medium bg-emerald-50 px-2 py-0.5 rounded-full">Active Community</span>
+            <span className="text-emerald-500 text-sm font-medium bg-emerald-50 px-2 py-0.5 rounded-full">Cộng Đồng Hoạt Động</span>
           </div>
           <div className="h-1 w-12 bg-rose-200 mt-8 rounded-full group-hover:w-24 transition-all duration-500"></div>
         </div>
 
         <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-rose-50/50 transition-all hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] group">
-          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Total Skin Analyses</h3>
+          <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Tổng Số Lượt Phân Tích</h3>
           <div className="flex items-baseline gap-4">
             <p className="text-5xl font-serif text-emerald-600 leading-none">{data?.totalAnalyses || 0}</p>
-            <span className="text-rose-400 text-sm font-medium bg-rose-50 px-2 py-0.5 rounded-full">Safety Checks</span>
+            <span className="text-rose-400 text-sm font-medium bg-rose-50 px-2 py-0.5 rounded-full">Kiểm Tra An Toàn</span>
           </div>
           <div className="h-1 w-12 bg-emerald-200 mt-8 rounded-full group-hover:w-24 transition-all duration-500"></div>
         </div>
@@ -91,7 +109,7 @@ export default function AdminReports() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-rose-50/50">
-          <h3 className="text-lg font-serif text-slate-800 mb-8">Skin Type Distribution</h3>
+          <h3 className="text-lg font-serif text-slate-800 mb-8">Phân Bổ Loại Da</h3>
           <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -129,20 +147,23 @@ export default function AdminReports() {
         <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-rose-50/50 flex flex-col justify-center">
           <div className="space-y-8">
             <div>
-              <p className="text-sm text-slate-400 font-medium uppercase tracking-tighter mb-1">Growth Index</p>
+              <p className="text-sm text-slate-400 font-medium uppercase tracking-tighter mb-1">Chỉ Số Tăng Trưởng</p>
               <p className="text-slate-600 font-light leading-relaxed">
-                The platform is seeing a <span className="text-emerald-600 font-semibold">steady increase</span> in safety-conscious users.
+                Nền tảng đang ghi nhận sự <span className="text-emerald-600 font-semibold">gia tăng ổn định</span> của người dùng có ý thức về an toàn.
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-400 font-medium uppercase tracking-tighter mb-1">Data Quality</p>
+              <p className="text-sm text-slate-400 font-medium uppercase tracking-tighter mb-1">Chất Lượng Dữ Liệu</p>
               <p className="text-slate-600 font-light leading-relaxed">
-                All metrics are updated in real-time from our production database.
+                Tất cả các số liệu được cập nhật theo thời gian thực từ cơ sở dữ liệu của chúng tôi.
               </p>
             </div>
             <div className="pt-4">
-              <button className="w-full py-4 border border-rose-100 text-rose-400 rounded-2xl hover:bg-rose-50 transition-all font-medium text-sm">
-                Export Data (CSV)
+              <button 
+                onClick={downloadCSV}
+                className="w-full py-4 border border-rose-100 text-rose-400 rounded-2xl hover:bg-rose-50 transition-all font-medium text-sm"
+              >
+                Xuất Dữ Liệu (CSV)
               </button>
             </div>
           </div>
