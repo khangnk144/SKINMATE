@@ -79,7 +79,7 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-[var(--gray-600)] max-w-xl mb-12 leading-relaxed">
-                  Phân tích chăm sóc da cao cấp bằng AI. Đề xuất cá nhân hóa cho hành trình làm đẹp độc đáo của bạn.
+                  Phân tích thành phần mỹ phẩm bằng AI, cá nhân hóa theo loại da.
                 </p>
 
                 {/* CTA Buttons */}
@@ -178,17 +178,17 @@ export default function Home() {
             {[
               {
                 title: 'Phân tích AI',
-                description: 'Phân tích da chuyên sâu sử dụng công nghệ AI tiên tiến',
+                description: 'Đánh giá INCI theo dữ liệu và loại da',
                 color: 'rose',
               },
               {
-                title: 'Chăm sóc cá nhân hóa',
-                description: 'Quy trình chăm sóc da thiết kế riêng cho bạn',
+                title: 'Lọc độ phù hợp',
+                description: 'Phân loại thành phần theo mức độ an toàn',
                 color: 'sage',
               },
               {
-                title: 'Hướng dẫn chuyên gia',
-                description: 'Đề xuất chuyên môn từ các chuyên gia da liễu',
+                title: 'Gợi ý sản phẩm',
+                description: 'Gợi ý sản phẩm không chứa thành phần gây hại',
                 color: 'rose',
               },
             ].map((feature, index) => (

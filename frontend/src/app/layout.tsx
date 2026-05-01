@@ -54,7 +54,7 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
               <p className="font-serif text-2xl tracking-widest text-slate-900 uppercase mb-4">Skinmate</p>
               <p className="text-base text-gray-400 text-center max-w-md">
-                Nâng tầm hành trình chăm sóc da của bạn với những thông tin chi tiết dựa trên cơ sở khoa học và sự sang trọng tuyệt đối.
+                Chăm sóc da thông minh dựa trên dữ liệu khoa học
               </p>
               <p className="text-sm text-gray-300 mt-8 uppercase tracking-widest">
                 &copy; {new Date().getFullYear()} Skinmate. All rights reserved.

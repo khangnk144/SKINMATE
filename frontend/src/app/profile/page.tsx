@@ -167,9 +167,9 @@ export default function ProfilePage() {
                 className="text-4xl text-gray-900 tracking-tight mb-2"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                Hồ Sơ Của Bạn
+                Hồ sơ cá nhân
               </h1>
-              <p className="text-gray-400 text-sm tracking-widest uppercase">Cài Đặt Cá Nhân</p>
+              <p className="text-gray-400 text-sm tracking-widest uppercase">Cài đặt tài khoản</p>
             </div>
             <button
               onClick={() => window.history.back()}
