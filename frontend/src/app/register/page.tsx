@@ -100,7 +100,7 @@ export default function RegisterPage() {
             >
               Bắt Đầu Hành Trình
             </p>
-            <p className="text-white/80 text-sm tracking-widest uppercase">Chăm sóc da cá nhân hóa bắt đầu từ đây</p>
+            <p className="text-white/80 text-sm tracking-widest uppercase">Chăm sóc da cá nhân hóa</p>
           </div>
         </div>
 
