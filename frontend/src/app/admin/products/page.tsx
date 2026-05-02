@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { Search } from 'lucide-react';
 
 
 interface Product {
@@ -22,6 +23,7 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -121,18 +123,35 @@ export default function AdminProducts() {
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Loading...</div>;
 
+  const filteredProducts = products.filter(prod =>
+    prod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prod.brand.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-10">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Products</h1>
-        {editingId && (
-          <button 
-            onClick={resetForm}
-            className="bg-gray-50 text-slate-600 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide hover:bg-gray-100 transition-all"
-          >
-            Cancel Edit
-          </button>
-        )}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name or brand..."
+              className="bg-white/70 backdrop-blur-sm rounded-full border border-rose-100 px-6 py-2 pl-10 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200 transition-all"
+            />
+          </div>
+          {editingId && (
+            <button 
+              onClick={resetForm}
+              className="bg-gray-50 text-slate-600 px-6 py-2.5 rounded-full text-sm font-medium tracking-wide hover:bg-gray-100 transition-all"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
       </div>
 
       {error && <div className="bg-rose-50 text-rose-700 p-4 rounded-xl mb-8 text-sm font-medium text-center border border-rose-100">{error}</div>}
@@ -213,7 +232,7 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-rose-50/50">
-            {products.map((prod) => (
+            {filteredProducts.map((prod) => (
               <tr key={prod.id} className="hover:bg-gray-50/50 transition-colors">
                 <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800">
                   <div className="flex items-center">
@@ -243,7 +262,7 @@ export default function AdminProducts() {
                 </td>
               </tr>
             ))}
-            {products.length === 0 && (
+            {filteredProducts.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
                   No products found.

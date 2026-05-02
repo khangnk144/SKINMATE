@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { Search } from 'lucide-react';
 
 interface Ingredient {
   id: number;
@@ -14,6 +15,7 @@ export default function AdminIngredients() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,9 +121,13 @@ export default function AdminIngredients() {
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Loading ingredients...</div>;
 
+  const filteredIngredients = ingredients.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-10">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Ingredients</h1>
         <button 
           onClick={() => handleOpenModal()}
@@ -129,6 +135,19 @@ export default function AdminIngredients() {
         >
           Add New
         </button>
+      </div>
+
+      <div className="flex justify-end mb-6">
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search ingredients..."
+            className="bg-white/70 backdrop-blur-sm rounded-full border border-rose-100 px-6 py-2 pl-10 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200 transition-all"
+          />
+        </div>
       </div>
 
       {error && <div className="bg-rose-50 text-rose-700 p-4 rounded-xl mb-8 text-sm font-medium text-center border border-rose-100">{error}</div>}
@@ -145,7 +164,7 @@ export default function AdminIngredients() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-rose-50/50">
-            {ingredients.map((item) => (
+            {filteredIngredients.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                 <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-400 font-light">#{item.id}</td>
                 <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800 tracking-tight">{item.name}</td>
@@ -168,7 +187,7 @@ export default function AdminIngredients() {
                 </td>
               </tr>
             ))}
-            {ingredients.length === 0 && (
+            {filteredIngredients.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
                   No ingredients in the database yet.
