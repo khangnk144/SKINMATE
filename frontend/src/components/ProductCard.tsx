@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 
 interface ProductCardProps {
   name: string;
@@ -7,15 +10,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ name, brand, imageUrl }: ProductCardProps) => {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="group bg-white/80 backdrop-blur-sm rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-all duration-700 overflow-hidden border border-white/40 flex flex-col h-full hover:-translate-y-2">
       <div className="w-full h-64 bg-stone-50 relative overflow-hidden">
-        {imageUrl ? (
+        {imageUrl && !imgError ? (
           <Image 
             src={imageUrl} 
             alt={name} 
             fill 
             className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-rose-100 bg-stone-50/50">
