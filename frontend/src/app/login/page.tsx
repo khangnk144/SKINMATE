@@ -80,7 +80,7 @@ export default function LoginPage() {
                 Đăng Nhập
               </h2>
               <p className="text-gray-500 leading-relaxed">
-                Chào mừng trở lại! Vui lòng nhập thông tin đăng nhập để truy cập hồ sơ chăm sóc da cá nhân của bạn.
+                Chào mừng trở lại! Vui lòng nhập thông tin đăng nhập để tiếp tục hành trình chăm sóc da của bạn.
               </p>
             </div>
 

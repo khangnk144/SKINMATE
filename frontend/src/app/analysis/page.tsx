@@ -82,7 +82,7 @@ function AnalysisContent() {
         <div className="bg-white/70 backdrop-blur-xl border border-white/40 p-12 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.03)] max-w-md w-full text-center">
           <h2 className="text-4xl font-serif mb-6 text-slate-800 tracking-tight">Truy Cập Bị Hạn Chế</h2>
           <p className="mb-10 text-slate-500 font-light leading-relaxed">
-            Để mở khóa phân tích thành phần cao cấp và đề xuất cá nhân hóa, vui lòng đăng nhập vào tài khoản của bạn.
+            Vui lòng đăng nhập để sử dụng tính năng phân tích thành phần chuyên sâu và nhận các đề xuất sản phẩm dành riêng cho bạn.
           </p>
           <Link href="/login" className="block w-full py-4 bg-slate-900 text-white text-sm font-medium tracking-[0.2em] uppercase rounded-2xl hover:bg-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-500">
             Đăng Nhập
@@ -193,7 +193,7 @@ function AnalysisContent() {
                 </div>
                 <h2 className="text-3xl font-serif text-slate-800 mb-4 tracking-tight">Kiểm Tra Thành Phần</h2>
                 <p className="text-slate-500 font-light leading-relaxed">
-                  Dán danh sách INCI của bạn bên dưới. Chúng tôi sẽ đối chiếu từng thành phần với hồ sơ của bạn để đảm bảo an toàn và hiệu quả tuyệt đối.
+                  Nhập danh sách thành phần (INCI) của sản phẩm vào bên dưới. Chúng tôi sẽ phân tích và đối chiếu với tình trạng da của bạn để đánh giá mức độ an toàn và độ hiệu quả.
                 </p>
               </div>
 
@@ -320,7 +320,7 @@ function AnalysisContent() {
                 <div className="max-w-md mx-auto">
                   <svg className="w-12 h-12 text-stone-200 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                   <p className="text-slate-500 text-xl font-serif italic mb-2">Chờ Tương Thích</p>
-                  <p className="text-slate-400 text-sm font-light">Chúng tôi không thể tìm thấy sản phẩm hoàn hảo cho hồ sơ da và thành phần hiện tại của bạn. Hãy thử khám phá danh mục của chúng tôi.</p>
+                  <p className="text-slate-400 text-sm font-light">Chúng tôi chưa tìm thấy sản phẩm nào thực sự phù hợp với loại da và các thành phần bạn vừa nhập. Hãy thử khám phá thêm trong danh mục sản phẩm của chúng tôi.</p>
                 </div>
               </div>
             )}
@@ -370,15 +370,15 @@ function AnalysisContent() {
 
                 <div className="space-y-6">
                   <p className="text-slate-600 font-light leading-[1.8] text-xl">
-                    {selectedIngredient.description || 'Cơ sở dữ liệu lâm sàng của chúng tôi hiện đang được cập nhật với phân tích chi tiết cho thành phần cụ thể này. Vui lòng quay lại sau để xem thông tin sâu hơn.'}
+                    {selectedIngredient.description || 'Hệ thống đang cập nhật thông tin chi tiết cho thành phần này. Vui lòng quay lại sau để xem thêm thông tin.'}
                   </p>
                   
                   <div className="pt-8 mt-8 border-t border-stone-100">
                     <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Hành Động Khuyến Nghị</p>
                     <p className="text-slate-500 text-sm mt-2">
-                      {selectedIngredient.effect === 'BAD' ? 'Chúng tôi khuyên bạn nên tránh các sản phẩm có thành phần này do độ nhạy cảm của da bạn.' : 
-                       selectedIngredient.effect === 'GOOD' ? 'Thành phần này rất tương thích với loại da của bạn và sẽ mang lại lợi ích đáng kể.' : 
-                       'Thành phần này nói chung là an toàn cho hầu hết người dùng có hồ sơ của bạn.'}
+                      {selectedIngredient.effect === 'BAD' ? 'Bạn nên cân nhắc tránh các sản phẩm chứa thành phần này vì nó có thể không phù hợp với tình trạng da của bạn.' : 
+                       selectedIngredient.effect === 'GOOD' ? 'Thành phần này rất tương thích và mang lại nhiều lợi ích tuyệt vời cho làn da của bạn.' : 
+                       'Thành phần này lành tính và hoàn toàn an toàn cho tình trạng da hiện tại của bạn.'}
                     </p>
                   </div>
                 </div>
