@@ -1,6 +1,6 @@
 # SKINMATE — Project Status & Complete Guide
 
-> **Last Updated:** April 29, 2026  
+> **Last Updated:** May 5, 2026  
 > **Current Phase:** MVP Complete — All Features Implemented & Deployed Locally
 
 ---
@@ -76,8 +76,10 @@ Below is every folder and file in the project. Folders marked with 📁, files w
 ```
 SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │
+├── 📄 GENERAL.md                  ← New member onboarding guide (~30 min read)
 ├── 📄 STATUS.md                   ← This file! Documents everything about the project
 ├── 📄 .gitignore                  ← Root-level gitignore (excludes .env, node_modules, etc.)
+├── 📄 fix-urls.js                 ← Utility script to replace hardcoded localhost URLs with env vars
 │
 ├── 📁 docs/                       ← 📚 PROJECT DOCUMENTATION (planning & rules)
 │   ├── 📄 README.md               ← Overview of documentation folder
@@ -97,7 +99,7 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       └── 📄 08-design-system.md ← Spec for the luxury UI/UX design system
 │
 ├── 📁 backend/                    ← 🖥️ THE SERVER (processes data, talks to database)
-│   ├── 📄 .env                    ← Secret settings (database connection URL, JWT secret)
+│   ├── 📄 .env                    ← Secret settings (DATABASE_URL, JWT_SECRET, GEMINI_API_KEY)
 │   ├── 📄 package.json            ← Lists all backend dependencies and run scripts
 │   ├── 📄 package-lock.json       ← Auto-generated: locks exact versions of dependencies
 │   ├── 📄 tsconfig.json           ← TypeScript settings for the backend
@@ -106,11 +108,7 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │   │
 │   ├── 📁 prisma/                 ← 🗄️ DATABASE DEFINITION & SETUP
 │   │   ├── 📄 schema.prisma       ← THE database blueprint — defines all tables & columns
-│   │   ├── 📄 seed.ts             ← Script to fill the database with sample/test data
-│   │   └── 📁 migrations/         ← Records of every database change ever made
-│   │       ├── 📄 migration_lock.toml  ← Locks the database type (PostgreSQL)
-│   │       └── 📁 20260423040137_init_db/
-│   │           └── 📄 migration.sql    ← SQL commands that created all the initial tables
+│   │   └── 📄 seed.ts             ← Script to fill the database with sample/test data
 │   │
 │   └── 📁 src/                    ← 💻 ALL BACKEND SOURCE CODE
 │       ├── 📄 index.ts            ← THE ENTRY POINT — starts the server, loads all routes
@@ -129,14 +127,16 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   ├── 📄 analysis.controller.ts  ← Handles ingredient analysis requests
 │       │   ├── 📄 product.controller.ts   ← Handles product recommendation requests
 │       │   ├── 📄 history.controller.ts   ← Handles history retrieval & deletion requests
-│       │   └── 📄 admin.controller.ts     ← Handles all admin CRUD, user mgmt & reports
+│       │   ├── 📄 admin.controller.ts     ← Handles all admin CRUD, user mgmt & reports
+│       │   └── 📄 excel.controller.ts     ← Handles Excel file export/import (multer upload + download)
 │       │
 │       ├── 📁 services/           ← ⚙️ BUSINESS LOGIC (the actual "brains" — does the real work)
 │       │   ├── 📄 auth.service.ts      ← Hashes passwords, creates JWT tokens, validates logins, blocks locked accounts
 │       │   ├── 📄 user.service.ts      ← Reads/updates user profile data in the database
 │       │   ├── 📄 analysis.service.ts  ← Parses INCI strings, looks up safety rules per skin type
 │       │   ├── 📄 product.service.ts   ← Safety-first filter: excludes products with BAD ingredients for user's skin type
-│       │   └── 📄 admin.service.ts     ← CRUD for ingredients/rules/products + user management + reports
+│       │   ├── 📄 admin.service.ts     ← CRUD for ingredients/rules/products + user management + reports
+│       │   └── 📄 excel.service.ts     ← Excel import/export logic for ingredients, rules, and products
 │       │
 │       ├── 📁 middlewares/        ← 🔒 SECURITY GUARDS (run BEFORE a request reaches the controller)
 │       │   ├── 📄 auth.middleware.ts      ← Checks if the user is logged in (valid JWT token)
@@ -173,12 +173,12 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
     ├── 📁 node_modules/           ← [AUTO-GENERATED] Downloaded library code (do NOT edit)
     │
     ├── 📁 public/                 ← 🖼️ STATIC ASSETS (images/icons served directly to the browser)
-    │   ├── 📄 favicon.ico         ← Default Next.js icon
     │   ├── 📄 file.svg            ← Default icon
     │   ├── 📄 globe.svg           ← Default icon
     │   ├── 📄 next.svg            ← Next.js logo
     │   ├── 📄 vercel.svg          ← Vercel logo
-    │   └── 📄 window.svg          ← Default icon
+    │   ├── 📄 window.svg          ← Default icon
+    │   └── 📁 images/             ← Project images (aurapink.jpg, beauty products photo, etc.)
     │
     └── 📁 src/                    ← 💻 ALL FRONTEND SOURCE CODE
         │
@@ -216,15 +216,17 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
                 ├── 📄 layout.tsx  ← Admin layout with sidebar navigation
                 ├── 📄 page.tsx    ← ADMIN DASHBOARD (/admin) — overview & links
                 ├── 📁 ingredients/
-                │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete)
+                │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete) with search
                 ├── 📁 rules/
-                │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete)
+                │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete) with search
                 ├── 📁 products/
-                │   └── 📄 page.tsx ← Manage products with INCI string input (add/edit/delete)
+                │   └── 📄 page.tsx ← Manage products with INCI string input (add/edit/delete) with search
                 ├── 📁 users/
                 │   └── 📄 page.tsx ← Manage user accounts (lock/unlock/delete with confirmation modal)
-                └── 📁 reports/
-                    └── 📄 page.tsx ← Statistical dashboard (total users, analyses, skin type pie chart)
+                ├── 📁 reports/
+                │   └── 📄 page.tsx ← Statistical dashboard (total users, analyses, skin type pie chart)
+                └── 📁 import-export/
+                    └── 📄 page.tsx ← Bulk Excel import/export + delete-all danger zone
 ```
 
 ---
@@ -301,6 +303,7 @@ Automated tests are programs that run your code with fake inputs and check if th
 | **Database** | PostgreSQL 15 (via Docker) | Stores all data (users, ingredients, products) |
 | **ORM** | Prisma 5 | Translates between code and database queries |
 | **Authentication** | bcryptjs + jsonwebtoken | Securely hashes passwords and manages login sessions |
+| **Excel I/O** | xlsx + exceljs + multer | Bulk import/export of data via Excel files |
 | **Testing** | Jest + Supertest | Automated testing for backend endpoints |
 | **Code Quality** | ESLint | Catches code style issues and potential bugs |
 | **Dev Server** | Nodemon | Auto-restarts backend when code changes |
@@ -375,12 +378,25 @@ Automated tests are programs that run your code with fake inputs and check if th
 
 ### Feature 09: AI-Powered Fallback Analysis (Gemini Integration)
 - **Problem Solver:** Prevents unknown ingredients (not in DB) from being incorrectly labeled as NEUTRAL.
+
 - **Backend Integration:** 
   - Integrated **Gemini 1.5 Flash API** as a fallback mechanism in the analysis service.
   - When ingredients are missing from the local database, the system calls Gemini to evaluate them based on the user's specific skin type.
   - **Auto-Caching:** Results from AI are automatically inserted into the database as new `Ingredient` and `IngredientRule` entries. This reduces API costs and improves speed for future requests.
   - **Safety Fallback:** If the AI API fails or times out, the system gracefully defaults to NEUTRAL to ensure reliability.
 - **Benefits:** Provides a more comprehensive analysis even for niche or new cosmetic ingredients.
+
+### Feature 10: Excel Import/Export & Bulk Data Management
+- **Backend:**
+  - `excel.controller.ts` and `excel.service.ts` handle all Excel I/O logic.
+  - **Export endpoints** (`GET /api/v1/admin/export/{ingredients|rules|products}`) — generate `.xlsx` files with all data, properly formatted with column widths.
+  - **Import endpoints** (`POST /api/v1/admin/import/{ingredients|rules|products}`) — accept `.xlsx` uploads via `multer` (max 10 MB). Uses upsert logic: creates new records, updates existing ones (matched by name/brand), and reports `{ created, updated, skipped, errors }`. Supports Vietnamese column values for rules (e.g., "DA DẦU" → OILY).
+  - **Bulk delete endpoints** (`DELETE /api/v1/admin/{ingredients|rules|products}/all`) — permanently removes all records of a given type.
+- **Frontend:** `/admin/import-export` page with three sections:
+  - **Export:** One-click download cards for each entity type.
+  - **Import:** Drag-and-drop file upload with progress, result stats (created/updated/skipped), and collapsible error details.
+  - **Danger Zone:** "Delete All" buttons with confirmation prompts for each entity type.
+- **Dependencies:** `xlsx` (reading), `exceljs` (writing), `multer` (file upload middleware).
 
 ---
 
@@ -409,6 +425,15 @@ You do **NOT** need to seed the data again. Your data is saved.
 ```bash
 docker start skinmate-postgres
 ```
+
+### Required `backend/.env` File
+```env
+PORT=5000
+JWT_SECRET="your_jwt_secret_here"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/skinmate"
+GEMINI_API_KEY="ask_a_senior_team_member_for_this"
+```
+> ⚠️ This file is **never** committed to Git. Ask a team member for the real keys.
 
 ### Step 2: Start the Backend Server
 Open a terminal inside the `backend/` folder:

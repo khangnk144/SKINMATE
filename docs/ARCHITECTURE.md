@@ -1,6 +1,6 @@
 # SKINMATE - System Architecture
 
-> **Last Updated:** April 29, 2026
+> **Last Updated:** May 5, 2026
 
 ## 1. High-Level Overview
 
@@ -43,7 +43,7 @@ Request → Router → Middleware(s) → Controller → Service → Prisma → D
 | **Router** | `*.routes.ts` | Maps URLs to controller methods |
 | **Middleware** | `*.middleware.ts` | Handles Auth (JWT validation), Admin role checks, and Rate Limiting |
 | **Controller** | `*.controller.ts` | Extracts request params, calls service, formats HTTP response. **No business logic.** |
-| **Service** | `*.service.ts` | Core business logic — analysis engine, safety filtering, password hashing, etc. |
+| **Service** | `*.service.ts` | Core business logic — analysis engine, safety filtering, password hashing, Excel import/export, etc. |
 | **Prisma** | `utils/prisma.ts` | Singleton database client. Pure data access. |
 | **Utils** | `utils/*.ts` | Shared helpers — `prisma.ts` (DB client), `gemini.ts` (Gemini AI client) |
 
@@ -57,6 +57,7 @@ Request → Router → Middleware(s) → Controller → Service → Prisma → D
 | Products | `/api/v1/products` | `product.controller.ts` | `product.service.ts` |
 | History | `/api/v1/history` | `history.controller.ts` | *(inline Prisma calls)* |
 | Admin | `/api/v1/admin` | `admin.controller.ts` | `admin.service.ts` |
+| Excel Import/Export | `/api/v1/admin/export/*`, `/api/v1/admin/import/*` | `excel.controller.ts` | `excel.service.ts` |
 
 ## 4. Frontend Structure
 

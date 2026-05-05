@@ -1,7 +1,7 @@
 # 👋 GENERAL.md — New Member Onboarding Guide
 
 > **Purpose:** Get you fully up to speed on SKINMATE over your first 3 days.  
-> **Last Updated:** April 29, 2026  
+> **Last Updated:** May 5, 2026  
 > **Who this is for:** Anyone joining the team for the first time.
 
 ---
@@ -94,6 +94,7 @@ SKINMATE/
 ├── GENERAL.md          ← You are here (onboarding guide)
 ├── STATUS.md           ← Full annotated file tree & feature list
 ├── .gitignore
+├── fix-urls.js         ← Utility: replaces hardcoded localhost URLs with env vars
 │
 ├── docs/               ← Design docs (read BEFORE touching code)
 │   ├── README.md           ← Quick start + doc reading order
@@ -105,11 +106,10 @@ SKINMATE/
 │   └── features/           ← Per-feature specs (01 through 08)
 │
 ├── backend/            ← Express.js API server (port 5000)
-│   ├── .env                ← Secrets: DATABASE_URL, GEMINI_API_KEY
+│   ├── .env                ← Secrets: DATABASE_URL, JWT_SECRET, GEMINI_API_KEY
 │   ├── prisma/
 │   │   ├── schema.prisma       ← Database blueprint (THE source of truth)
-│   │   ├── seed.ts             ← Populates DB with sample data
-│   │   └── migrations/         ← Permanent record of every DB change
+│   │   └── seed.ts             ← Populates DB with sample data
 │   └── src/
 │       ├── index.ts            ← Entry point: creates Express app, mounts routes
 │       ├── routes/             ← Maps URLs → controllers (thin wiring)
@@ -190,20 +190,29 @@ SKINMATE/
         ├── /admin/ingredients — CRUD for the ingredient database
         │     POST auto-normalizes name to lowercase
         │     DELETE cascades to rules + product links
+        │     DELETE /all removes ALL ingredients
         │
         ├── /admin/rules — Manage safety rules
         │     POST uses upsert: update if (ingredientId + skinType) exists, else create
+        │     DELETE /all removes ALL rules
         │
         ├── /admin/products — Manage products with INCI string input
         │     Frontend parses INCI string → sends ingredientNames[] to backend
         │     Backend auto-creates unknown ingredients via findOrCreateIngredients()
+        │     DELETE /all removes ALL products
         │
         ├── /admin/users — Lock/unlock/delete user accounts
         │     PATCH toggles isActive (locked users can't login)
         │     DELETE cascades to all user's history
         │
-        └── /admin/reports — Dashboard stats
-              totalUsers, totalAnalyses, skinTypeDistribution (for pie chart)
+        ├── /admin/reports — Dashboard stats
+        │     totalUsers, totalAnalyses, skinTypeDistribution (for pie chart)
+        │
+        ├── /admin/export/{entity} — Download data as .xlsx
+        │     GET /export/ingredients, /export/rules, /export/products
+        │
+        └── /admin/import/{entity} — Upload .xlsx to bulk-import data
+              POST /import/ingredients, /import/rules, /import/products
 ```
 
 ---
@@ -286,6 +295,7 @@ Key services and what they do:
 |---------|--------------|-------------|
 | `auth.service.ts` | `registerUser()`, `loginUser()` | Hash passwords, check duplicates, check `isActive`, generate JWT tokens |
 | `analysis.service.ts` | `analyzeIngredients()` | Split INCI string → batch DB query → Gemini AI fallback → build results |
+| `excel.service.ts` | `exportIngredients()`, `importIngredients()`, etc. | Excel import/export for ingredients, rules, and products |
 | `product.service.ts` | `getSafeRecommendations()` | Fetch all products → filter out any with BAD ingredients → return safe ones |
 | `user.service.ts` | `getProfile()`, `updateProfile()` | Simple Prisma read/write for user profile |
 | `admin.service.ts` | CRUD functions + `getReports()` | Ingredient/rule/product management, user lock/delete, aggregate stats |
@@ -445,6 +455,7 @@ npm install
 ### Required `backend/.env` File
 ```env
 PORT=5000
+JWT_SECRET="your_jwt_secret_here"
 DATABASE_URL="postgresql://postgres:password@localhost:5432/skinmate"
 GEMINI_API_KEY="ask_a_senior_team_member_for_this"
 ```

@@ -1,6 +1,6 @@
 # SKINMATE - Database Documentation
 
-> **Last Updated:** April 30, 2026
+> **Last Updated:** May 5, 2026
 
 ## 1. Overview
 
@@ -8,6 +8,7 @@ The database is designed to handle skincare ingredient analysis using a normaliz
 
 * **Engine:** PostgreSQL 15 (running via Docker container `skinmate-postgres`).
 * **ORM:** Prisma 5.
+* **Schema Management:** Uses `prisma db push` for development (no migration files tracked in the repository).
 * **Naming Convention:** `snake_case` for database tables/columns, `PascalCase` for Prisma models.
 
 ## 2. Entity Relationship Diagram
@@ -186,16 +187,18 @@ model AnalysisHistory {
 
 ## 5. Key Implementation Rules
 
-* **Ingredient Name Normalization:** All ingredient names MUST be converted to `lowercase` before being saved or queried. This is enforced in `admin.service.ts` (`createIngredient`, `updateIngredient`, `findOrCreateIngredients`) and `analysis.service.ts`.
+* **Ingredient Name Normalization:** All ingredient names MUST be converted to `lowercase` before being saved or queried. This is enforced in `admin.service.ts` (`createIngredient`, `updateIngredient`, `findOrCreateIngredients`), `analysis.service.ts`, and `excel.service.ts` (import functions).
 * **Referential Integrity:** `onDelete: Cascade` is used on all foreign key relations to ensure that deleting a parent record (User, Ingredient, Product) automatically cleans up all dependent child records.
 * **Unique Rule Constraint:** The `@@unique([ingredientId, skinType])` constraint on `IngredientRule` prevents duplicate rules. The admin service uses an upsert pattern (find → update if exists, else create).
 * **Indexing:** The `name` field in `Ingredient` is indexed (Unique) to ensure O(log n) lookup speed during analysis.
 
-## 6. Migration Workflow
+## 6. Schema Update Workflow
+
+This project uses `prisma db push` for schema synchronization (no migration files are tracked):
 
 1. Modify `prisma/schema.prisma`.
-2. Run `npx prisma migrate dev --name <migration_name>`.
+2. Run `npx prisma db push` to sync the schema to the database.
 3. Run `npx prisma generate` to regenerate the Prisma Client.
-4. Run `npx prisma db seed` to (re-)populate sample data.
+4. Run `npx prisma db seed` to (re-)populate sample data if needed.
 
-> ⚠️ **Never modify the schema without explicit user confirmation.** Migrations are permanent database changes.
+> ⚠️ **Never modify the schema without explicit user confirmation.** Schema changes affect the live database.

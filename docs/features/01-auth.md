@@ -6,15 +6,15 @@ Implement the authentication flow for SKINMATE. Users must be able to register a
 ## 2. Backend Requirements (/backend)
 * **Packages:** Use `bcryptjs` for password hashing and `jsonwebtoken` for generating tokens.
 * **POST /api/v1/auth/register:**
-  * **Input:** `username`, `password`, `skinType` (Enum: OILY, DRY, SENSITIVE, COMBINATION, NORMAL).
+  * **Input:** `username`, `password`, `skinType` (Enum: OILY, DRY, SENSITIVE, COMBINATION, NORMAL), `displayName` (optional).
   * **Validation:** * `username` must be unique.
     * `password` must be at least 6 characters long.
-    * All fields are required.
-  * **Action:** Hash the password, save to `User` table (Prisma), return success message (Do NOT return the password).
+    * `username`, `password`, and `skinType` are required. `displayName` is optional.
+  * **Action:** Hash the password, save to `User` table (Prisma), return success message (Do NOT return the password). Stores `displayName` if provided.
 * **POST /api/v1/auth/login:**
   * **Input:** `username`, `password`.
-  * **Action:** Check if user exists. Compare hashed password. If correct, generate a JWT token (include `userId`, `role`, `skinType` in payload).
-  * **Response:** Return the token and basic user info.
+  * **Action:** Check if user exists. Check if account is locked (`isActive: false`) — reject with error if locked. Compare hashed password. If correct, generate a JWT token (include `userId`, `role`, `skinType` in payload).
+  * **Response:** Return the token and basic user info (includes `displayName`).
 
 ## 3. Frontend Requirements (/frontend)
 * **Pages:**

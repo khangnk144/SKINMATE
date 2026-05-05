@@ -1,11 +1,11 @@
 # SKINMATE - API Specification (v1)
 
-> **Last Updated:** April 30, 2026  
+> **Last Updated:** May 5, 2026  
 > **Status:** All endpoints implemented.
 
 ## 1. General Info
 * **Base URL:** `/api/v1`
-* **Content-Type:** `application/json`
+* **Content-Type:** `application/json` (except file upload endpoints which use `multipart/form-data`)
 * **Authentication:** Bearer Token (JWT) in the `Authorization` header.
 * **Server Port:** `5000` (development)
 
@@ -104,6 +104,7 @@
 | `POST` | `/admin/ingredients` | Create a new ingredient (name auto-normalized to lowercase) |
 | `PUT` | `/admin/ingredients/:id` | Update an ingredient's name or description |
 | `DELETE` | `/admin/ingredients/:id` | Delete an ingredient (cascades to rules and product links) |
+| `DELETE` | `/admin/ingredients/all` | Delete ALL ingredients (cascades to all rules and product links) |
 
 ### Admin CRUD — Rules (`/api/v1/admin/rules`)
 
@@ -112,6 +113,7 @@
 | `GET` | `/admin/rules` | List all safety rules (includes ingredient info) |
 | `POST` | `/admin/rules` | Create or update a rule (`ingredientId`, `skinType`, `effect`) |
 | `DELETE` | `/admin/rules/:id` | Delete a specific rule |
+| `DELETE` | `/admin/rules/all` | Delete ALL safety rules |
 
 ### Admin CRUD — Products (`/api/v1/admin/products`)
 
@@ -121,6 +123,7 @@
 | `POST` | `/admin/products` | Create a product. Accepts `name`, `brand`, `imageUrl`, `ingredientNames` (INCI string parsed automatically) |
 | `PUT` | `/admin/products/:id` | Update a product. Replaces ingredient relations |
 | `DELETE` | `/admin/products/:id` | Delete a product (cascades to product-ingredient links) |
+| `DELETE` | `/admin/products/all` | Delete ALL products (cascades to all product-ingredient links) |
 
 ### Admin — User Management (`/api/v1/admin/users`)
 
@@ -135,6 +138,39 @@
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/admin/reports` | Returns: `totalUsers`, `totalAnalyses`, `skinTypeDistribution` (array of `{ type, count }`) |
+
+### Admin — Excel Export (`/api/v1/admin/export`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/admin/export/ingredients` | Download all ingredients as an `.xlsx` file |
+| `GET` | `/admin/export/rules` | Download all safety rules as an `.xlsx` file |
+| `GET` | `/admin/export/products` | Download all products as an `.xlsx` file |
+
+**Response:** Binary `.xlsx` file with `Content-Disposition: attachment` header.
+
+### Admin — Excel Import (`/api/v1/admin/import`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/admin/import/ingredients` | Upload an `.xlsx` file to bulk-import ingredients. Uses upsert (creates new, updates existing by name). |
+| `POST` | `/admin/import/rules` | Upload an `.xlsx` file to bulk-import safety rules. Accepts both English and Vietnamese column values. |
+| `POST` | `/admin/import/products` | Upload an `.xlsx` file to bulk-import products. Auto-creates unknown ingredients. |
+
+**Request:** `multipart/form-data` with a `file` field containing the `.xlsx` file. Max file size: 10 MB.
+
+**Response:**
+```json
+{
+  "success": true,
+  "result": {
+    "created": 5,
+    "updated": 2,
+    "skipped": 1,
+    "errors": ["Row 4: \"name\" column is missing or empty."]
+  }
+}
+```
 
 ## 4. Error Codes
 

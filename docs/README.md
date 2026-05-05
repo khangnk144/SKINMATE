@@ -16,6 +16,7 @@ Create `backend/.env` with:
 ```env
 PORT=5000
 DATABASE_URL="postgresql://postgres:password@localhost:5432/skinmate"
+JWT_SECRET="your_jwt_secret_here"
 GEMINI_API_KEY="your_gemini_api_key_here"
 ```
 
@@ -82,5 +83,6 @@ There is also a comprehensive [`STATUS.md`](../STATUS.md) in the root directory 
 * **Backend:** Node.js, Express.js 4, Prisma 5 ORM, TypeScript.
 * **Database:** PostgreSQL 15 (via Docker container `skinmate-postgres`).
 * **AI Integration:** Google Gemini 1.5 Flash (ingredient analysis fallback).
+* **Excel I/O:** xlsx + exceljs + multer (bulk import/export for admin).
 * **Rate Limiting:** express-rate-limit (25 analyses/24h per user; ADMIN exempt).
 * **Testing:** Jest + Supertest.

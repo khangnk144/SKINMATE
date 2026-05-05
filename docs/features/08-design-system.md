@@ -79,8 +79,9 @@ Login, Register, and Analysis pages use a two-column grid on large screens:
 
 * External product images are served via Next.js `<Image>` component.
 * Allowed remote domains are configured in `next.config.ts` under `images.remotePatterns`.
-* Currently configured: `i.postimg.cc`.
+* Currently configured: **all domains** (wildcard `**` for both `http` and `https` protocols).
 * All images use `object-cover`, `w-full`, `h-full` for consistent layout.
+* Local images are stored in `public/images/` (e.g., `aurapink.jpg`, beauty product photos).
 
 ## 8. Anti-Patterns (Never Do)
 

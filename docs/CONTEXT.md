@@ -1,6 +1,6 @@
 # SKINMATE - Project Context
 
-> **Last Updated:** April 29, 2026  
+> **Last Updated:** May 5, 2026  
 > **Current Phase:** MVP Complete
 
 ## 1. Project Overview
@@ -39,6 +39,8 @@ Register/Login
 * Admins can manage ingredients, safety rules, and products via the admin dashboard.
 * Admins can lock/unlock user accounts — locked accounts cannot log in.
 * Admins can view statistical reports: total users, total analyses, skin type distribution.
+* Admins can **bulk import/export** data via Excel files (`.xlsx`) for ingredients, rules, and products.
+* Admins can **delete all** records of a given type (ingredients, rules, or products) from the Import/Export page.
 
 ## 3. Tech Stack (Implemented)
 
@@ -46,11 +48,13 @@ Register/Login
 |-------|-----------|
 | **Frontend** | Next.js 16 (App Router), React 19, TailwindCSS v4, TypeScript |
 | **Charts** | Recharts 3 (admin reports) |
+| **Icons** | Lucide React |
 | **Backend** | Node.js, Express.js 4, TypeScript |
 | **Database** | PostgreSQL 15 via Docker (`skinmate-postgres`), Prisma 5 ORM |
 | **Auth** | bcryptjs (password hashing) + jsonwebtoken (JWT, 24h expiry) |
 | **AI Integration** | Google Gemini 1.5 Flash API (ingredient analysis fallback) |
 | **Rate Limiting** | express-rate-limit (25 analyses/24h per user; unlimited for ADMIN) |
+| **Excel I/O** | xlsx (reading) + exceljs (writing) + multer (file upload) |
 | **Testing** | Jest & Supertest |
 | **Package Manager** | `npm` |
 
