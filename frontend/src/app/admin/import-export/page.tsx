@@ -24,19 +24,19 @@ const ENTITY_CONFIG: Record<EntityType, { label: string; color: string; accent: 
     label: 'Thành phần',
     color: 'emerald',
     accent: 'bg-emerald-50 border-emerald-100 text-emerald-700',
-    columns: 'name (bắt buộc), description (không bắt buộc)',
+    columns: 'tên (bắt buộc), mô tả (tùy chọn)',
   },
   rules: {
     label: 'Quy tắc an toàn',
     color: 'rose',
     accent: 'bg-rose-50 border-rose-100 text-rose-700',
-    columns: 'ingredient_name (hoặc ingredient_id), skin_type, effect',
+    columns: 'tên_thành_phần (hoặc id_thành_phần), loại_da, hiệu_ứng',
   },
   products: {
     label: 'Sản phẩm',
     color: 'slate',
     accent: 'bg-slate-50 border-slate-100 text-slate-700',
-    columns: 'name, brand, image_url (không bắt buộc), ingredients_inci (cách nhau bằng dấu phẩy)',
+    columns: 'tên, thương_hiệu, link_ảnh (tùy chọn), thành_phần_inci (ngăn cách bằng dấu phẩy)',
   },
 };
 
@@ -51,7 +51,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/export/${entity}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Xuất dữ liệu thất bại');
+      if (!res.ok) throw new Error('Xuất thất bại');
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -61,7 +61,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert(`Không thể xuất dữ liệu ${config.label}. Vui lòng thử lại.`);
+      alert(`Xuất ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.`);
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
       const data = await res.json();
 
       if (!res.ok) {
-        setState({ status: 'error', errorMessage: data.error || 'Nhập dữ liệu thất bại' });
+        setState({ status: 'error', errorMessage: data.error || 'Nhập liệu thất bại' });
         return;
       }
 
@@ -172,7 +172,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
           </div>
           <h3 className="text-lg font-serif text-slate-800 tracking-tight">Nhập từ Excel</h3>
           <p className="text-sm text-slate-400 font-light mt-1">
-            Tải lên tệp .xlsx để thêm hoặc cập nhật hàng loạt {config.label.toLowerCase()}
+            Tải lên tệp .xlsx để thêm hàng loạt hoặc cập nhật {config.label.toLowerCase()}
           </p>
         </div>
         <div className="bg-gray-50 rounded-2xl p-3">
@@ -204,7 +204,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
           >
             <Upload size={24} className="mx-auto mb-3 text-slate-300" />
             <p className="text-sm font-medium text-slate-500">Thả tệp Excel của bạn vào đây</p>
-            <p className="text-xs text-slate-400 mt-1">hoặc nhấp để duyệt tệp</p>
+            <p className="text-xs text-slate-400 mt-1">hoặc nhấp để duyệt</p>
           </div>
           <input
             ref={inputRef}
@@ -230,7 +230,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-emerald-600">
             <CheckCircle size={18} />
-            <span className="text-sm font-semibold">Nhập dữ liệu hoàn tất</span>
+            <span className="text-sm font-semibold">Nhập liệu hoàn tất</span>
           </div>
 
           {/* Stats */}
@@ -238,7 +238,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
             {[
               { label: 'Đã tạo', value: state.result?.created ?? 0, color: 'text-emerald-600' },
               { label: 'Đã cập nhật', value: state.result?.updated ?? 0, color: 'text-blue-500' },
-              { label: 'Bỏ qua', value: state.result?.skipped ?? 0, color: 'text-slate-400' },
+              { label: 'Đã bỏ qua', value: state.result?.skipped ?? 0, color: 'text-slate-400' },
             ].map((s) => (
               <div key={s.label} className="bg-gray-50 rounded-2xl p-4 text-center">
                 <p className={`text-2xl font-serif font-bold ${s.color}`}>{s.value}</p>
@@ -256,7 +256,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
               >
                 <span className="flex items-center gap-2">
                   <AlertCircle size={14} />
-                  {state.result!.errors.length} dòng bị lỗi
+                  {state.result!.errors.length} lỗi hàng
                 </span>
                 <ChevronDown size={14} className={`transition-transform ${showErrors ? 'rotate-180' : ''}`} />
               </button>
@@ -302,7 +302,7 @@ function DeleteAllCard({ entity }: { entity: EntityType }) {
       if (!res.ok) throw new Error('Xóa tất cả thất bại');
       alert(`Tất cả ${config.label.toLowerCase()} đã được xóa thành công.`);
     } catch {
-      alert(`Không thể xóa tất cả ${config.label.toLowerCase()}. Vui lòng thử lại.`);
+      alert(`Xóa tất cả ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.`);
     } finally {
       setLoading(false);
     }
@@ -351,9 +351,9 @@ export default function ImportExportPage() {
   return (
     <div>
       <div className="mb-10">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Nhập / Xuất Dữ Liệu</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Nhập / Xuất</h1>
         <p className="text-slate-400 font-light mt-2">
-          Quản lý cơ sở dữ liệu hàng loạt bằng tệp Excel (.xlsx). Xuất dữ liệu để sao lưu hoặc sử dụng làm mẫu nhập dữ liệu.
+          Quản lý cơ sở dữ liệu hàng loạt bằng tệp Excel (.xlsx). Xuất để sao lưu dữ liệu hoặc sử dụng làm mẫu nhập liệu.
         </p>
       </div>
 
@@ -363,13 +363,13 @@ export default function ImportExportPage() {
           <FileSpreadsheet size={18} className="text-rose-400" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-slate-700 mb-1">Quy trình đề xuất cho dữ liệu mới</p>
+          <p className="text-sm font-semibold text-slate-700 mb-1">Quy trình làm việc được đề xuất cho dữ liệu mới</p>
           <p className="text-sm text-slate-500 font-light">
             <span className="font-medium text-slate-600">1.</span> Xuất dữ liệu hiện có làm mẫu →{' '}
             <span className="font-medium text-slate-600">2.</span> Chỉnh sửa trong Excel →{' '}
-            <span className="font-medium text-slate-600">3.</span> Nhập ngược lại. Việc nhập dữ liệu sẽ{' '}
-            <span className="font-semibold text-slate-700">tạo các dòng mới</span> và{' '}
-            <span className="font-semibold text-slate-700">cập nhật các dòng hiện có</span> (khớp theo tên/thương hiệu), nó sẽ KHÔNG xóa bất kỳ dữ liệu nào.
+            <span className="font-medium text-slate-600">3.</span> Nhập lại. Quá trình nhập sẽ{' '}
+            <span className="font-semibold text-slate-700">tạo các hàng mới</span> và{' '}
+            <span className="font-semibold text-slate-700">cập nhật các hàng hiện có</span> (khớp theo tên/thương hiệu), nó sẽ KHÔNG xóa bất kỳ dữ liệu nào.
           </p>
         </div>
       </div>
@@ -380,7 +380,7 @@ export default function ImportExportPage() {
           <div className="bg-slate-900 rounded-full p-2">
             <Download size={14} className="text-white" />
           </div>
-          <h2 className="text-lg font-serif text-slate-800 tracking-tight">Xuất Cơ Sở Dữ Liệu</h2>
+          <h2 className="text-lg font-serif text-slate-800 tracking-tight">Xuất cơ sở dữ liệu</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {entities.map((entity) => (

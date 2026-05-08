@@ -39,7 +39,7 @@ export default function AdminProducts() {
         headers: { Authorization: `Bearer ${token}` } 
       });
       
-      if (!prodRes.ok) throw new Error('Không thể tải dữ liệu');
+      if (!prodRes.ok) throw new Error('Failed to fetch data');
       
       setProducts(await prodRes.json());
     } catch (err: unknown) {
@@ -96,10 +96,10 @@ export default function AdminProducts() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Không thể lưu sản phẩm');
+        throw new Error(data.error || 'Failed to save product');
       }
 
-      setSuccess(`Sản phẩm đã được ${editingId ? 'cập nhật' : 'tạo'} thành công!`);
+      setSuccess(`Product ${editingId ? 'updated' : 'created'} successfully!`);
       resetForm();
       fetchData();
     } catch (err: unknown) {
@@ -114,7 +114,7 @@ export default function AdminProducts() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Xóa sản phẩm thất bại');
+      if (!res.ok) throw new Error('Failed to delete product');
       fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -131,7 +131,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Sản Phẩm</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Sản phẩm</h1>
         <div className="flex items-center gap-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -171,7 +171,7 @@ export default function AdminProducts() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
-                placeholder="Ví dụ: Ultra Facial Cream"
+                placeholder="VD: Ultra Facial Cream"
               />
             </div>
 
@@ -183,13 +183,13 @@ export default function AdminProducts() {
                 value={formData.brand}
                 onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
-                placeholder="Ví dụ: Kiehl's"
+                placeholder="VD: Kiehl's"
               />
             </div>
           </div>
 
           <div className="mb-8">
-            <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">URL hình ảnh (Không bắt buộc)</label>
+            <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Đường dẫn hình ảnh (Tùy chọn)</label>
             <input
               type="url"
               value={formData.imageUrl}
@@ -208,13 +208,13 @@ export default function AdminProducts() {
         </form>
 
         <div className="flex-1 border-t lg:border-t-0 lg:border-l border-rose-50 pt-10 lg:pt-0 lg:pl-12">
-          <h2 className="text-xl font-serif text-slate-800 mb-2">Thành phần (INCI)</h2>
-          <p className="text-sm text-slate-400 font-light mb-6">Dán danh sách thành phần, cách nhau bằng dấu phẩy.</p>
+          <h2 className="text-xl font-serif text-slate-800 mb-2">Thành phần INCI</h2>
+          <p className="text-sm text-slate-400 font-light mb-6">Dán danh sách thành phần, ngăn cách bằng dấu phẩy.</p>
           <textarea
             value={ingredientString}
             onChange={(e) => setIngredientString(e.target.value)}
             className="w-full h-64 px-4 py-4 border border-gray-200 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm resize-none"
-            placeholder="Ví dụ: Water, Glycerin, Niacinamide, ..."
+            placeholder="VD: Nước, Glycerin, Niacinamide, ..."
           />
         </div>
 

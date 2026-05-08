@@ -41,7 +41,7 @@ export default function AdminRules() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
-      if (!ingRes.ok || !rulesRes.ok) throw new Error('Không thể tải dữ liệu');
+      if (!ingRes.ok || !rulesRes.ok) throw new Error('Failed to fetch data');
       
       const ingData = await ingRes.json();
       const rulesData = await rulesRes.json();
@@ -84,10 +84,10 @@ export default function AdminRules() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Không thể tạo quy tắc');
+        throw new Error(data.error || 'Failed to create rule');
       }
 
-      setSuccess('Quy tắc đã được tạo/cập nhật thành công!');
+      setSuccess('Rule created/updated successfully!');
       fetchData(); // Refresh rules
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -101,7 +101,7 @@ export default function AdminRules() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Xóa quy tắc thất bại');
+      if (!res.ok) throw new Error('Failed to delete rule');
       fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -117,7 +117,7 @@ export default function AdminRules() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Quy Tắc An Toàn</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Quy tắc an toàn</h1>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -135,7 +135,7 @@ export default function AdminRules() {
 
       <div className="flex flex-col gap-10">
         <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-rose-50/50">
-          <h2 className="text-xl font-serif text-slate-800 mb-8">Thêm hoặc Cập nhật Quy tắc</h2>
+          <h2 className="text-xl font-serif text-slate-800 mb-8">Thêm hoặc cập nhật quy tắc</h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div>
@@ -160,25 +160,25 @@ export default function AdminRules() {
                 onChange={(e) => setFormData({ ...formData, skinType: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
               >
-                <option value="NORMAL">Da thường (NORMAL)</option>
-                <option value="OILY">Da dầu (OILY)</option>
-                <option value="DRY">Da khô (DRY)</option>
-                <option value="SENSITIVE">Da nhạy cảm (SENSITIVE)</option>
-                <option value="COMBINATION">Da hỗn hợp (COMBINATION)</option>
+                <option value="NORMAL">NORMAL</option>
+                <option value="OILY">OILY</option>
+                <option value="DRY">DRY</option>
+                <option value="SENSITIVE">SENSITIVE</option>
+                <option value="COMBINATION">COMBINATION</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Tác động</label>
+              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Độ an toàn</label>
               <select
                 required
                 value={formData.effect}
                 onChange={(e) => setFormData({ ...formData, effect: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
               >
-                <option value="NEUTRAL">Bình thường (NEUTRAL)</option>
-                <option value="GOOD">Tốt (GOOD)</option>
-                <option value="BAD">Không tốt (BAD)</option>
+                <option value="NEUTRAL">NEUTRAL</option>
+                <option value="GOOD">GOOD</option>
+                <option value="BAD">BAD</option>
               </select>
             </div>
 
@@ -200,7 +200,7 @@ export default function AdminRules() {
               <tr>
                 <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Thành phần</th>
                 <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Loại da</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Tác động</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Độ an toàn</th>
                 <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Thao tác</th>
               </tr>
             </thead>
@@ -208,20 +208,13 @@ export default function AdminRules() {
               {filteredRules.map((rule) => (
                 <tr key={rule.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800">{rule.ingredient.name}</td>
-                  <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500 font-light">
-                    {rule.skinType === 'NORMAL' ? 'Da thường' :
-                     rule.skinType === 'OILY' ? 'Da dầu' :
-                     rule.skinType === 'DRY' ? 'Da khô' :
-                     rule.skinType === 'SENSITIVE' ? 'Da nhạy cảm' :
-                     rule.skinType === 'COMBINATION' ? 'Da hỗn hợp' : rule.skinType}
-                  </td>
+                  <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500 font-light">{rule.skinType}</td>
                   <td className="px-8 py-5 whitespace-nowrap text-sm">
                     <span className={`px-4 py-1.5 inline-flex text-[10px] leading-5 font-semibold tracking-widest uppercase rounded-full ${
                       rule.effect === 'GOOD' ? 'bg-emerald-50 text-emerald-700' :
                       rule.effect === 'BAD' ? 'bg-rose-50 text-rose-700' : 'bg-gray-50 text-slate-600'
                     }`}>
-                      {rule.effect === 'GOOD' ? 'Tốt' :
-                       rule.effect === 'BAD' ? 'Không tốt' : 'Bình thường'}
+                      {rule.effect}
                     </span>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-right text-sm">
@@ -250,7 +243,7 @@ export default function AdminRules() {
               {filteredRules.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
-                    Chưa có quy tắc an toàn nào được định nghĩa.
+                    Chưa có quy tắc an toàn nào được xác định.
                   </td>
                 </tr>
               )}
