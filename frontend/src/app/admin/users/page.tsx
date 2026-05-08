@@ -36,11 +36,11 @@ export default function AdminUsers() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Failed to fetch users');
+      if (!res.ok) throw new Error('Không thể tải danh sách người dùng');
       const data = await res.json();
       setUsers(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
@@ -79,22 +79,22 @@ export default function AdminUsers() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!res.ok) throw new Error('Action failed');
+      if (!res.ok) throw new Error('Thao tác thất bại');
       
       await fetchUsers();
       closeConfirmModal();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Action failed');
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
       closeConfirmModal();
     }
   };
 
-  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Loading users...</div>;
+  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải danh sách người dùng...</div>;
 
   return (
     <div className="animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-10">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">User Management</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Quản Lý Người Dùng</h1>
       </div>
 
       {error && (
@@ -108,12 +108,12 @@ export default function AdminUsers() {
           <table className="w-full divide-y divide-rose-50">
             <thead className="bg-gray-50/50">
               <tr>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Username</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Skin Type</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Status</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Joined</th>
-                <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Actions</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Tên đăng nhập</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Loại da</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Vai trò</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Trạng thái</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Ngày tham gia</th>
+                <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Thao tác</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-rose-50/50">
@@ -124,7 +124,12 @@ export default function AdminUsers() {
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500">
                     <span className="px-2.5 py-1 bg-slate-50 rounded-lg text-xs font-medium uppercase tracking-wider text-slate-600">
-                      {user.skinType || 'Not set'}
+                      {user.skinType === 'NORMAL' ? 'Da thường' :
+                       user.skinType === 'OILY' ? 'Da dầu' :
+                       user.skinType === 'DRY' ? 'Da khô' :
+                       user.skinType === 'SENSITIVE' ? 'Da nhạy cảm' :
+                       user.skinType === 'COMBINATION' ? 'Da hỗn hợp' :
+                       user.skinType || 'Chưa thiết lập'}
                     </span>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500 font-light">
@@ -133,18 +138,20 @@ export default function AdminUsers() {
                   <td className="px-8 py-5 whitespace-nowrap">
                     {user.isActive ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Active
+                        Hoạt động
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
-                        Locked
+                        Bị khóa
                       </span>
                     )}
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-400 font-light">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {new Date(user.createdAt).toLocaleDateString('vi-VN')}
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-right text-sm">
+                    {user.role !== 'ADMIN' && (
+                      <>
                     {user.role !== 'ADMIN' && (
                       <>
                         <button 
@@ -153,18 +160,18 @@ export default function AdminUsers() {
                             user.isActive ? 'text-amber-500 hover:text-amber-600' : 'text-emerald-600 hover:text-emerald-700'
                           }`}
                         >
-                          {user.isActive ? 'Lock' : 'Unlock'}
+                          {user.isActive ? 'Khóa' : 'Mở khóa'}
                         </button>
                         <button 
                           onClick={() => openConfirmModal(user, 'delete')}
                           className="text-rose-400 hover:text-rose-500 transition-colors font-semibold"
                         >
-                          Delete
+                          Xóa
                         </button>
                       </>
                     )}
                     {user.role === 'ADMIN' && (
-                      <span className="text-xs text-slate-300 italic">System Protected</span>
+                      <span className="text-xs text-slate-300 italic">Tài khoản hệ thống</span>
                     )}
                   </td>
                 </tr>
@@ -179,18 +186,18 @@ export default function AdminUsers() {
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.1)] w-full max-w-md p-8 border border-rose-50">
             <h2 className="text-xl font-serif text-slate-800 mb-4">
-              {confirmModal.type === 'delete' ? 'Confirm Deletion' : 'Change Account Status'}
+              {confirmModal.type === 'delete' ? 'Xác nhận xóa' : 'Thay đổi trạng thái tài khoản'}
             </h2>
             <p className="text-slate-500 text-sm leading-relaxed mb-8">
-              Are you sure you want to {confirmModal.type} user <span className="font-semibold text-slate-800">{confirmModal.username}</span>? 
-              {confirmModal.type === 'delete' && ' This action cannot be undone.'}
+              Bạn có chắc chắn muốn {confirmModal.type === 'delete' ? 'xóa' : confirmModal.type === 'lock' ? 'khóa' : 'mở khóa'} người dùng <span className="font-semibold text-slate-800">{confirmModal.username}</span> không? 
+              {confirmModal.type === 'delete' && ' Hành động này không thể hoàn tác.'}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={closeConfirmModal}
                 className="px-6 py-2.5 text-sm font-medium text-slate-600 bg-gray-50 rounded-full hover:bg-gray-100 transition-all"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleAction}
@@ -198,7 +205,7 @@ export default function AdminUsers() {
                   confirmModal.type === 'delete' ? 'bg-rose-500 hover:bg-rose-600' : 'bg-slate-900 hover:bg-slate-800'
                 }`}
               >
-                Confirm {confirmModal.type.charAt(0).toUpperCase() + confirmModal.type.slice(1)}
+                {confirmModal.type === 'delete' ? 'Xác nhận xóa' : confirmModal.type === 'lock' ? 'Xác nhận khóa' : 'Xác nhận mở khóa'}
               </button>
             </div>
           </div>

@@ -27,6 +27,14 @@ interface ReportData {
 
 const COLORS = ['#E11D48', '#10B981', '#6366F1', '#F59E0B', '#64748B', '#EC4899'];
 
+const skinTypeMap: Record<string, string> = {
+  'NORMAL': 'Da thường',
+  'OILY': 'Da dầu',
+  'DRY': 'Da khô',
+  'SENSITIVE': 'Da nhạy cảm',
+  'COMBINATION': 'Da hỗn hợp',
+};
+
 export default function AdminReports() {
   const { token } = useAuth();
   const [data, setData] = useState<ReportData | null>(null);
@@ -39,11 +47,11 @@ export default function AdminReports() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/reports`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (!res.ok) throw new Error('Failed to fetch reports');
+        if (!res.ok) throw new Error('Không thể tải báo cáo');
         const reportData = await res.json();
         setData(reportData);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi');
       } finally {
         setLoading(false);
       }
@@ -58,9 +66,10 @@ export default function AdminReports() {
     if (!data) return;
     
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Type,Count\n";
+    csvContent += "Loại da,Số lượng\n";
     data.skinTypeDistribution.forEach(row => {
-      csvContent += `${row.type},${row.count}\n`;
+      const translatedType = skinTypeMap[row.type] || row.type;
+      csvContent += `${translatedType},${row.count}\n`;
     });
 
     const encodedUri = encodeURI(csvContent);
@@ -118,7 +127,10 @@ export default function AdminReports() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => {
+                    const translatedName = skinTypeMap[name] || name;
+                    return `${translatedName} ${((percent || 0) * 100).toFixed(0)}%`;
+                  }}
                   outerRadius={140}
                   fill="#8884d8"
                   dataKey="count"

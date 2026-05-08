@@ -41,7 +41,7 @@ export default function AdminRules() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
-      if (!ingRes.ok || !rulesRes.ok) throw new Error('Failed to fetch data');
+      if (!ingRes.ok || !rulesRes.ok) throw new Error('Không thể tải dữ liệu');
       
       const ingData = await ingRes.json();
       const rulesData = await rulesRes.json();
@@ -84,10 +84,10 @@ export default function AdminRules() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to create rule');
+        throw new Error(data.error || 'Không thể tạo quy tắc');
       }
 
-      setSuccess('Rule created/updated successfully!');
+      setSuccess('Quy tắc đã được tạo/cập nhật thành công!');
       fetchData(); // Refresh rules
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -95,20 +95,20 @@ export default function AdminRules() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this rule?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa quy tắc này không?')) return;
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Failed to delete rule');
+      if (!res.ok) throw new Error('Xóa quy tắc thất bại');
       fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
     }
   };
 
-  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Loading...</div>;
+  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải...</div>;
 
   const filteredRules = rules.filter(rule =>
     rule.ingredient.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -117,14 +117,14 @@ export default function AdminRules() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Safety Rules</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Quy Tắc An Toàn</h1>
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by ingredient..."
+            placeholder="Tìm kiếm theo thành phần..."
             className="bg-white/70 backdrop-blur-sm rounded-full border border-rose-100 px-6 py-2 pl-10 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200 transition-all"
           />
         </div>
@@ -135,11 +135,11 @@ export default function AdminRules() {
 
       <div className="flex flex-col gap-10">
         <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-rose-50/50">
-          <h2 className="text-xl font-serif text-slate-800 mb-8">Add or Update Rule</h2>
+          <h2 className="text-xl font-serif text-slate-800 mb-8">Thêm hoặc Cập nhật Quy tắc</h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div>
-              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Ingredient</label>
+              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Thành phần</label>
               <select
                 required
                 value={formData.ingredientId}
@@ -153,32 +153,32 @@ export default function AdminRules() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Skin Type</label>
+              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Loại da</label>
               <select
                 required
                 value={formData.skinType}
                 onChange={(e) => setFormData({ ...formData, skinType: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
               >
-                <option value="NORMAL">NORMAL</option>
-                <option value="OILY">OILY</option>
-                <option value="DRY">DRY</option>
-                <option value="SENSITIVE">SENSITIVE</option>
-                <option value="COMBINATION">COMBINATION</option>
+                <option value="NORMAL">Da thường (NORMAL)</option>
+                <option value="OILY">Da dầu (OILY)</option>
+                <option value="DRY">Da khô (DRY)</option>
+                <option value="SENSITIVE">Da nhạy cảm (SENSITIVE)</option>
+                <option value="COMBINATION">Da hỗn hợp (COMBINATION)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Safety Effect</label>
+              <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Tác động</label>
               <select
                 required
                 value={formData.effect}
                 onChange={(e) => setFormData({ ...formData, effect: e.target.value })}
                 className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
               >
-                <option value="NEUTRAL">NEUTRAL</option>
-                <option value="GOOD">GOOD</option>
-                <option value="BAD">BAD</option>
+                <option value="NEUTRAL">Bình thường (NEUTRAL)</option>
+                <option value="GOOD">Tốt (GOOD)</option>
+                <option value="BAD">Không tốt (BAD)</option>
               </select>
             </div>
 
@@ -187,7 +187,7 @@ export default function AdminRules() {
                 type="submit"
                 className="px-10 py-3.5 text-white bg-slate-900 rounded-full text-sm font-medium tracking-wide hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
               >
-                Save Rule
+                Lưu quy tắc
               </button>
             </div>
           </form>
@@ -198,23 +198,30 @@ export default function AdminRules() {
           <table className="w-full divide-y divide-rose-50">
             <thead className="bg-gray-50/50">
               <tr>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Ingredient</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Skin Type</th>
-                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Effect</th>
-                <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Actions</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Thành phần</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Loại da</th>
+                <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Tác động</th>
+                <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Thao tác</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-rose-50/50">
               {filteredRules.map((rule) => (
                 <tr key={rule.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800">{rule.ingredient.name}</td>
-                  <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500 font-light">{rule.skinType}</td>
+                  <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-500 font-light">
+                    {rule.skinType === 'NORMAL' ? 'Da thường' :
+                     rule.skinType === 'OILY' ? 'Da dầu' :
+                     rule.skinType === 'DRY' ? 'Da khô' :
+                     rule.skinType === 'SENSITIVE' ? 'Da nhạy cảm' :
+                     rule.skinType === 'COMBINATION' ? 'Da hỗn hợp' : rule.skinType}
+                  </td>
                   <td className="px-8 py-5 whitespace-nowrap text-sm">
                     <span className={`px-4 py-1.5 inline-flex text-[10px] leading-5 font-semibold tracking-widest uppercase rounded-full ${
                       rule.effect === 'GOOD' ? 'bg-emerald-50 text-emerald-700' :
                       rule.effect === 'BAD' ? 'bg-rose-50 text-rose-700' : 'bg-gray-50 text-slate-600'
                     }`}>
-                      {rule.effect}
+                      {rule.effect === 'GOOD' ? 'Tốt' :
+                       rule.effect === 'BAD' ? 'Không tốt' : 'Bình thường'}
                     </span>
                   </td>
                   <td className="px-8 py-5 whitespace-nowrap text-right text-sm">
@@ -229,13 +236,13 @@ export default function AdminRules() {
                       }}
                       className="text-emerald-600 hover:text-emerald-700 mr-6 transition-colors font-semibold"
                     >
-                      Edit
+                      Sửa
                     </button>
                     <button 
                       onClick={() => handleDelete(rule.id)}
                       className="text-rose-400 hover:text-rose-500 transition-colors font-semibold"
                     >
-                      Delete
+                      Xóa
                     </button>
                   </td>
                 </tr>
@@ -243,7 +250,7 @@ export default function AdminRules() {
               {filteredRules.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
-                    No safety rules defined yet.
+                    Chưa có quy tắc an toàn nào được định nghĩa.
                   </td>
                 </tr>
               )}

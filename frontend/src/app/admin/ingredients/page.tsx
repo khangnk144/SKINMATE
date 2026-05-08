@@ -27,14 +27,14 @@ export default function AdminIngredients() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Failed to fetch ingredients');
+      if (!res.ok) throw new Error('Không thể tải danh sách thành phần');
       const data = await res.json();
       setIngredients(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unknown error occurred');
+        setError('Đã xảy ra lỗi không xác định');
       }
     } finally {
       setLoading(false);
@@ -85,7 +85,7 @@ export default function AdminIngredients() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Operation failed');
+        throw new Error(data.error || 'Thao tác thất bại');
       }
 
       await fetchIngredients();
@@ -94,13 +94,13 @@ export default function AdminIngredients() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unknown error occurred');
+        setError('Đã xảy ra lỗi không xác định');
       }
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this ingredient?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa thành phần này không?')) return;
     
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients/${id}`, {
@@ -108,18 +108,18 @@ export default function AdminIngredients() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!res.ok) throw new Error('Failed to delete');
+      if (!res.ok) throw new Error('Xóa thất bại');
       await fetchIngredients();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unknown error occurred');
+        setError('Đã xảy ra lỗi không xác định');
       }
     }
   };
 
-  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Loading ingredients...</div>;
+  if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải danh sách thành phần...</div>;
 
   const filteredIngredients = ingredients.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,12 +128,12 @@ export default function AdminIngredients() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Ingredients</h1>
+        <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Thành Phần</h1>
         <button 
           onClick={() => handleOpenModal()}
           className="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-medium tracking-wide hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
         >
-          Add New
+          Thêm Mới
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export default function AdminIngredients() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search ingredients..."
+            placeholder="Tìm kiếm thành phần..."
             className="bg-white/70 backdrop-blur-sm rounded-full border border-rose-100 px-6 py-2 pl-10 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200 transition-all"
           />
         </div>
@@ -158,9 +158,9 @@ export default function AdminIngredients() {
           <thead className="bg-gray-50/50">
             <tr>
               <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">ID</th>
-              <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Name</th>
-              <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Description</th>
-              <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Actions</th>
+              <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Tên</th>
+              <th className="px-8 py-5 text-left text-xs font-semibold text-slate-400 uppercase tracking-widest">Mô Tả</th>
+              <th className="px-8 py-5 text-right text-xs font-semibold text-slate-400 uppercase tracking-widest">Thao Tác</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-rose-50/50">
@@ -169,20 +169,20 @@ export default function AdminIngredients() {
                 <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-400 font-light">#{item.id}</td>
                 <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800 tracking-tight">{item.name}</td>
                 <td className="px-8 py-5 text-sm text-slate-500 font-light max-w-md truncate">
-                  {item.description || <span className="text-slate-300 italic">No description</span>}
+                  {item.description || <span className="text-slate-300 italic">Chưa có mô tả</span>}
                 </td>
                 <td className="px-8 py-5 whitespace-nowrap text-right text-sm">
                   <button 
                     onClick={() => handleOpenModal(item)}
                     className="text-emerald-600 hover:text-emerald-700 mr-6 transition-colors font-semibold"
                   >
-                    Edit
+                    Sửa
                   </button>
                   <button 
                     onClick={() => handleDelete(item.id)}
                     className="text-rose-400 hover:text-rose-500 transition-colors font-semibold"
                   >
-                    Delete
+                    Xóa
                   </button>
                 </td>
               </tr>
@@ -190,7 +190,7 @@ export default function AdminIngredients() {
             {filteredIngredients.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
-                  No ingredients in the database yet.
+                  Chưa có thành phần nào trong cơ sở dữ liệu.
                 </td>
               </tr>
             )}
@@ -204,28 +204,28 @@ export default function AdminIngredients() {
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.1)] w-full max-w-2xl p-10 md:p-12 border border-rose-50">
             <h2 className="text-xl font-serif text-slate-800 mb-6">
-              {editingIngredient ? 'Edit Ingredient' : 'Add Ingredient'}
+              {editingIngredient ? 'Chỉnh sửa thành phần' : 'Thêm thành phần'}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-5">
-                <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Name (INCI)</label>
+                <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Tên (INCI)</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm"
-                  placeholder="e.g. Niacinamide"
+                  placeholder="Ví dụ: Niacinamide"
                 />
               </div>
               <div className="mb-8">
-                <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Description</label>
+                <label className="block text-sm font-medium text-slate-700 ml-1 mb-2">Mô tả</label>
                 <textarea
                   rows={3}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-3.5 border border-gray-200 bg-gray-50 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-400 transition-all text-sm resize-none"
-                  placeholder="Optional description"
+                  placeholder="Mô tả (không bắt buộc)"
                 />
               </div>
               <div className="flex justify-end gap-3">
@@ -234,13 +234,13 @@ export default function AdminIngredients() {
                   onClick={handleCloseModal}
                   className="px-6 py-2.5 text-sm font-medium text-slate-600 bg-gray-50 rounded-full hover:bg-gray-100 transition-all"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-full hover:bg-slate-800 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
                 >
-                  {editingIngredient ? 'Save Changes' : 'Create'}
+                  {editingIngredient ? 'Lưu thay đổi' : 'Tạo mới'}
                 </button>
               </div>
             </form>
