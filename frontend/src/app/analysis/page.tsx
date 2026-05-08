@@ -37,6 +37,14 @@ export default function AnalysisPage() {
   );
 }
 
+const SKIN_TYPE_LABELS: Record<string, string> = {
+  OILY: "Dầu",
+  DRY: "Khô",
+  SENSITIVE: "Nhạy cảm",
+  COMBINATION: "Hỗn hợp",
+  NORMAL: "Bình thường"
+};
+
 function AnalysisContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -189,7 +197,7 @@ function AnalysisContent() {
               <div className="mb-10">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-rose-50 rounded-full border border-rose-100 mb-6">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                  <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.15em]">Cá nhân hóa cho da {user.skinType}</span>
+                  <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.15em]">Cá nhân hóa cho da {SKIN_TYPE_LABELS[user.skinType] || user.skinType}</span>
                 </div>
                 <h2 className="text-3xl font-serif text-slate-800 mb-4 tracking-tight">Kiểm Tra Thành Phần</h2>
                 <p className="text-slate-500 font-light leading-relaxed">
@@ -213,7 +221,7 @@ function AnalysisContent() {
                   <div className="group">
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Hồ Sơ Của Bạn</label>
                     <div className="w-full min-h-[60px] px-6 py-4 bg-stone-50/50 border border-slate-100 rounded-2xl text-slate-600 text-sm font-medium flex items-center justify-between gap-4 group-hover:bg-white group-hover:border-rose-100 transition-all duration-300">
-                      <span className="truncate uppercase tracking-wider">{user.skinType}</span>
+                      <span className="truncate uppercase tracking-wider">{SKIN_TYPE_LABELS[user.skinType] || user.skinType}</span>
                       <Link href="/profile" className="flex-shrink-0 text-rose-400 text-xs font-bold hover:text-rose-500 underline underline-offset-4 decoration-rose-200">Thay Đổi</Link>
                     </div>
                   </div>
