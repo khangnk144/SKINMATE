@@ -17,6 +17,10 @@ export default function AdminIngredients() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+  
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
@@ -125,6 +129,10 @@ export default function AdminIngredients() {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredIngredients.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedIngredients = filteredIngredients.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -143,7 +151,10 @@ export default function AdminIngredients() {
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="Tìm kiếm thành phần..."
             className="bg-white/70 backdrop-blur-sm rounded-full border border-rose-100 px-6 py-2 pl-10 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-200 transition-all"
           />
@@ -164,7 +175,7 @@ export default function AdminIngredients() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-rose-50/50">
-            {filteredIngredients.map((item) => (
+            {paginatedIngredients.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                 <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-400 font-light">#{item.id}</td>
                 <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800 tracking-tight">{item.name}</td>
@@ -187,7 +198,7 @@ export default function AdminIngredients() {
                 </td>
               </tr>
             ))}
-            {filteredIngredients.length === 0 && (
+            {paginatedIngredients.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-8 py-12 text-center text-sm text-slate-400 font-light italic">
                   Chưa có thành phần nào trong cơ sở dữ liệu.
@@ -197,6 +208,30 @@ export default function AdminIngredients() {
           </tbody>
         </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="px-8 py-5 border-t border-rose-50/50 flex items-center justify-between bg-gray-50/30">
+            <div className="text-sm text-slate-500 font-light">
+              Trang <span className="font-medium text-slate-700">{currentPage}</span> / <span className="font-medium text-slate-700">{totalPages}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-gray-200 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Trước
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-gray-200 rounded-full hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
