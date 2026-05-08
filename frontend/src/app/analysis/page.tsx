@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ProductCard } from '@/components/ProductCard';
+import { ImageOCRUploader } from '@/components/ImageOCRUploader';
 
 interface AnalysisResult {
   originalName: string;
@@ -206,6 +207,8 @@ function AnalysisContent() {
               </div>
 
               <div className="space-y-6">
+                <ImageOCRUploader onExtracted={(text) => setInciString(text)} />
+                
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Danh sách INCI</label>
                   <textarea
