@@ -83,10 +83,32 @@ export default function CommunityReportsPage() {
   const handleVote = async (reportId: number, voteType: 'UP' | 'DOWN') => {
     if (!token) return;
     
-    // Optimistic UI update
+    // Save current state for rollback
     const prevVotes = { ...userVotes };
     const prevReports = [...reports];
     
+    // Determine new vote state (toggle if same)
+    const currentVote = userVotes[reportId];
+    const newVote = currentVote === voteType ? null : voteType;
+
+    // Apply Optimistic Update Immediately
+    setUserVotes(prev => ({ ...prev, [reportId]: newVote }));
+    setReports(prev => prev.map(r => {
+      if (r.id === reportId) {
+        let newUp = r.up;
+        let newDown = r.down;
+
+        if (currentVote === 'UP') newUp--;
+        if (currentVote === 'DOWN') newDown--;
+
+        if (newVote === 'UP') newUp++;
+        if (newVote === 'DOWN') newDown++;
+
+        return { ...r, up: newUp, down: newDown, voteScore: newUp - newDown };
+      }
+      return r;
+    }));
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/vote`, {
         method: 'POST',
@@ -98,6 +120,7 @@ export default function CommunityReportsPage() {
       });
       
       if (res.ok) {
+        // Sync with exact server counts just in case
         const result = await res.json();
         setUserVotes(prev => ({ ...prev, [reportId]: result.userVote }));
         setReports(prev => prev.map(r => r.id === reportId ? { ...r, up: result.up, down: result.down, voteScore: result.up - result.down } : r));
@@ -106,7 +129,7 @@ export default function CommunityReportsPage() {
       }
     } catch (err) {
       console.error(err);
-      // Revert optimistic update
+      // Revert optimistic update on failure
       setUserVotes(prevVotes);
       setReports(prevReports);
     }
