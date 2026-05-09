@@ -128,7 +128,7 @@ export const resolveReport = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    if (![ReportStatus.APPROVED, ReportStatus.REJECTED].includes(status as ReportStatus)) {
+    if (status !== ReportStatus.APPROVED && status !== ReportStatus.REJECTED) {
       res.status(400).json({ error: 'Invalid status. Must be APPROVED or REJECTED.' });
       return;
     }
