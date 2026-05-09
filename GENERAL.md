@@ -1,7 +1,7 @@
 # 👋 GENERAL.md — New Member Onboarding Guide
 
 > **Purpose:** Get you fully up to speed on SKINMATE over your first 3 days.  
-> **Last Updated:** May 5, 2026  
+> **Last Updated:** May 9, 2026  
 > **Who this is for:** Anyone joining the team for the first time.
 
 ---
@@ -16,7 +16,7 @@
 | 2 | 20 min | [`STATUS.md`](./STATUS.md) | Annotated file tree with explanations of every single file and folder |
 | 3 | 10 min | [`docs/CONTEXT.md`](./docs/CONTEXT.md) | Why the project exists, target audience, core business logic rules |
 | 4 | 15 min | [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | How the 3 layers (frontend → backend → DB) talk; key algorithms |
-| 5 | 15 min | [`docs/DATABASE.md`](./docs/DATABASE.md) | All 6 database tables, every field, and relationships between them |
+| 5 | 15 min | [`docs/DATABASE.md`](./docs/DATABASE.md) | All 9 database tables, every field, and relationships between them |
 | 6 | 15 min | [`docs/API_SPEC.md`](./docs/API_SPEC.md) | Every backend API endpoint — URL, method, auth, request/response |
 | 7 | 10 min | [`docs/PROJECT-RULES.md`](./docs/PROJECT-RULES.md) | Coding standards, naming conventions, anti-patterns to avoid |
 
@@ -44,7 +44,7 @@ Read each file in the order listed. **Don't just skim — trace the data flow.**
 | 12 | 10 min | `backend/src/services/product.service.ts` | The safety-first filter algorithm. Short but critical. |
 | 13 | 10 min | `backend/src/services/admin.service.ts` | CRUD operations, user management, report aggregation. |
 | 14 | 15 min | `backend/src/tests/` (browse any 2-3 files) | See how Jest mocks Prisma and tests each service/controller. |
-| 15 | 10 min | `docs/features/01-auth.md` through `08-design-system.md` | Skim each feature spec. Match what you read in code with what's in the spec. |
+| 15 | 10 min | `docs/features/01-auth.md` through `14-localization-pagination.md` | Skim each feature spec. Match what you read in code with what's in the spec. |
 
 **End of Day 2 Goal:** You should be able to trace a full analysis request from `POST /api/v1/analysis/check` all the way through routes → middleware → controller → service → Prisma → Gemini → response. You should understand **why** the code is structured in layers.
 
@@ -76,12 +76,14 @@ Read each file in the order listed. **Don't just skim — trace the data flow.**
 **SKINMATE** is a luxury skincare ingredient analysis web app. Here's the user story:
 
 1. A user **registers** and sets their **skin type** (Oily, Dry, Sensitive, Combination, Normal).
-2. They **paste the ingredient list** (called an "INCI string") from the back of any skincare product.
+2. They **paste the ingredient list** (called an "INCI string") from the back of any skincare product — or **upload a photo** of the product label for automatic OCR extraction.
 3. The system **looks up each ingredient** in a curated database and tells the user whether each one is **GOOD** 🌿, **BAD** 🌸, or **NEUTRAL** ☁️ — specifically for *their* skin type.
 4. If an ingredient is **not in the database**, the system calls **Google Gemini AI** to evaluate it, then **caches the result** so future lookups are instant.
 5. It then **recommends products** that contain zero BAD ingredients for the user's skin type.
 6. Users can **view their analysis history**, re-run past analyses, or delete entries.
-7. **Admin users** manage the ingredient database, safety rules, products, user accounts, and view usage statistics.
+7. Users can **report misclassified ingredients** via the Community Reporting system — other users can vote on reports, and admins can approve/reject them.
+8. **Admin users** manage the ingredient database, safety rules, products, user accounts, community reports, and view usage statistics.
+9. Users receive **in-app notifications** (e.g., when their report is resolved by an admin).
 
 > Think of it as a personalized "ingredient safety scanner" for cosmetics — like Yuka, but specifically for skincare and skin type.
 
@@ -99,11 +101,11 @@ SKINMATE/
 ├── docs/               ← Design docs (read BEFORE touching code)
 │   ├── README.md           ← Quick start + doc reading order
 │   ├── CONTEXT.md          ← Business logic rules & target audience
-│   ├── ARCHITECTURE.md     ← System design, algorithms, security model
-│   ├── DATABASE.md         ← Complete DB schema documentation
+│   ├── ARCHITECTURE.md     ← How the 3 layers (frontend → backend → DB) talk; key algorithms
+│   ├── DATABASE.md         ← Complete DB schema documentation (11 tables)
 │   ├── API_SPEC.md         ← All REST API endpoints
 │   ├── PROJECT-RULES.md    ← Coding conventions
-│   └── features/           ← Per-feature specs (01 through 08)
+│   └── features/           ← Per-feature specs (01 through 14)
 │
 ├── backend/            ← Express.js API server (port 5000)
 │   ├── .env                ← Secrets: DATABASE_URL, JWT_SECRET, GEMINI_API_KEY
@@ -116,13 +118,16 @@ SKINMATE/
 │       ├── middlewares/        ← Auth guard, admin guard, rate limiter
 │       ├── controllers/        ← Validates input, calls service, sends response
 │       ├── services/           ← ⭐ ALL business logic lives here
+│       ├── modules/ocr/        ← Self-contained OCR module (routes, controller, service, parser)
 │       ├── utils/              ← prisma.ts (DB client) + gemini.ts (AI client)
 │       └── tests/              ← Jest unit tests
 │
 └── frontend/           ← Next.js 16 website (port 3000)
     └── src/
         ├── app/            ← Pages (folder name = URL path)
-        ├── components/     ← Reusable UI: Navbar, ProductCard, route guards
+        │   ├── community/      ← Community features (ingredient reports)
+        │   └── admin/          ← Admin panel (CRUD, reports, community moderation)
+        ├── components/     ← Reusable UI: Navbar, ProductCard, NotificationBell, ImageOCRUploader, route guards
         └── context/        ← AuthContext (login state for the whole app)
 ```
 
@@ -207,6 +212,11 @@ SKINMATE/
         │
         ├── /admin/reports — Dashboard stats
         │     totalUsers, totalAnalyses, skinTypeDistribution (for pie chart)
+        │
+        ├── /admin/community-reports — Moderate community ingredient reports
+        │     POST /resolve approves or rejects reports
+        │     Approved reports auto-update IngredientRule
+        │     Creates notification for the reporter
         │
         ├── /admin/export/{entity} — Download data as .xlsx
         │     GET /export/ingredients, /export/rules, /export/products
@@ -299,6 +309,8 @@ Key services and what they do:
 | `product.service.ts` | `getSafeRecommendations()` | Fetch all products → filter out any with BAD ingredients → return safe ones |
 | `user.service.ts` | `getProfile()`, `updateProfile()` | Simple Prisma read/write for user profile |
 | `admin.service.ts` | CRUD functions + `getReports()` | Ingredient/rule/product management, user lock/delete, aggregate stats |
+| `report.service.ts` | `createReport()`, `vote()`, `resolveReport()` | Community ingredient reports, voting, admin resolution with auto-rule update |
+| `modules/ocr/ocrService.ts` | `parseImageForIngredients()` | OCR.space API call + rule-based ingredient parsing |
 
 ---
 
@@ -326,28 +338,39 @@ The rate limiter on the analysis endpoint (25/day per user) indirectly limits Ge
 
 ---
 
-## 🗄️ Database: The 6 Tables Explained
+## 🗄️ Database: The 9 Tables Explained
 
 ### Table Relationships (Visual)
 ```
 User ─────────────────── AnalysisHistory
  │ has many                  │ stores rawInput per analysis
  │                           │
- │ fields: id mod username,  │ fields: id, userId, rawInput,
- │ passwordHash, skinType,   │ createdAt
- │ role, isActive             
+ │ fields: id, username,     │ fields: id, userId, rawInput,
+ │ displayName, passwordHash,│ createdAt
+ │ skinType, role, isActive   
+ │
+ ├─── IngredientReport       ← Community reports submitted by users
+ ├─── ReportVote             ← Votes on community reports
+ └─── Notification           ← In-app notifications
 
 Ingredient ──────────── IngredientRule
  │ has many rules             │ one rule per (ingredient + skinType)
  │                            │ effect: GOOD / BAD / NEUTRAL
  │ fields: id, name,          │
  │ description                │ UNIQUE(ingredientId, skinType)
+ │
+ └─── IngredientReport       ← Reports targeting this ingredient
 
 Ingredient ←──── ProductIngredient ────→ Product
                   │ junction table         │ has many ingredients
                   │ (many-to-many)         │ fields: id, name, brand,
                   │ position: order in     │ imageUrl, createdAt
                   │ the INCI list          
+
+IngredientReport ────── ReportVote
+  │ has many votes         │ one vote per (report + user)
+  │ status: PENDING/       │ voteType: UP / DOWN
+  │ APPROVED/REJECTED      │ UNIQUE(reportId, userId)
 ```
 
 ### Key Rules to Remember
@@ -396,7 +419,9 @@ In Next.js, **folder structure = URL structure**:
 - `app/page.tsx` → `/` (home page)
 - `app/login/page.tsx` → `/login`
 - `app/analysis/page.tsx` → `/analysis`
+- `app/community/reports/page.tsx` → `/community/reports`
 - `app/admin/products/page.tsx` → `/admin/products`
+- `app/admin/community-reports/page.tsx` → `/admin/community-reports`
 
 The `layout.tsx` in a folder wraps all pages in that folder. `app/layout.tsx` wraps the **entire app** (header, footer, fonts). `app/admin/layout.tsx` adds the admin sidebar.
 
@@ -527,7 +552,10 @@ Tests use **Jest + Supertest** and mock Prisma (no real database needed). They c
 | Browse the database visually | `cd backend && npx prisma studio` → `http://localhost:5555` |
 | Run all tests | `cd backend && npm test` |
 | See the full file tree with explanations | `STATUS.md` |
-| Check a specific feature's spec | `docs/features/01-auth.md` through `08-design-system.md` |
+| Check a specific feature's spec | `docs/features/01-auth.md` through `14-localization-pagination.md` |
+| See how community reporting works | `backend/src/services/report.service.ts` |
+| See how OCR extraction works | `backend/src/modules/ocr/` |
+| See how notifications work | `backend/src/controllers/notification.controller.ts` |
 
 ---
 

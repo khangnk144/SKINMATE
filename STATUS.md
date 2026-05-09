@@ -1,7 +1,7 @@
 # SKINMATE — Project Status & Complete Guide
 
-> **Last Updated:** May 5, 2026  
-> **Current Phase:** MVP Complete — All Features Implemented & Deployed Locally
+> **Last Updated:** May 9, 2026  
+> **Current Phase:** MVP Complete + Community Features — All Features Implemented & Deployed Locally
 
 ---
 
@@ -26,7 +26,10 @@ SKINMATE is a **luxury skincare ingredient analysis web application**. Users can
 - **Paste an INCI ingredient list** (the list printed on the back of skincare products) and get a color-coded safety analysis based on their skin type.
 - **See product recommendations** that are safe for their skin — products with any ingredient flagged as BAD for the user's skin type are automatically excluded.
 - **View and manage their analysis history** — re-analyze past entries or delete individual/all records.
-- **Admin users** can manage the full database of ingredients, safety rules, and products, as well as view statistical reports and manage user accounts (lock/unlock/delete).
+- **Admin users** can manage the full database of ingredients, safety rules, and products, as well as view statistical reports, moderate community ingredient reports, and manage user accounts (lock/unlock/delete).
+- **Community Reporting:** Users can report misclassified ingredients, vote on reports, and admins can approve/reject reports (approved reports auto-update safety rules).
+- **Notifications:** Users receive in-app notifications (e.g., when a report is resolved).
+- **OCR Scanning:** Users can upload a product label photo to auto-extract the ingredient list.
 
 ---
 
@@ -96,7 +99,13 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       ├── 📄 05-history.md       ← Spec for analysis history tracking
 │       ├── 📄 06-admin-crud.md    ← Spec for admin panel (manage ingredients/rules/products)
 │       ├── 📄 07-admin-users-reports.md ← Spec for admin user management & statistical reports
-│       └── 📄 08-design-system.md ← Spec for the luxury UI/UX design system
+│       ├── 📄 08-design-system.md ← Spec for the luxury UI/UX design system
+│       ├── 📄 09-gemini-ai.md    ← Spec for Gemini AI fallback integration
+│       ├── 📄 10-excel-import-export.md ← Spec for Excel bulk import/export
+│       ├── 📄 11-ocr-scanning.md ← Spec for OCR product label scanning
+│       ├── 📄 12-community-reporting.md ← Spec for community ingredient reporting & voting
+│       ├── 📄 13-notifications.md ← Spec for in-app notification system
+│       └── 📄 14-localization-pagination.md ← Spec for Vietnamese localization & pagination
 │
 ├── 📁 backend/                    ← 🖥️ THE SERVER (processes data, talks to database)
 │   ├── 📄 .env                    ← Secret settings (DATABASE_URL, JWT_SECRET, GEMINI_API_KEY)
@@ -119,7 +128,10 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   ├── 📄 analysis.routes.ts  ← /api/v1/analysis/check (POST)
 │       │   ├── 📄 product.routes.ts   ← /api/v1/products/recommendations (GET)
 │       │   ├── 📄 history.routes.ts   ← /api/v1/history (GET, DELETE /:id, DELETE /)
-│       │   └── 📄 admin.routes.ts     ← /api/v1/admin/* (CRUD + users + reports)
+│       │   ├── 📄 admin.routes.ts     ← /api/v1/admin/* (CRUD + users + reports)
+│       │   ├── 📄 report.routes.ts    ← /api/v1/reports (community reports + voting)
+│       │   ├── 📄 ingredient.routes.ts ← /api/v1/ingredients/search (ingredient lookup)
+│       │   └── 📄 notification.routes.ts ← /api/v1/notifications (user notifications)
 │       │
 │       ├── 📁 controllers/        ← 🎮 REQUEST HANDLERS (receive request → call service → send response)
 │       │   ├── 📄 auth.controller.ts      ← Handles register & login requests
@@ -128,7 +140,10 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   ├── 📄 product.controller.ts   ← Handles product recommendation requests
 │       │   ├── 📄 history.controller.ts   ← Handles history retrieval & deletion requests
 │       │   ├── 📄 admin.controller.ts     ← Handles all admin CRUD, user mgmt & reports
-│       │   └── 📄 excel.controller.ts     ← Handles Excel file export/import (multer upload + download)
+│       │   ├── 📄 excel.controller.ts     ← Handles Excel file export/import (multer upload + download)
+│       │   ├── 📄 report.controller.ts    ← Handles community reports, voting, resolution
+│       │   ├── 📄 ingredient.controller.ts ← Handles ingredient search by name
+│       │   └── 📄 notification.controller.ts ← Handles notification retrieval, read status, admin messaging
 │       │
 │       ├── 📁 services/           ← ⚙️ BUSINESS LOGIC (the actual "brains" — does the real work)
 │       │   ├── 📄 auth.service.ts      ← Hashes passwords, creates JWT tokens, validates logins, blocks locked accounts
@@ -136,7 +151,15 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
 │       │   ├── 📄 analysis.service.ts  ← Parses INCI strings, looks up safety rules per skin type
 │       │   ├── 📄 product.service.ts   ← Safety-first filter: excludes products with BAD ingredients for user's skin type
 │       │   ├── 📄 admin.service.ts     ← CRUD for ingredients/rules/products + user management + reports
-│       │   └── 📄 excel.service.ts     ← Excel import/export logic for ingredients, rules, and products
+│       │   ├── 📄 excel.service.ts     ← Excel import/export logic for ingredients, rules, and products
+│       │   └── 📄 report.service.ts    ← Community reports: creation, voting, resolution with auto-rule update
+│       │
+│       ├── 📁 modules/            ← 📦 SELF-CONTAINED FEATURE MODULES
+│       │   └── 📁 ocr/            ← 📷 OCR INGREDIENT EXTRACTION MODULE
+│       │       ├── 📄 ocrRoutes.ts           ← POST /api/ocr/ingredients
+│       │       ├── 📄 ocrController.ts       ← Validates file, calls service
+│       │       ├── 📄 ocrService.ts          ← Calls OCR.space API with base64 image
+│       │       └── 📄 ingredientsExtractor.ts ← Rule-based parser: extracts ingredient list from OCR text
 │       │
 │       ├── 📁 middlewares/        ← 🔒 SECURITY GUARDS (run BEFORE a request reaches the controller)
 │       │   ├── 📄 auth.middleware.ts      ← Checks if the user is logged in (valid JWT token)
@@ -189,7 +212,9 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
         │   ├── 📄 Navbar.tsx              ← The navigation bar at the top of every page
         │   ├── 📄 ProtectedRoute.tsx      ← Wrapper: redirects to login if user is NOT logged in
         │   ├── 📄 AdminProtectedRoute.tsx ← Wrapper: redirects if user is NOT an admin
-        │   └── 📄 ProductCard.tsx         ← A styled card that displays one product's info
+        │   ├── 📄 ProductCard.tsx         ← A styled card that displays one product's info
+        │   ├── 📄 NotificationBell.tsx    ← Bell icon with unread count badge and notification dropdown
+        │   └── 📄 ImageOCRUploader.tsx    ← Image upload component for OCR ingredient extraction
         │
         └── 📁 app/                ← 📄 PAGES (each subfolder = one URL/page on the website)
             ├── 📄 favicon.ico     ← Browser tab icon for the website
@@ -207,24 +232,30 @@ SKINMATE/                          ← 🏠 ROOT: The entire project lives here
             │   └── 📄 page.tsx    ← PROFILE PAGE (/profile) — view & edit skin type
             │
             ├── 📁 analysis/
-            │   └── 📄 page.tsx    ← ANALYSIS PAGE (/analysis) — paste ingredients, see safety results + recommendations
+            │   └── 📄 page.tsx    ← ANALYSIS PAGE (/analysis) — paste ingredients or OCR upload, see safety results + recommendations + report buttons
             │
             ├── 📁 history/
             │   └── 📄 page.tsx    ← HISTORY PAGE (/history) — view/delete past analyses, re-analyze
+            │
+            ├── 📁 community/      ← 🌐 COMMUNITY SECTION
+            │   └── 📁 reports/
+            │       └── 📄 page.tsx ← COMMUNITY REPORTS (/community/reports) — browse, vote on ingredient reports
             │
             └── 📁 admin/          ← 🔐 ADMIN SECTION (only accessible by admin users)
                 ├── 📄 layout.tsx  ← Admin layout with sidebar navigation
                 ├── 📄 page.tsx    ← ADMIN DASHBOARD (/admin) — overview & links
                 ├── 📁 ingredients/
-                │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete) with search
+                │   └── 📄 page.tsx ← Manage ingredients (add/edit/delete) with search + pagination
                 ├── 📁 rules/
-                │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete) with search
+                │   └── 📄 page.tsx ← Manage safety rules (add/edit/delete) with search + pagination
                 ├── 📁 products/
-                │   └── 📄 page.tsx ← Manage products with INCI string input (add/edit/delete) with search
+                │   └── 📄 page.tsx ← Manage products with INCI string input (add/edit/delete) with search + pagination
                 ├── 📁 users/
                 │   └── 📄 page.tsx ← Manage user accounts (lock/unlock/delete with confirmation modal)
                 ├── 📁 reports/
                 │   └── 📄 page.tsx ← Statistical dashboard (total users, analyses, skin type pie chart)
+                ├── 📁 community-reports/
+                │   └── 📄 page.tsx ← Moderate community ingredient reports (approve/reject)
                 └── 📁 import-export/
                     └── 📄 page.tsx ← Bulk Excel import/export + delete-all danger zone
 ```
@@ -304,6 +335,7 @@ Automated tests are programs that run your code with fake inputs and check if th
 | **ORM** | Prisma 5 | Translates between code and database queries |
 | **Authentication** | bcryptjs + jsonwebtoken | Securely hashes passwords and manages login sessions |
 | **Excel I/O** | xlsx + exceljs + multer | Bulk import/export of data via Excel files |
+| **HTTP Client** | axios | External API calls (OCR.space) |
 | **Testing** | Jest + Supertest | Automated testing for backend endpoints |
 | **Code Quality** | ESLint | Catches code style issues and potential bugs |
 | **Dev Server** | Nodemon | Auto-restarts backend when code changes |
@@ -398,6 +430,41 @@ Automated tests are programs that run your code with fake inputs and check if th
   - **Danger Zone:** "Delete All" buttons with confirmation prompts for each entity type.
 - **Dependencies:** `xlsx` (reading), `exceljs` (writing), `multer` (file upload middleware).
 
+### Feature 11: OCR Ingredient Extraction (Product Label Scanning)
+- **Backend:** Self-contained module in `src/modules/ocr/` with its own routes, controller, service, and parser.
+  - `POST /api/ocr/ingredients` — accepts image upload, calls OCR.space API for text extraction, then uses rule-based parsing to isolate the ingredient list.
+  - The `ingredientsExtractor.ts` parser finds keyword anchors ("ingredients", "thành phần"), extracts text after the keyword, stops at period, normalizes and deduplicates tokens.
+- **Frontend:** `ImageOCRUploader.tsx` component on the `/analysis` page allows users to upload a product label photo. Extracted ingredients auto-populate the analysis textarea.
+- **Dependencies:** `axios` (OCR.space API), `multer` (file upload).
+
+### Feature 12: Community Ingredient Reporting
+- **Database:** 3 new models — `IngredientReport`, `ReportVote`, `Notification`. 2 new enums — `ReportStatus` (PENDING/APPROVED/REJECTED), `VoteType` (UP/DOWN).
+- **Backend:**
+  - `report.service.ts` and `report.controller.ts` handle report creation, voting, and resolution.
+  - Users can submit reports claiming an ingredient's safety classification is wrong for a specific skin type.
+  - Other users can upvote/downvote reports (one vote per user per report, toggle mechanics).
+  - Admins can approve or reject reports. Approved reports auto-update the `IngredientRule` table.
+  - Resolution creates a notification for the reporting user.
+  - `ingredient.controller.ts` provides `GET /api/v1/ingredients/search?name=...` for resolving ingredient names to IDs.
+- **Frontend:**
+  - `/analysis` page: report buttons on each ingredient result.
+  - `/community/reports` page: browse pending reports, vote, see vote counts.
+  - `/admin/community-reports` page: admin moderation interface.
+
+### Feature 13: In-App Notifications
+- **Database:** `Notification` model with `userId`, `type`, `title`, `message`, `link`, `isRead` fields.
+- **Backend:** `notification.controller.ts` handles CRUD for notifications.
+  - `GET /api/v1/notifications` — user's notifications (newest first, max 50).
+  - `PATCH /api/v1/notifications/:id/read` — mark as read (verifies ownership).
+  - `PATCH /api/v1/notifications/read-all` — mark all as read.
+  - `POST /api/v1/notifications/send` — admin sends custom message to a user.
+  - Auto-generated on report resolution via `report.service.ts`.
+- **Frontend:** `NotificationBell.tsx` component in the Navbar with unread count badge and dropdown.
+
+### Feature 14: Vietnamese Localization & Client-Side Pagination
+- **Localization:** All user-facing text translated to professional Vietnamese. No external i18n library — translations are inline in component files. Database values remain in English.
+- **Client-Side Pagination:** Applied to `/admin/ingredients`, `/admin/rules`, `/admin/products` pages. 15 items per page. Search/filter applied before pagination. Resets to page 1 on search change.
+
 ---
 
 ## 7. How to Start Everything (After a Computer Shutdown)
@@ -463,8 +530,12 @@ This opens a database viewer at **http://localhost:5555**.
 
 ## 8. Next Action Items
 
-- [ ] **Product Scanning (OCR/Image)** — Allow users to upload a photo of a product label to automatically extract the INCI ingredient list.
+- [x] **Product Scanning (OCR/Image)** — *(Completed)* Users can upload a photo of a product label to automatically extract the INCI ingredient list via OCR.space API.
+- [x] **Community Reporting** — *(Completed)* Users can report misclassified ingredients, vote, and admins can resolve reports.
+- [x] **In-App Notifications** — *(Completed)* Users receive notifications for report resolutions and admin messages.
+- [x] **Vietnamese Localization** — *(Completed)* Full UI localization to Vietnamese.
+- [x] **Client-Side Pagination** — *(Completed)* Admin tables support 15-item pagination.
+- [x] **Deployment** — *(Completed)* Frontend on Vercel, backend + DB on Render. Production environment is live.
 - [ ] **Advanced Filtering** — Let users filter analysis results or products by category, brand, or safety rating.
 - [ ] **Weighted Scoring System** — Rank recommendations by a composite score based on the number and weight of GOOD ingredients, not just the absence of BAD ones.
 - [ ] **AI Coverage Expansion** — Extend Gemini AI fallback to also evaluate product-level safety holistically, not just per-ingredient.
-- [x] **Deployment** — *(Completed)* Frontend on Vercel, backend + DB on Render. Production environment is live.

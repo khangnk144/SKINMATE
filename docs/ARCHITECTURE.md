@@ -1,6 +1,6 @@
 # SKINMATE - System Architecture
 
-> **Last Updated:** May 5, 2026
+> **Last Updated:** May 9, 2026
 
 ## 1. High-Level Overview
 
@@ -17,12 +17,14 @@ SKINMATE follows a **Client-Server architecture** using a **Layered Pattern** to
 │                     BACKEND (Express.js 4)                  │
 │   Node.js · TypeScript · JWT Auth · bcryptjs               │
 │   Layered: Routes → Middlewares → Controllers → Services    │
+│   Modular: OCR Module (self-contained)                      │
 └──────────────────────┬──────────────────────────────────────┘
                        │  Prisma ORM
 ┌──────────────────────▼──────────────────────────────────────┐
 │                DATABASE (PostgreSQL 15 via Docker)          │
 │   Users · Ingredients · IngredientRules · Products ·        │
-│   ProductIngredients · AnalysisHistory                      │
+│   ProductIngredients · AnalysisHistory ·                    │
+│   IngredientReports · ReportVotes · Notifications           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -43,9 +45,10 @@ Request → Router → Middleware(s) → Controller → Service → Prisma → D
 | **Router** | `*.routes.ts` | Maps URLs to controller methods |
 | **Middleware** | `*.middleware.ts` | Handles Auth (JWT validation), Admin role checks, and Rate Limiting |
 | **Controller** | `*.controller.ts` | Extracts request params, calls service, formats HTTP response. **No business logic.** |
-| **Service** | `*.service.ts` | Core business logic — analysis engine, safety filtering, password hashing, Excel import/export, etc. |
+| **Service** | `*.service.ts` | Core business logic — analysis engine, safety filtering, password hashing, Excel import/export, community reporting, etc. |
 | **Prisma** | `utils/prisma.ts` | Singleton database client. Pure data access. |
 | **Utils** | `utils/*.ts` | Shared helpers — `prisma.ts` (DB client), `gemini.ts` (Gemini AI client) |
+| **Modules** | `modules/*/` | Self-contained feature modules (e.g., OCR) with their own routes, controllers, and services |
 
 ## 3. Backend Module Map
 
@@ -58,19 +61,27 @@ Request → Router → Middleware(s) → Controller → Service → Prisma → D
 | History | `/api/v1/history` | `history.controller.ts` | *(inline Prisma calls)* |
 | Admin | `/api/v1/admin` | `admin.controller.ts` | `admin.service.ts` |
 | Excel Import/Export | `/api/v1/admin/export/*`, `/api/v1/admin/import/*` | `excel.controller.ts` | `excel.service.ts` |
+| Community Reports | `/api/v1/reports` | `report.controller.ts` | `report.service.ts` |
+| Ingredient Search | `/api/v1/ingredients` | `ingredient.controller.ts` | *(inline Prisma calls)* |
+| Notifications | `/api/v1/notifications` | `notification.controller.ts` | *(inline Prisma calls)* |
+| OCR (Image Scanning) | `/api/ocr` | `modules/ocr/ocrController.ts` | `modules/ocr/ocrService.ts` |
 
 ## 4. Frontend Structure
 
 ```
 src/
 ├── app/           ← Next.js App Router (file-based pages)
-├── components/    ← Shared UI components (Navbar, ProductCard, etc.)
+│   ├── community/     ← Community features (ingredient reports)
+│   └── admin/         ← Admin panel (CRUD, reports, community moderation)
+├── components/    ← Shared UI components (Navbar, ProductCard, NotificationBell, ImageOCRUploader, etc.)
 └── context/       ← Global state (AuthContext — stores logged-in user)
 ```
 
 * **App Router (Next.js):** Every `page.tsx` inside `app/` auto-becomes a URL route.
 * **AuthContext:** A React Context that holds the current user's `token`, `role`, and `skinType`. Persists to `localStorage` so users stay logged in on refresh.
 * **Admin Guard:** `AdminProtectedRoute.tsx` wraps all admin pages and redirects non-admin users.
+* **Client-Side Pagination:** Admin management pages (ingredients, rules, products) use client-side pagination (15 items per page) to handle large datasets efficiently.
+* **Vietnamese Localization:** The entire UI is localized in Vietnamese for the target audience.
 
 ## 5. Key Algorithm: The INCI Analysis Engine
 
@@ -118,7 +129,36 @@ Step 3 — Return: { id, name, brand, imageUrl } for all safe products
 
 This is a **strict exclusion filter** — no scoring or ranking. Any single BAD ingredient disqualifies the entire product.
 
-## 7. Security Model
+## 7. Key Algorithm: Community Ingredient Report Resolution
+
+```
+POST /api/v1/reports/resolve  (Admin only)
+
+Step 1 — Validate report exists and is in PENDING status
+Step 2 — If status = APPROVED:
+  - Auto-update or create the IngredientRule for the reported (ingredientId, skinType)
+    with the user's reportedEffect
+Step 3 — Update report: set status, resolvedAt, resolvedBy, adminNote
+Step 4 — Create Notification for the reporting user (approved/rejected message)
+Step 5 — Return updated report
+```
+
+## 8. Key Algorithm: OCR Ingredient Extraction
+
+```
+POST /api/ocr/ingredients
+
+Step 1 — Receive image file via multer (memory storage)
+Step 2 — Convert to base64, send to OCR.space API for text extraction
+Step 3 — Rule-based ingredient parsing:
+  a. Find keyword anchor ("ingredients", "thành phần", "composition", "contains")
+  b. Extract text after keyword
+  c. Stop at period
+  d. Split by comma/semicolon, normalize, deduplicate
+Step 4 — Return comma-separated ingredient string
+```
+
+## 9. Security Model
 
 | Concern | Mechanism |
 |---------|-----------|
@@ -129,8 +169,10 @@ This is a **strict exclusion filter** — no scoring or ranking. Any single BAD 
 | Locked accounts | `loginUser` checks `isActive` field and throws before issuing a token |
 | SQL injection | Prisma ORM uses parameterized queries exclusively |
 | Rate limiting | `analysisRateLimiter` (express-rate-limit): 25 calls/24h per user; unlimited for ADMINs; grouped by `userId` (or IP if unauthenticated) |
+| Vote integrity | `@@unique([reportId, userId])` constraint prevents duplicate votes per user |
+| Notification ownership | `markAsRead` verifies `notification.userId === req.user.userId` before updating |
 
-## 8. Database Engine Choice
+## 10. Database Engine Choice
 
 PostgreSQL 15 was chosen as the database engine for:
 - Strong relational integrity (foreign keys, cascade deletes)
@@ -138,10 +180,13 @@ PostgreSQL 15 was chosen as the database engine for:
 - Familiar SQL semantics for the Prisma ORM
 - Easy local development via Docker (`skinmate-postgres` container)
 
-## 9. External Integrations
+## 11. External Integrations
 
 | Service | Purpose | File |
 |---------|---------|------|
 | **Gemini 1.5 Flash** (Google AI) | AI-powered fallback ingredient analysis | `src/utils/gemini.ts` |
+| **OCR.space API** | Image-to-text extraction for product label scanning | `src/modules/ocr/ocrService.ts` |
 
 Gemini is used **only as a fallback** when an ingredient is not found in the local database. Results are auto-cached to the DB to minimize future API calls.
+
+OCR.space is used for extracting text from product label images. The extracted text is then parsed by a rule-based engine to isolate the ingredient list.

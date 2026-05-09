@@ -1,6 +1,6 @@
 # SKINMATE - API Specification (v1)
 
-> **Last Updated:** May 5, 2026  
+> **Last Updated:** May 9, 2026  
 > **Status:** All endpoints implemented.
 
 ## 1. General Info
@@ -94,6 +94,43 @@
 | `DELETE` | `/history/:id` | ✅ User | Deletes a specific history entry by ID |
 | `DELETE` | `/history` | ✅ User | Clears ALL history entries for the authenticated user |
 
+### Ingredient Search (`/api/v1/ingredients`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/ingredients/search?name=...` | ✅ User | Search for an ingredient by exact name (lowercase match). Returns `{ id, name }` or 404 if not found. Used by the community reporting feature to resolve ingredient IDs. |
+
+### Community Ingredient Reports (`/api/v1/reports`)
+
+> All routes require `authMiddleware`. Admin-only routes additionally require `adminMiddleware`.
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/reports` | ✅ User | Submit a new ingredient report. Body: `{ ingredientId, skinType, reportedEffect, reason, evidenceUrl? }` |
+| `POST` | `/reports/vote` | ✅ User | Vote on a report. Body: `{ reportId, voteType }` (`UP`/`DOWN`). Same vote type toggles off. Different vote type updates. |
+| `GET` | `/reports/pending` | ✅ User | List pending reports. Query params: `sortBy` (`votes`/`newest`), `limit`, `offset`. Returns `{ data, total }`. |
+| `GET` | `/reports/vote/:reportId` | ✅ User | Get the authenticated user's vote on a specific report. Returns `{ voteType }` (or `null`). |
+| `POST` | `/reports/resolve` | ✅ Admin | Resolve a pending report. Body: `{ reportId, status, adminNote? }`. Status must be `APPROVED` or `REJECTED`. Approved reports auto-update the corresponding `IngredientRule`. Creates a notification for the report author. |
+
+### Notifications (`/api/v1/notifications`)
+
+> All routes require `authMiddleware`.
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/notifications` | ✅ User | Get the authenticated user's notifications (newest first, max 50). |
+| `PATCH` | `/notifications/:id/read` | ✅ User | Mark a specific notification as read. Verifies ownership. |
+| `PATCH` | `/notifications/read-all` | ✅ User | Mark all of the user's unread notifications as read. |
+| `POST` | `/notifications/send` | ✅ Admin | Send a custom notification to a user. Body: `{ userId, title, message, link? }`. |
+
+### OCR — Image Ingredient Extraction (`/api/ocr`)
+
+> **Note:** This endpoint uses a different base path (`/api/ocr`, not `/api/v1`).
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/ocr/ingredients` | ❌ | Upload a product label image to extract the INCI ingredient list via OCR. Uses `multer` for `multipart/form-data` upload (field name: `file`). Returns `{ ingredients: "comma, separated, list" }`. |
+
 ### Admin CRUD — Ingredients (`/api/v1/admin/ingredients`)
 
 > All admin routes require **both** `authMiddleware` AND `adminMiddleware`.
@@ -185,3 +222,4 @@
 | `NOT_FOUND` | Requested resource does not exist |
 | `CONFLICT` | Resource already exists (e.g., duplicate ingredient name) |
 | `DB_ERROR` | Database connection or query issue |
+| `RATE_LIMITED` | Analysis rate limit exceeded (25/day per user) |

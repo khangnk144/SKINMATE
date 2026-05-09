@@ -32,9 +32,11 @@ src/
 │   ├── login/          Login page
 │   ├── register/       Register page
 │   ├── profile/        User profile & skin type
-│   ├── analysis/       INCI analysis + recommendations
+│   ├── analysis/       INCI analysis + OCR upload + recommendations + report buttons
 │   ├── history/        Analysis history
-│   └── admin/          Admin panel (ingredients, rules, products, users, reports, import-export)
-├── components/     ← Reusable UI (Navbar, ProductCard, ProtectedRoute, AdminProtectedRoute)
+│   ├── community/      Community features
+│   │   └── reports/    Browse & vote on ingredient reports
+│   └── admin/          Admin panel (ingredients, rules, products, users, reports, community-reports, import-export)
+├── components/     ← Reusable UI (Navbar, ProductCard, ProtectedRoute, AdminProtectedRoute, NotificationBell, ImageOCRUploader)
 └── context/        ← AuthContext (login state management)
 ```
