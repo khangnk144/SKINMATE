@@ -135,7 +135,7 @@ export const reportService = {
       await adminService.createOrUpdateRule(report.ingredientId, report.skinType, report.reportedEffect);
     }
 
-    return await prisma.ingredientReport.update({
+    const updatedReport = await prisma.ingredientReport.update({
       where: { id: reportId },
       data: {
         status,
@@ -144,6 +144,24 @@ export const reportService = {
         adminNote,
       },
     });
+
+    // Create notification for the user who submitted the report
+    const title = status === ReportStatus.APPROVED ? "Báo cáo của bạn đã được duyệt" : "Báo cáo của bạn đã bị từ chối";
+    const message = adminNote || (status === ReportStatus.APPROVED 
+      ? "Cảm ơn bạn đã đóng góp! Báo cáo của bạn đã được quản trị viên duyệt và cập nhật vào hệ thống." 
+      : "Báo cáo của bạn không được duyệt. Cảm ơn bạn đã đóng góp, tuy nhiên thông tin này chưa chính xác hoặc không đủ cơ sở.");
+      
+    await prisma.notification.create({
+      data: {
+        userId: report.userId,
+        type: 'REPORT_RESOLVED',
+        title,
+        message,
+        link: '/community/reports',
+      }
+    });
+
+    return updatedReport;
   },
 
   async getUserVote(reportId: number, userId: string) {

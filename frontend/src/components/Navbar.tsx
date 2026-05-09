@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { LayoutDashboard, User, History, LogOut } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const { user, logout, isLoading } = useAuth();
@@ -64,6 +65,8 @@ export default function Navbar() {
                 Quản trị
               </Link>
             )}
+
+            <NotificationBell />
 
             {/* ── User Dropdown ── */}
             {user ? (
@@ -166,20 +169,23 @@ export default function Navbar() {
         )}
       </nav>
 
-      {/* ─── Mobile Hamburger Button ──────────────────────────────────── */}
-      <button
-        className="md:hidden p-2 text-gray-500 hover:text-rose-400 focus:outline-none"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Mở menu"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
+      {/* ─── Mobile Actions ──────────────────────────────────── */}
+      <div className="md:hidden flex items-center gap-1.5">
+        <NotificationBell />
+        <button
+          className="p-2 text-gray-500 hover:text-rose-400 focus:outline-none"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Mở menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
 
       {/* ─── Mobile Dropdown Menu ─────────────────────────────────────── */}
       {isOpen && (

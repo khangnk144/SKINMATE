@@ -18,6 +18,7 @@ import adminRoutes from './routes/admin.routes';
 import reportRoutes from './routes/report.routes';
 import ingredientRoutes from './routes/ingredient.routes';
 import ocrRoutes from './modules/ocr/ocrRoutes';
+import notificationRoutes from './routes/notification.routes';
 
 // Middleware
 app.use(cors());
@@ -33,6 +34,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/ingredients', ingredientRoutes);
 app.use('/api/ocr', ocrRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
