@@ -7,6 +7,7 @@ export interface AnalysisResult {
   mappedName: string;
   effect: 'GOOD' | 'BAD' | 'NEUTRAL';
   description?: string | null;
+  ingredientId?: number | null;
 }
 
 export const analyzeIngredients = async (inciString: string, skinType: SkinType | null): Promise<AnalysisResult[]> => {
@@ -100,6 +101,7 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
         mappedName,
         effect,
         description: foundIngredient.description,
+        ingredientId: foundIngredient.id,
       };
     }
 
@@ -108,7 +110,7 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
     if (aiRes) {
       return {
         originalName,
-        mappedName: mappedName, // Already lowercase from line 87
+        mappedName: mappedName,
         effect: aiRes.effect,
         description: aiRes.description,
       };

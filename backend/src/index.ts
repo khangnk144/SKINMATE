@@ -15,6 +15,8 @@ import analysisRoutes from './routes/analysis.routes';
 import productRoutes from './routes/product.routes';
 import historyRoutes from './routes/history.routes';
 import adminRoutes from './routes/admin.routes';
+import reportRoutes from './routes/report.routes';
+import ingredientRoutes from './routes/ingredient.routes';
 import ocrRoutes from './modules/ocr/ocrRoutes';
 
 // Middleware
@@ -28,6 +30,8 @@ app.use('/api/v1/analysis', analysisRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/history', historyRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/ingredients', ingredientRoutes);
 app.use('/api/ocr', ocrRoutes);
 
 // Root endpoint

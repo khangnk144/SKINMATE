@@ -28,6 +28,17 @@ enum SafetyEffect {
   NEUTRAL
 }
 
+enum ReportStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VoteType {
+  UP
+  DOWN
+}
+
 model User {
   id            String            @id @default(uuid())
   username      String            @unique
@@ -39,6 +50,8 @@ model User {
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   histories     AnalysisHistory[]
+  ingredientReports IngredientReport[]
+  reportVotes   ReportVote[]
 }
 
 model Ingredient {
@@ -47,6 +60,7 @@ model Ingredient {
   description String?             @db.Text
   rules       IngredientRule[]
   products    ProductIngredient[]
+  reports     IngredientReport[]
 }
 
 model IngredientRule {
@@ -87,4 +101,34 @@ model AnalysisHistory {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model IngredientReport {
+  id             Int            @id @default(autoincrement())
+  ingredientId   Int
+  ingredient     Ingredient     @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skinType       SkinType       // The reporter's skin type when reporting (important for rule update)
+  reportedEffect SafetyEffect   // The effect the user believes is correct (GOOD/BAD/NEUTRAL)
+  reason         String         @db.Text
+  evidenceUrl    String?        // Optional link to image or study
+  status         ReportStatus   @default(PENDING)
+  createdAt      DateTime       @default(now())
+  resolvedAt     DateTime?
+  resolvedBy     String?        // admin user id
+  adminNote      String?        @db.Text
+  votes          ReportVote[]
+}
+
+model ReportVote {
+  id           Int        @id @default(autoincrement())
+  reportId     Int
+  report       IngredientReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voteType     VoteType
+  createdAt    DateTime   @default(now())
+
+  @@unique([reportId, userId])
 }
