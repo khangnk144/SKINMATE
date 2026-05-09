@@ -45,6 +45,13 @@ export default function Navbar() {
           Phân tích
         </Link>
 
+        <Link
+          href="/community/reports"
+          className="text-base tracking-wide text-gray-500 hover:text-rose-400 transition-colors duration-300"
+        >
+          Cộng đồng
+        </Link>
+
         {!isLoading && (
           <>
             {/* Admin Panel — outside dropdown, refined rose-slate style */}
@@ -204,6 +211,14 @@ export default function Navbar() {
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
             >
               Phân tích
+            </Link>
+
+            <Link
+              href="/community/reports"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-rose-50/70 hover:text-rose-500 transition-all duration-200"
+            >
+              Cộng đồng
             </Link>
 
             {!isLoading && user && (

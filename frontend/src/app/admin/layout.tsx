@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Sản phẩm', href: '/admin/products' },
     { name: 'Người dùng', href: '/admin/users' },
     { name: 'Báo cáo', href: '/admin/reports' },
+    { name: 'BC Cộng đồng', href: '/admin/community-reports' },
     { name: 'Nhập / Xuất', href: '/admin/import-export' },
   ];
 
