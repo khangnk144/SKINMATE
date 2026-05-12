@@ -132,7 +132,7 @@ export default function Home() {
                 <div className="col-span-2 relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-black/10">
                     <img
-                      src="https://images.unsplash.com/photo-1632127469349-ed0845142227?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                      src="https://i.postimg.cc/cCf9QTmr/image.png"
                       alt="Woman applying luxury serum"
                       className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -144,7 +144,7 @@ export default function Home() {
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
                     <img
-                      src="https://images.unsplash.com/photo-1644915695094-d452a018e936?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
+                      src="https://i.postimg.cc/GpBjFq3b/image.png"
                       alt="Luxury skincare products"
                       className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -156,7 +156,7 @@ export default function Home() {
                 <div className="relative group mt-8">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
                     <img
-                      src="https://images.unsplash.com/photo-1585652757141-8837d676fac8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600"
+                      src="https://i.postimg.cc/028dW82g/image.png"
                       alt="Minimal skincare aesthetic"
                       className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -197,18 +197,16 @@ export default function Home() {
                 className="group bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-lg shadow-black/5 border border-black/5 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-black/10"
               >
                 <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
-                    feature.color === 'rose'
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color === 'rose'
                       ? 'from-[var(--rose-100)] to-[var(--rose-200)]'
                       : 'from-[var(--sage-100)] to-[var(--sage-200)]'
-                  } mb-6 flex items-center justify-center transition-all duration-500 group-hover:scale-110`}
+                    } mb-6 flex items-center justify-center transition-all duration-500 group-hover:scale-110`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg ${
-                      feature.color === 'rose'
+                    className={`w-8 h-8 rounded-lg ${feature.color === 'rose'
                         ? 'bg-[var(--rose-400)]'
                         : 'bg-[var(--sage-400)]'
-                    }`}
+                      }`}
                   />
                 </div>
                 <h3
