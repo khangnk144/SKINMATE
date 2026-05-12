@@ -53,7 +53,7 @@ export default function LoginPage() {
         {/* Left: Image */}
         <div className="hidden lg:block relative w-full h-[600px] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
           <img
-            src="https://images.unsplash.com/photo-1632127469349-ed0845142227?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+            src="https://i.postimg.cc/bwqYWws7/image.png"
             alt="Luxury skincare"
             className="w-full h-full object-cover"
           />
@@ -127,9 +127,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`group relative w-full py-5 rounded-[2rem] overflow-hidden transition-all duration-500 ${
-                  loading ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1'
-                }`}
+                className={`group relative w-full py-5 rounded-[2rem] overflow-hidden transition-all duration-500 ${loading ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-900 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1'
+                  }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-rose-300/20 to-emerald-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <span className="relative text-white text-sm font-semibold tracking-widest uppercase">
