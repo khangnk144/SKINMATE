@@ -2,10 +2,24 @@ import { Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
 import { SkinType, SafetyEffect } from '@prisma/client';
 
+const getListQuery = (req: Request) => {
+  const hasListQuery = req.query.page || req.query.limit || req.query.search;
+  if (!hasListQuery) return undefined;
+
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+
+  return {
+    page: Number.isFinite(page) ? page : undefined,
+    limit: Number.isFinite(limit) ? limit : undefined,
+    search: typeof req.query.search === 'string' ? req.query.search : undefined,
+  };
+};
+
 export const adminController = {
   getIngredients: async (req: Request, res: Response): Promise<void> => {
     try {
-      const ingredients = await adminService.getIngredients();
+      const ingredients = await adminService.getIngredients(getListQuery(req));
       res.json(ingredients);
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to fetch ingredients' });
@@ -104,7 +118,7 @@ export const adminController = {
 
   getRules: async (req: Request, res: Response): Promise<void> => {
     try {
-      const rules = await adminService.getRules();
+      const rules = await adminService.getRules(getListQuery(req));
       res.json(rules);
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to fetch rules' });
@@ -152,7 +166,7 @@ export const adminController = {
 
   getProducts: async (req: Request, res: Response): Promise<void> => {
     try {
-      const products = await adminService.getProducts();
+      const products = await adminService.getProducts(getListQuery(req));
       res.json(products);
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to fetch products' });
@@ -197,7 +211,7 @@ export const adminController = {
 
   getUsers: async (req: Request, res: Response): Promise<void> => {
     try {
-      const users = await adminService.getUsers();
+      const users = await adminService.getUsers(getListQuery(req));
       res.json(users);
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to fetch users' });

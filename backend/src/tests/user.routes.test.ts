@@ -59,7 +59,7 @@ describe('User Routes', () => {
     it('should update and return user profile', async () => {
       (jwt.verify as jest.Mock).mockReturnValue({ userId: '123', role: 'USER' });
       const mockUpdatedProfile = { id: '123', username: 'testuser', skinType: 'OILY', role: 'USER', createdAt: new Date(), updatedAt: new Date() };
-      (userService.updateUserSkinType as jest.Mock).mockResolvedValue(mockUpdatedProfile);
+      (userService.updateUserProfile as jest.Mock).mockResolvedValue(mockUpdatedProfile);
 
       const res = await request(app)
         .put('/api/v1/users/profile')

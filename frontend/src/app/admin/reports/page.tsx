@@ -2,19 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip, 
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid
-} from 'recharts';
+import dynamic from 'next/dynamic';
+import { API_URL } from '@/lib/api';
+
+const AdminReportsCharts = dynamic(() => import('@/components/AdminReportsCharts'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse rounded-3xl bg-rose-50/40" />,
+});
 
 interface ReportData {
   totalUsers: number;
@@ -25,8 +19,6 @@ interface ReportData {
   }[];
 }
 
-const COLORS = ['#E11D48', '#10B981', '#6366F1', '#F59E0B', '#64748B', '#EC4899'];
-
 export default function AdminReports() {
   const { token } = useAuth();
   const [data, setData] = useState<ReportData | null>(null);
@@ -36,7 +28,7 @@ export default function AdminReports() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/reports`, {
+        const res = await fetch(`${API_URL}/admin/reports`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Failed to fetch reports');
@@ -111,36 +103,7 @@ export default function AdminReports() {
         <div className="lg:col-span-2 bg-white p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-rose-50/50">
           <h3 className="text-lg font-serif text-slate-800 mb-8">Phân Bổ Loại Da</h3>
           <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data?.skinTypeDistribution || []}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                  outerRadius={140}
-                  fill="#8884d8"
-                  dataKey="count"
-                  nameKey="type"
-                  innerRadius={80}
-                  paddingAngle={5}
-                >
-                  {(data?.skinTypeDistribution || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '20px', 
-                    border: 'none', 
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                    padding: '12px 20px'
-                  }} 
-                />
-                <Legend verticalAlign="bottom" height={36}/>
-              </PieChart>
-            </ResponsiveContainer>
+            <AdminReportsCharts data={data?.skinTypeDistribution || []} />
           </div>
         </div>
 

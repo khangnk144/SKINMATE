@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Search } from 'lucide-react';
+import { API_URL, buildListUrl, getItems, getPaginationMeta } from '@/lib/api';
 
 interface Ingredient {
   id: number;
@@ -27,6 +28,7 @@ export default function AdminRules() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalItems, setTotalItems] = useState(0);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,8 +43,12 @@ export default function AdminRules() {
   const fetchData = async () => {
     try {
       const [ingRes, rulesRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API_URL}/admin/ingredients`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(buildListUrl('/admin/rules', {
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+        }), { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (!ingRes.ok || !rulesRes.ok) throw new Error('Failed to fetch data');
@@ -50,11 +56,13 @@ export default function AdminRules() {
       const ingData = await ingRes.json();
       const rulesData = await rulesRes.json();
       
-      setIngredients(ingData);
-      setRules(rulesData);
+      setIngredients(getItems<Ingredient>(ingData));
+      setRules(getItems<Rule>(rulesData));
+      setTotalItems(getPaginationMeta<Rule>(rulesData).total);
       
-      if (ingData.length > 0 && !formData.ingredientId) {
-        setFormData(prev => ({ ...prev, ingredientId: ingData[0].id.toString() }));
+      const ingredientItems = getItems<Ingredient>(ingData);
+      if (ingredientItems.length > 0 && !formData.ingredientId) {
+        setFormData(prev => ({ ...prev, ingredientId: ingredientItems[0].id.toString() }));
       }
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -64,8 +72,10 @@ export default function AdminRules() {
   };
 
   useEffect(() => {
-    if (token) fetchData();
-  }, [token]);
+    if (!token) return;
+    const timeout = window.setTimeout(fetchData, 250);
+    return () => window.clearTimeout(timeout);
+  }, [token, currentPage, searchTerm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +83,7 @@ export default function AdminRules() {
     setSuccess('');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules`, {
+      const res = await fetch(`${API_URL}/admin/rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +111,7 @@ export default function AdminRules() {
   const handleDelete = async (id: number) => {
     if (!confirm('Bạn có chắc chắn muốn xóa quy tắc này không?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/rules/${id}`, {
+      const res = await fetch(`${API_URL}/admin/rules/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -114,13 +124,8 @@ export default function AdminRules() {
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải...</div>;
 
-  const filteredRules = rules.filter(rule =>
-    rule.ingredient.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredRules.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedRules = filteredRules.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedRules = rules;
 
   return (
     <div>

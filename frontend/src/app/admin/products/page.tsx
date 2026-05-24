@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Search } from 'lucide-react';
+import Image from 'next/image';
+import { API_URL, buildListUrl, getItems, getPaginationMeta } from '@/lib/api';
 
 
 interface Product {
@@ -24,6 +26,7 @@ export default function AdminProducts() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalItems, setTotalItems] = useState(0);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,13 +42,19 @@ export default function AdminProducts() {
 
   const fetchData = async () => {
     try {
-      const prodRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products`, { 
+      const prodRes = await fetch(buildListUrl('/admin/products', {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+      }), { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       
       if (!prodRes.ok) throw new Error('Failed to fetch data');
       
-      setProducts(await prodRes.json());
+      const data = await prodRes.json();
+      setProducts(getItems<Product>(data));
+      setTotalItems(getPaginationMeta<Product>(data).total);
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
     } finally {
@@ -54,8 +63,10 @@ export default function AdminProducts() {
   };
 
   useEffect(() => {
-    if (token) fetchData();
-  }, [token]);
+    if (!token) return;
+    const timeout = window.setTimeout(fetchData, 250);
+    return () => window.clearTimeout(timeout);
+  }, [token, currentPage, searchTerm]);
 
   const resetForm = () => {
     setEditingId(null);
@@ -80,8 +91,8 @@ export default function AdminProducts() {
     setSuccess('');
 
     const url = editingId 
-      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products/${editingId}`
-      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products`;
+      ? `${API_URL}/admin/products/${editingId}`
+      : `${API_URL}/admin/products`;
 
     try {
       const res = await fetch(url, {
@@ -114,7 +125,7 @@ export default function AdminProducts() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/products/${id}`, {
+      const res = await fetch(`${API_URL}/admin/products/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -127,14 +138,8 @@ export default function AdminProducts() {
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải...</div>;
 
-  const filteredProducts = products.filter(prod =>
-    prod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prod.brand.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedProducts = products;
 
   return (
     <div>
@@ -248,7 +253,7 @@ export default function AdminProducts() {
                 <td className="px-8 py-5 whitespace-nowrap text-sm font-medium text-slate-800">
                   <div className="flex items-center">
                     {prod.imageUrl && (
-                      <img src={prod.imageUrl} alt={prod.name} className="h-10 w-10 rounded-full mr-4 object-cover ring-2 ring-rose-50" />
+                      <Image src={prod.imageUrl} alt={prod.name} width={40} height={40} sizes="40px" className="h-10 w-10 rounded-full mr-4 object-cover ring-2 ring-rose-50" />
                     )}
                     <span className="tracking-tight">{prod.name}</span>
                   </div>

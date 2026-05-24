@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
+import { API_URL } from '@/lib/api';
 
 export default function Home() {
-  const [healthStatus, setHealthStatus] = useState<string | null>(null);
+  const [healthStatus, setHealthStatus] = useState<string | null>('ready');
   const [error, setError] = useState<string | null>(null);
   const { user, logout, isLoading } = useAuth();
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENABLE_HEALTH_CHECK !== 'true') return;
+
     async function checkHealth() {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/health`);
+        const response = await fetch(`${API_URL}/health`);
         if (!response.ok) {
           throw new Error('Lỗi kết nối máy chủ');
         }
@@ -48,9 +52,12 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             {/* Main hero image */}
             <div className="absolute inset-0">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1519084278803-b94f11e1c63b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
                 alt="Luxury skincare"
+                fill
+                priority
+                sizes="100vw"
                 className="w-full h-full object-cover opacity-15"
               />
             </div>
@@ -131,9 +138,12 @@ export default function Home() {
                 {/* Image 1 - Large */}
                 <div className="col-span-2 relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-black/10">
-                    <img
+                    <Image
                       src="https://i.postimg.cc/cCf9QTmr/image.png"
                       alt="Woman applying luxury serum"
+                      width={900}
+                      height={400}
+                      sizes="(min-width: 1024px) 50vw, 100vw"
                       className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[var(--rose-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -143,9 +153,12 @@ export default function Home() {
                 {/* Image 2 - Small Left */}
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
-                    <img
+                    <Image
                       src="https://i.postimg.cc/GpBjFq3b/image.png"
                       alt="Luxury skincare products"
+                      width={450}
+                      height={280}
+                      sizes="(min-width: 1024px) 25vw, 100vw"
                       className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[var(--sage-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -155,9 +168,12 @@ export default function Home() {
                 {/* Image 3 - Small Right */}
                 <div className="relative group mt-8">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
-                    <img
+                    <Image
                       src="https://i.postimg.cc/028dW82g/image.png"
                       alt="Minimal skincare aesthetic"
+                      width={450}
+                      height={280}
+                      sizes="(min-width: 1024px) 25vw, 100vw"
                       className="w-full h-[280px] object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[var(--rose-500)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

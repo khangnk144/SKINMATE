@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
+import { API_ROOT_URL } from '@/lib/api';
+import Image from 'next/image';
 
 interface ImageOCRUploaderProps {
   onExtracted: (ingredients: string) => void;
@@ -16,6 +18,7 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
     if (!file) return;
 
     // Create preview
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     setError(null);
@@ -25,8 +28,7 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
     formData.append('file', file);
 
     try {
-      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
-      const response = await fetch(`${baseUrl}/api/ocr/ingredients`, {
+      const response = await fetch(`${API_ROOT_URL}/api/ocr/ingredients`, {
         method: 'POST',
         body: formData,
       });
@@ -41,8 +43,8 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
       } else {
         setError('No ingredients found in the image.');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during extraction');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred during extraction');
     } finally {
       setLoading(false);
       if (fileInputRef.current) {
@@ -52,6 +54,7 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
   };
 
   const clearImage = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setError(null);
     if (fileInputRef.current) {
@@ -80,9 +83,12 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
         <div className="relative border border-slate-200 rounded-[2rem] p-4 bg-stone-50 overflow-hidden">
           <div className="flex items-start gap-6">
             <div className="relative w-32 h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
-              <img 
+              <Image 
                 src={previewUrl} 
                 alt="Preview" 
+                fill
+                unoptimized
+                sizes="128px"
                 className="w-full h-full object-cover"
               />
               {loading && (

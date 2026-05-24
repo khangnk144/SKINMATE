@@ -2,8 +2,54 @@ import { PrismaClient, SkinType, SafetyEffect } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+export interface ListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+const getPagination = (query?: ListQuery) => {
+  if (!query?.page && !query?.limit && !query?.search) return null;
+
+  const page = Math.max(1, query.page || 1);
+  const limit = Math.min(100, Math.max(1, query.limit || 20));
+  const search = query.search?.trim();
+
+  return {
+    page,
+    limit,
+    skip: (page - 1) * limit,
+    search,
+  };
+};
+
+const paginated = <T>(items: T[], total: number, page: number, limit: number) => ({
+  items,
+  total,
+  page,
+  limit,
+});
+
 export const adminService = {
-  async getIngredients() {
+  async getIngredients(query?: ListQuery) {
+    const pagination = getPagination(query);
+    if (pagination) {
+      const where = pagination.search
+        ? { name: { contains: pagination.search, mode: 'insensitive' as const } }
+        : {};
+      const [items, total] = await Promise.all([
+        prisma.ingredient.findMany({
+          where,
+          orderBy: { name: 'asc' },
+          skip: pagination.skip,
+          take: pagination.limit,
+        }),
+        prisma.ingredient.count({ where }),
+      ]);
+
+      return paginated(items, total, pagination.page, pagination.limit);
+    }
+
     return await prisma.ingredient.findMany({
       orderBy: { name: 'asc' },
     });
@@ -86,7 +132,26 @@ export const adminService = {
     });
   },
 
-  async getRules() {
+  async getRules(query?: ListQuery) {
+    const pagination = getPagination(query);
+    if (pagination) {
+      const where = pagination.search
+        ? { ingredient: { name: { contains: pagination.search, mode: 'insensitive' as const } } }
+        : {};
+      const [items, total] = await Promise.all([
+        prisma.ingredientRule.findMany({
+          where,
+          include: { ingredient: true },
+          orderBy: { id: 'desc' },
+          skip: pagination.skip,
+          take: pagination.limit,
+        }),
+        prisma.ingredientRule.count({ where }),
+      ]);
+
+      return paginated(items, total, pagination.page, pagination.limit);
+    }
+
     return await prisma.ingredientRule.findMany({
       include: { ingredient: true },
       orderBy: { id: 'desc' }
@@ -141,7 +206,36 @@ export const adminService = {
     });
   },
 
-  async getProducts() {
+  async getProducts(query?: ListQuery) {
+    const pagination = getPagination(query);
+    if (pagination) {
+      const where = pagination.search
+        ? {
+            OR: [
+              { name: { contains: pagination.search, mode: 'insensitive' as const } },
+              { brand: { contains: pagination.search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {};
+      const [items, total] = await Promise.all([
+        prisma.product.findMany({
+          where,
+          include: {
+            ingredients: {
+              include: { ingredient: true },
+              orderBy: { position: 'asc' }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: pagination.skip,
+          take: pagination.limit,
+        }),
+        prisma.product.count({ where }),
+      ]);
+
+      return paginated(items, total, pagination.page, pagination.limit);
+    }
+
     return await prisma.product.findMany({
       include: {
         ingredients: {
@@ -188,7 +282,33 @@ export const adminService = {
     return await prisma.product.deleteMany();
   },
 
-  async getUsers() {
+  async getUsers(query?: ListQuery) {
+    const pagination = getPagination(query);
+    if (pagination) {
+      const where = pagination.search
+        ? { username: { contains: pagination.search, mode: 'insensitive' as const } }
+        : {};
+      const [items, total] = await Promise.all([
+        prisma.user.findMany({
+          where,
+          select: {
+            id: true,
+            username: true,
+            skinType: true,
+            role: true,
+            isActive: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: pagination.skip,
+          take: pagination.limit,
+        }),
+        prisma.user.count({ where }),
+      ]);
+
+      return paginated(items, total, pagination.page, pagination.limit);
+    }
+
     return await prisma.user.findMany({
       select: {
         id: true,

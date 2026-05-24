@@ -82,7 +82,7 @@ export const getPendingReports = async (req: AuthRequest, res: Response): Promis
     const limit = parseInt((req.query.limit as string) || '20');
     const offset = parseInt((req.query.offset as string) || '0');
 
-    const result = await reportService.getPendingReports(sortBy, limit, offset);
+    const result = await reportService.getPendingReports(sortBy, limit, offset, req.user?.userId);
     res.status(200).json(result);
   } catch (error: any) {
     console.error('Get pending reports error:', error);

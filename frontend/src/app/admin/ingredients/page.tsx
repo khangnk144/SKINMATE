@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Search } from 'lucide-react';
+import { API_URL, buildListUrl, getItems, getPaginationMeta } from '@/lib/api';
 
 interface Ingredient {
   id: number;
@@ -16,6 +17,7 @@ export default function AdminIngredients() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalItems, setTotalItems] = useState(0);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,12 +30,17 @@ export default function AdminIngredients() {
 
   const fetchIngredients = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`, {
+      const res = await fetch(buildListUrl('/admin/ingredients', {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+      }), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch ingredients');
       const data = await res.json();
-      setIngredients(data);
+      setIngredients(getItems<Ingredient>(data));
+      setTotalItems(getPaginationMeta<Ingredient>(data).total);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -46,8 +53,10 @@ export default function AdminIngredients() {
   };
 
   useEffect(() => {
-    if (token) fetchIngredients();
-  }, [token]);
+    if (!token) return;
+    const timeout = window.setTimeout(fetchIngredients, 250);
+    return () => window.clearTimeout(timeout);
+  }, [token, currentPage, searchTerm]);
 
   const handleOpenModal = (ingredient?: Ingredient) => {
     if (ingredient) {
@@ -72,8 +81,8 @@ export default function AdminIngredients() {
     setError('');
     
     const url = editingIngredient 
-      ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients/${editingIngredient.id}`
-      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients`;
+      ? `${API_URL}/admin/ingredients/${editingIngredient.id}`
+      : `${API_URL}/admin/ingredients`;
     
     const method = editingIngredient ? 'PUT' : 'POST';
 
@@ -107,7 +116,7 @@ export default function AdminIngredients() {
     if (!confirm('Bạn có chắc chắn muốn xóa thành phần này không?')) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/ingredients/${id}`, {
+      const res = await fetch(`${API_URL}/admin/ingredients/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -125,13 +134,8 @@ export default function AdminIngredients() {
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải thành phần...</div>;
 
-  const filteredIngredients = ingredients.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredIngredients.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedIngredients = filteredIngredients.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedIngredients = ingredients;
 
   return (
     <div>

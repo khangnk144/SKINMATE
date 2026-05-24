@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Download, Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, ChevronDown, Trash2 } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 type EntityType = 'ingredients' | 'rules' | 'products';
 
@@ -48,7 +49,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
   const handleExport = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/export/${entity}`, {
+      const res = await fetch(`${API_URL}/admin/export/${entity}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Xuất thất bại');
@@ -125,7 +126,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
     formData.append('file', file);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/import/${entity}`, {
+      const res = await fetch(`${API_URL}/admin/import/${entity}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -294,7 +295,7 @@ function DeleteAllCard({ entity }: { entity: EntityType }) {
     
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/admin/${entity}/all`, {
+      const res = await fetch(`${API_URL}/admin/${entity}/all`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

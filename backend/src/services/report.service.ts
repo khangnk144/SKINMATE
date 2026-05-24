@@ -78,7 +78,7 @@ export const reportService = {
     };
   },
 
-  async getPendingReports(sortBy: 'votes' | 'newest', limit: number, offset: number) {
+  async getPendingReports(sortBy: 'votes' | 'newest', limit: number, offset: number, userId?: string) {
     const reports = await prisma.ingredientReport.findMany({
       where: { status: ReportStatus.PENDING },
       include: {
@@ -107,6 +107,7 @@ export const reportService = {
         up,
         down,
         voteScore: up - down,
+        userVote: userId ? report.votes.find(v => v.userId === userId)?.voteType || null : null,
       };
     });
 

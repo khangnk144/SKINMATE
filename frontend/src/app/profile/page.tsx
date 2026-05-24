@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { API_URL } from "@/lib/api";
 
 const SKIN_TYPES = ["OILY", "DRY", "SENSITIVE", "COMBINATION", "NORMAL"];
 const SKIN_TYPE_LABELS: Record<string, string> = {
@@ -37,7 +38,7 @@ export default function ProfilePage() {
       if (!token) return;
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/users/profile`, {
+        const res = await fetch(`${API_URL}/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -76,7 +77,7 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/users/change-password`, {
+      const res = await fetch(`${API_URL}/users/change-password`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +112,7 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/users/profile`, {
+      const res = await fetch(`${API_URL}/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

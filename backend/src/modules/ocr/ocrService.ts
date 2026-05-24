@@ -15,7 +15,8 @@ export async function parseImageForIngredients(fileBuffer: Buffer, mimetype: str
             headers: {
                 'apikey': apiKey,
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            timeout: 15000,
         });
 
         const data = response.data;

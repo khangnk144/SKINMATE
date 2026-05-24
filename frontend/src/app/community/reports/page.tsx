@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThumbsUp, ThumbsDown, Link as LinkIcon, AlertCircle } from "lucide-react";
-import Link from "next/link";
+import { API_URL } from "@/lib/api";
 
 interface Report {
   id: number;
@@ -26,6 +26,7 @@ interface Report {
   up: number;
   down: number;
   voteScore: number;
+  userVote?: 'UP' | 'DOWN' | null;
 }
 
 const SKIN_TYPE_LABELS: Record<string, string> = {
@@ -37,21 +38,17 @@ const SKIN_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function CommunityReportsPage() {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'votes' | 'newest'>('votes');
   const [userVotes, setUserVotes] = useState<Record<number, 'UP' | 'DOWN' | null>>({});
 
-  useEffect(() => {
-    fetchReports();
-  }, [sortBy, token]);
-
   const fetchReports = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/pending?sortBy=${sortBy}`, {
+      const res = await fetch(`${API_URL}/reports/pending?sortBy=${sortBy}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -59,18 +56,10 @@ export default function CommunityReportsPage() {
       if (res.ok) {
         const data = await res.json();
         setReports(data.data);
-        
-        // Fetch user's votes for these reports
         const votes: Record<number, 'UP' | 'DOWN' | null> = {};
-        for (const report of data.data) {
-          const voteRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/vote/${report.id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (voteRes.ok) {
-            const voteData = await voteRes.json();
-            votes[report.id] = voteData.voteType;
-          }
-        }
+        data.data.forEach((report: Report) => {
+          votes[report.id] = report.userVote ?? null;
+        });
         setUserVotes(votes);
       }
     } catch (err) {
@@ -79,6 +68,11 @@ export default function CommunityReportsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const timeout = window.setTimeout(fetchReports, 0);
+    return () => window.clearTimeout(timeout);
+  }, [sortBy, token]);
 
   const handleVote = async (reportId: number, voteType: 'UP' | 'DOWN') => {
     if (!token) return;
@@ -110,7 +104,7 @@ export default function CommunityReportsPage() {
     }));
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/vote`, {
+      const res = await fetch(`${API_URL}/reports/vote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

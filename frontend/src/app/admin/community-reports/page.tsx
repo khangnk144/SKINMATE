@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import AdminProtectedRoute from "@/components/AdminProtectedRoute";
-import { Check, X, Search, AlertCircle } from "lucide-react";
+import { Check, X, AlertCircle } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
 interface Report {
   id: number;
@@ -45,15 +45,11 @@ export default function AdminCommunityReportsPage() {
   const [adminNote, setAdminNote] = useState('');
   const [isResolving, setIsResolving] = useState(false);
 
-  useEffect(() => {
-    fetchReports();
-  }, [token]);
-
   const fetchReports = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/pending?sortBy=votes`, {
+      const res = await fetch(`${API_URL}/reports/pending?sortBy=votes`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -69,12 +65,17 @@ export default function AdminCommunityReportsPage() {
     }
   };
 
+  useEffect(() => {
+    const timeout = window.setTimeout(fetchReports, 0);
+    return () => window.clearTimeout(timeout);
+  }, [token]);
+
   const handleResolve = async () => {
     if (!resolveModal.reportId || !resolveModal.status || !token) return;
     
     setIsResolving(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports/resolve`, {
+      const res = await fetch(`${API_URL}/reports/resolve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

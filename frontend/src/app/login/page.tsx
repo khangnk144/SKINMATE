@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Image from "next/image";
+import { API_URL } from "@/lib/api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -19,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/auth/login`, {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -52,9 +54,12 @@ export default function LoginPage() {
       <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* Left: Image */}
         <div className="hidden lg:block relative w-full h-[600px] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
-          <img
+          <Image
             src="https://i.postimg.cc/bwqYWws7/image.png"
             alt="Luxury skincare"
+            fill
+            priority
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>

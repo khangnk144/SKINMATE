@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 interface Notification {
   id: string;
@@ -22,10 +23,9 @@ export default function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!token || !user) return;
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
       const res = await fetch(`${API_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -36,19 +36,25 @@ export default function NotificationBell() {
     } catch (error) {
       console.error("Error fetching notifications", error);
     }
-  };
+  }, [token, user]);
 
   useEffect(() => {
-    fetchNotifications();
+    if (!token || !user) return;
+    const initialTimeout = window.setTimeout(fetchNotifications, 0);
     const interval = setInterval(() => {
       if (!isOpen) fetchNotifications();
     }, 30000);
-    return () => clearInterval(interval);
-  }, [token, user, isOpen]);
+    return () => {
+      window.clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
+  }, [token, user, isOpen, fetchNotifications]);
 
   useEffect(() => {
-    if (isOpen) fetchNotifications();
-  }, [isOpen]);
+    if (!isOpen || !token || !user) return;
+    const timeout = window.setTimeout(fetchNotifications, 0);
+    return () => window.clearTimeout(timeout);
+  }, [isOpen, token, user, fetchNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -69,7 +75,6 @@ export default function NotificationBell() {
     );
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
       await fetch(`${API_URL}/notifications/${id}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
@@ -90,7 +95,6 @@ export default function NotificationBell() {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
       await fetch(`${API_URL}/notifications/read-all`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },

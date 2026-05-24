@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Image from "next/image";
+import { API_URL } from "@/lib/api";
 
 const SKIN_TYPES = [
   { value: "NORMAL", label: "Bình thường" },
@@ -41,7 +43,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/auth/register`, {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, skinType, displayName: displayName.trim() || undefined }),
@@ -54,7 +56,7 @@ export default function RegisterPage() {
       }
 
       // Automatically login after registration
-      const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}`}/auth/login`, {
+      const loginRes = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -87,9 +89,12 @@ export default function RegisterPage() {
       <div className="w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* Left: Image */}
         <div className="hidden lg:block relative w-full h-[700px] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1644915695094-d452a018e936?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
             alt="Luxury skincare journey"
+            fill
+            priority
+            sizes="(min-width: 1024px) 50vw, 100vw"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>

@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { ProductCard } from '@/components/ProductCard';
-import { ImageOCRUploader } from '@/components/ImageOCRUploader';
 import { Flag, X } from 'lucide-react';
+import { API_URL } from '@/lib/api';
+
+const ImageOCRUploader = dynamic(
+  () => import('@/components/ImageOCRUploader').then((mod) => mod.ImageOCRUploader),
+  { ssr: false }
+);
 
 interface AnalysisResult {
   originalName: string;
@@ -48,7 +54,6 @@ const SKIN_TYPE_LABELS: Record<string, string> = {
 };
 
 function AnalysisContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialInci = searchParams?.get('inci') || '';
 
@@ -73,7 +78,7 @@ function AnalysisContent() {
     setRecLoading(true);
     try {
       const query = ingredients.length > 0 ? `?ingredients=${encodeURIComponent(ingredients.join(','))}` : '';
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/products/recommendations${query}`, {
+      const response = await fetch(`${API_URL}/products/recommendations${query}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -125,7 +130,7 @@ function AnalysisContent() {
     setResults(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/analysis/check`, {
+      const response = await fetch(`${API_URL}/analysis/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +148,7 @@ function AnalysisContent() {
       setResults(data);
 
       if (data.length > 0) {
-        const ingredients = data.map((r: any) => r.mappedName);
+        const ingredients = (data as AnalysisResult[]).map((r) => r.mappedName);
         fetchRecommendations(ingredients);
       }
     } catch (err: unknown) {
@@ -163,7 +168,7 @@ function AnalysisContent() {
     setIsSubmittingReport(true);
     try {
       // 1. Fetch ingredientId
-      const searchRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/ingredients/search?name=${encodeURIComponent(selectedIngredient.mappedName)}`, {
+      const searchRes = await fetch(`${API_URL}/ingredients/search?name=${encodeURIComponent(selectedIngredient.mappedName)}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -172,7 +177,7 @@ function AnalysisContent() {
       const ingredientData = await searchRes.json();
       
       // 2. Submit report
-      const reportRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/reports`, {
+      const reportRes = await fetch(`${API_URL}/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,8 +201,8 @@ function AnalysisContent() {
       setShowReportModal(false);
       setReportReason('');
       setReportEvidence('');
-    } catch (err: any) {
-      alert(err.message || 'Đã xảy ra lỗi khi gửi báo cáo');
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi gửi báo cáo');
     } finally {
       setIsSubmittingReport(false);
     }

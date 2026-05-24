@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Trash2, History as HistoryIcon, ArrowLeft, Loader2 } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 interface HistoryItem {
   id: string;
@@ -26,7 +27,7 @@ export default function HistoryPage() {
     if (!token) return;
     setFetching(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/history`, {
+      const res = await fetch(`${API_URL}/history`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -51,7 +52,8 @@ export default function HistoryPage() {
 
   useEffect(() => {
     if (!isLoading && user && token) {
-      fetchHistory();
+      const timeout = window.setTimeout(fetchHistory, 0);
+      return () => window.clearTimeout(timeout);
     }
   }, [user, token, isLoading]);
 
@@ -60,7 +62,7 @@ export default function HistoryPage() {
     
     setDeletingId(id);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/history/${id}`, {
+      const res = await fetch(`${API_URL}/history/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -84,7 +86,7 @@ export default function HistoryPage() {
     
     setIsClearingAll(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/history`, {
+      const res = await fetch(`${API_URL}/history`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -253,4 +255,4 @@ export default function HistoryPage() {
       </div>
     </div>
   );
-}
+}
