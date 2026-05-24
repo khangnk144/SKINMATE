@@ -19,13 +19,14 @@ Users can upload a photo of a product label to automatically extract the INCI in
 
 **API Endpoint:** `POST /api/ocr/ingredients`
 - **Auth:** None required (public endpoint).
-- **Input:** `multipart/form-data` with a `file` field (image file).
+- **Input:** `multipart/form-data` with a `file` field (image file, max 5 MB).
 - **Process:**
   1. Convert uploaded image buffer to base64.
-  2. Send to OCR.space API for text recognition.
+  2. Send to OCR.space API for text recognition with a 15 second timeout.
   3. Pass raw OCR text through `extractIngredients()` parser.
   4. Return the extracted comma-separated ingredient list.
 - **Response:** `{ ingredients: "water, glycerin, niacinamide, ..." }`
+- **Upload errors:** Oversized files return `413` with `{ error, ingredients: "" }`; invalid uploads return `400`.
 
 **Ingredient Extraction Algorithm (`ingredientsExtractor.ts`):**
 1. **Find keyword anchor:** Regex match for "ingredients", "thành phần", "composition", or "contains" (case-insensitive).
@@ -39,9 +40,10 @@ Users can upload a photo of a product label to automatically extract the INCI in
 
 **Component:** `src/components/ImageOCRUploader.tsx`
 
-- Rendered on the `/analysis` page alongside the textarea input.
+- Lazy-loaded on the `/analysis` page alongside the textarea input to reduce initial page bundle size.
 - **Upload flow:** User selects an image → preview displayed → send to OCR API → extracted ingredients populate the textarea.
 - Supports common image formats (JPEG, PNG, etc.).
+- The preview uses `next/image` with `unoptimized` because it renders a local object URL.
 
 ## 4. Dependencies
 

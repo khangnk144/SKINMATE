@@ -1,6 +1,6 @@
 # SKINMATE - API Specification (v1)
 
-> **Last Updated:** May 9, 2026  
+> **Last Updated:** May 24, 2026  
 > **Status:** All endpoints implemented.
 
 ## 1. General Info
@@ -8,6 +8,8 @@
 * **Content-Type:** `application/json` (except file upload endpoints which use `multipart/form-data`)
 * **Authentication:** Bearer Token (JWT) in the `Authorization` header.
 * **Server Port:** `5000` (development)
+* **Transport optimization:** Express responses are compressed via `compression()`.
+* **JSON body limit:** JSON requests are limited to `1mb`.
 
 ## 2. Standard Response Format
 
@@ -108,7 +110,7 @@
 |--------|------|------|-------------|
 | `POST` | `/reports` | ✅ User | Submit a new ingredient report. Body: `{ ingredientId, skinType, reportedEffect, reason, evidenceUrl? }` |
 | `POST` | `/reports/vote` | ✅ User | Vote on a report. Body: `{ reportId, voteType }` (`UP`/`DOWN`). Same vote type toggles off. Different vote type updates. |
-| `GET` | `/reports/pending` | ✅ User | List pending reports. Query params: `sortBy` (`votes`/`newest`), `limit`, `offset`. Returns `{ data, total }`. |
+| `GET` | `/reports/pending` | ✅ User | List pending reports. Query params: `sortBy` (`votes`/`newest`), `limit`, `offset`. Returns `{ data, total }`; each report includes `userVote` for the authenticated user when available. |
 | `GET` | `/reports/vote/:reportId` | ✅ User | Get the authenticated user's vote on a specific report. Returns `{ voteType }` (or `null`). |
 | `POST` | `/reports/resolve` | ✅ Admin | Resolve a pending report. Body: `{ reportId, status, adminNote? }`. Status must be `APPROVED` or `REJECTED`. Approved reports auto-update the corresponding `IngredientRule`. Creates a notification for the report author. |
 
@@ -129,7 +131,7 @@
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `POST` | `/ocr/ingredients` | ❌ | Upload a product label image to extract the INCI ingredient list via OCR. Uses `multer` for `multipart/form-data` upload (field name: `file`). Returns `{ ingredients: "comma, separated, list" }`. |
+| `POST` | `/ocr/ingredients` | ❌ | Upload a product label image to extract the INCI ingredient list via OCR. Uses `multer` memory upload (field name: `file`, max 5 MB). OCR.space calls time out after 15 seconds. Success returns `{ ingredients: "comma, separated, list" }`; oversized uploads return `413` with `{ error, ingredients: "" }`. |
 
 ### Admin CRUD — Ingredients (`/api/v1/admin/ingredients`)
 
@@ -137,7 +139,7 @@
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/admin/ingredients` | List all ingredients |
+| `GET` | `/admin/ingredients` | List ingredients. Supports optional `page`, `limit`, and `search` query params. |
 | `POST` | `/admin/ingredients` | Create a new ingredient (name auto-normalized to lowercase) |
 | `PUT` | `/admin/ingredients/:id` | Update an ingredient's name or description |
 | `DELETE` | `/admin/ingredients/:id` | Delete an ingredient (cascades to rules and product links) |
@@ -147,7 +149,7 @@
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/admin/rules` | List all safety rules (includes ingredient info) |
+| `GET` | `/admin/rules` | List safety rules (includes ingredient info). Supports optional `page`, `limit`, and `search` query params. |
 | `POST` | `/admin/rules` | Create or update a rule (`ingredientId`, `skinType`, `effect`) |
 | `DELETE` | `/admin/rules/:id` | Delete a specific rule |
 | `DELETE` | `/admin/rules/all` | Delete ALL safety rules |
@@ -156,7 +158,7 @@
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/admin/products` | List all products (includes ingredient list) |
+| `GET` | `/admin/products` | List products (includes ingredient list). Supports optional `page`, `limit`, and `search` query params. |
 | `POST` | `/admin/products` | Create a product. Accepts `name`, `brand`, `imageUrl`, `ingredientNames` (INCI string parsed automatically) |
 | `PUT` | `/admin/products/:id` | Update a product. Replaces ingredient relations |
 | `DELETE` | `/admin/products/:id` | Delete a product (cascades to product-ingredient links) |
@@ -166,7 +168,7 @@
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/admin/users` | List all users (excludes `passwordHash`). Includes `skinType`, `role`, `isActive` |
+| `GET` | `/admin/users` | List users (excludes `passwordHash`). Supports optional `page`, `limit`, and `search` query params. |
 | `PATCH` | `/admin/users/:id/status` | Toggle `isActive` for a user (lock/unlock account) |
 | `DELETE` | `/admin/users/:id` | Permanently delete a user account |
 
@@ -175,6 +177,27 @@
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/admin/reports` | Returns: `totalUsers`, `totalAnalyses`, `skinTypeDistribution` (array of `{ type, count }`) |
+
+### Admin List Query Parameters
+
+The admin list endpoints for ingredients, rules, products, and users support optional pagination/search:
+
+```http
+GET /api/v1/admin/ingredients?page=1&limit=15&search=niacinamide
+```
+
+When `page`, `limit`, or `search` is present, the response is paginated:
+
+```json
+{
+  "items": [],
+  "total": 0,
+  "page": 1,
+  "limit": 15
+}
+```
+
+If none of those query params are provided, endpoints keep the legacy array response for backward compatibility.
 
 ### Admin — Excel Export (`/api/v1/admin/export`)
 

@@ -1,6 +1,6 @@
 # SKINMATE - System Architecture
 
-> **Last Updated:** May 9, 2026
+> **Last Updated:** May 24, 2026
 
 ## 1. High-Level Overview
 
@@ -74,13 +74,15 @@ src/
 │   ├── community/     ← Community features (ingredient reports)
 │   └── admin/         ← Admin panel (CRUD, reports, community moderation)
 ├── components/    ← Shared UI components (Navbar, ProductCard, NotificationBell, ImageOCRUploader, etc.)
+├── lib/           ← Shared frontend helpers (API base URL, paginated response helpers)
 └── context/       ← Global state (AuthContext — stores logged-in user)
 ```
 
 * **App Router (Next.js):** Every `page.tsx` inside `app/` auto-becomes a URL route.
 * **AuthContext:** A React Context that holds the current user's `token`, `role`, and `skinType`. Persists to `localStorage` so users stay logged in on refresh.
 * **Admin Guard:** `AdminProtectedRoute.tsx` wraps all admin pages and redirects non-admin users.
-* **Client-Side Pagination:** Admin management pages (ingredients, rules, products) use client-side pagination (15 items per page) to handle large datasets efficiently.
+* **Admin Pagination:** Admin management pages (ingredients, rules, products) use server-backed search and pagination (15 items per page) while retaining legacy array responses for callers that do not pass pagination query params.
+* **Bundle Optimization:** Heavy or interaction-only UI such as OCR upload and admin charts is lazy-loaded. Shared API URL construction lives in `src/lib/api.ts`.
 * **Vietnamese Localization:** The entire UI is localized in Vietnamese for the target audience.
 
 ## 5. Key Algorithm: The INCI Analysis Engine
@@ -148,8 +150,8 @@ Step 5 — Return updated report
 ```
 POST /api/ocr/ingredients
 
-Step 1 — Receive image file via multer (memory storage)
-Step 2 — Convert to base64, send to OCR.space API for text extraction
+Step 1 — Receive image file via multer (memory storage, max 5 MB)
+Step 2 — Convert to base64, send to OCR.space API for text extraction (15s timeout)
 Step 3 — Rule-based ingredient parsing:
   a. Find keyword anchor ("ingredients", "thành phần", "composition", "contains")
   b. Extract text after keyword
@@ -169,6 +171,8 @@ Step 4 — Return comma-separated ingredient string
 | Locked accounts | `loginUser` checks `isActive` field and throws before issuing a token |
 | SQL injection | Prisma ORM uses parameterized queries exclusively |
 | Rate limiting | `analysisRateLimiter` (express-rate-limit): 25 calls/24h per user; unlimited for ADMINs; grouped by `userId` (or IP if unauthenticated) |
+| Payload protection | `express.json({ limit: '1mb' })` and OCR upload size limit (5 MB) |
+| Response compression | `compression()` middleware compresses Express responses |
 | Vote integrity | `@@unique([reportId, userId])` constraint prevents duplicate votes per user |
 | Notification ownership | `markAsRead` verifies `notification.userId === req.user.userId` before updating |
 

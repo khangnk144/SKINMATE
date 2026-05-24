@@ -30,7 +30,7 @@ All routes are protected by both `authMiddleware` and `adminMiddleware`.
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| `GET` | `/admin/users` | List all users. Excludes `passwordHash`. Includes `id`, `username`, `skinType`, `role`, `isActive`, `createdAt`. Ordered newest first. |
+| `GET` | `/admin/users` | List users. Excludes `passwordHash`. Includes `id`, `username`, `skinType`, `role`, `isActive`, `createdAt`. Ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
 | `PATCH` | `/admin/users/:id/status` | Toggles `isActive` (true↔false). Finds user first to determine current state, then flips. |
 | `DELETE` | `/admin/users/:id` | Permanently deletes the user and all their history (cascade). |
 
@@ -44,6 +44,7 @@ All routes are protected by both `authMiddleware` and `adminMiddleware`.
 
 **Users Tab (`/admin/users`):**
 * Data table showing all users with their status (Active/Locked badge), skin type, role, and join date.
+* Fetches users through the shared API helper and avoids loading before auth token is available.
 * **Lock/Unlock button:** Toggles `isActive` on the selected user.
 * **Delete button:** Permanently removes the user account.
 * **Confirmation Modal:** Both Lock and Delete actions trigger a modal: *"Are you sure you want to perform this action?"* before executing.
@@ -51,6 +52,7 @@ All routes are protected by both `authMiddleware` and `adminMiddleware`.
 **Reports Tab (`/admin/reports`):**
 * **Summary cards:** Total Users count, Total Analyses count.
 * **Pie Chart:** Visual distribution of skin types among all registered users, powered by `recharts`.
+* The chart bundle is lazy-loaded so the reports page shell can render before `recharts` loads.
 * Empty-state handling if no data is available.
 
 ## 5. Testing

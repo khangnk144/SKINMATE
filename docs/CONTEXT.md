@@ -1,6 +1,6 @@
 # SKINMATE - Project Context
 
-> **Last Updated:** May 9, 2026  
+> **Last Updated:** May 24, 2026  
 > **Current Phase:** MVP Complete + Community Features
 
 ## 1. Project Overview
@@ -67,6 +67,7 @@ Register/Login
 | **Rate Limiting** | express-rate-limit (25 analyses/24h per user; unlimited for ADMIN) |
 | **Excel I/O** | xlsx (reading) + exceljs (writing) + multer (file upload) |
 | **HTTP Client** | axios (OCR API calls) |
+| **Backend Performance** | compression middleware, JSON body limit, OCR upload/timeout safeguards |
 | **Testing** | Jest & Supertest |
 | **Package Manager** | `npm` |
 
@@ -79,3 +80,5 @@ Register/Login
 5. **Scope Discipline:** Do NOT refactor code outside the immediate scope of the user's prompt.
 6. **API Contract Strictness:** Never change the JSON response format of existing APIs, as the Client application depends on strict contracts.
 7. **NO Inline Styles:** Use TailwindCSS v4 utility classes exclusively. Adhere to the SKINMATE Luxury Design System (rose accents, soft shadows, serif headings, glassmorphism).
+
+> Current exception: admin list endpoints support optional `page`, `limit`, and `search` query params. When those params are present they return `{ items, total, page, limit }`; without those params they keep the legacy array response for compatibility.

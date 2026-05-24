@@ -9,6 +9,12 @@ npm install
 npm run dev
 ```
 
+## Performance Notes
+
+- `src/lib/api.ts` centralizes `NEXT_PUBLIC_API_URL` usage and handles both legacy array responses and paginated `{ items, total, page, limit }` responses.
+- Admin reports charts and OCR upload UI are lazy-loaded to keep initial page bundles smaller.
+- Image-heavy pages use Next.js `<Image>` with `sizes`/`priority` where appropriate.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 > **Note:** The backend server must be running on `http://localhost:5000` for the app to function. See the [main docs](../docs/README.md) for full setup instructions.

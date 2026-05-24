@@ -87,4 +87,5 @@ There is also a comprehensive [`STATUS.md`](../STATUS.md) in the root directory 
 * **Community:** Ingredient reporting with voting, admin moderation, and in-app notifications.
 * **Excel I/O:** xlsx + exceljs + multer (bulk import/export for admin).
 * **Rate Limiting:** express-rate-limit (25 analyses/24h per user; ADMIN exempt).
+* **Performance:** Express response compression, bounded JSON/upload payloads, server-backed admin pagination/search, and lazy-loaded heavy frontend modules.
 * **Testing:** Jest + Supertest.

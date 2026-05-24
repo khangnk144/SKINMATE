@@ -461,9 +461,9 @@ Automated tests are programs that run your code with fake inputs and check if th
   - Auto-generated on report resolution via `report.service.ts`.
 - **Frontend:** `NotificationBell.tsx` component in the Navbar with unread count badge and dropdown.
 
-### Feature 14: Vietnamese Localization & Client-Side Pagination
+### Feature 14: Vietnamese Localization & Admin Pagination
 - **Localization:** All user-facing text translated to professional Vietnamese. No external i18n library — translations are inline in component files. Database values remain in English.
-- **Client-Side Pagination:** Applied to `/admin/ingredients`, `/admin/rules`, `/admin/products` pages. 15 items per page. Search/filter applied before pagination. Resets to page 1 on search change.
+- **Admin Pagination:** Applied to `/admin/ingredients`, `/admin/rules`, `/admin/products` pages. 15 items per page. Search/filter is sent to the backend through `page`, `limit`, and `search`, with legacy array responses preserved when no query params are sent.
 
 ---
 
@@ -534,7 +534,7 @@ This opens a database viewer at **http://localhost:5555**.
 - [x] **Community Reporting** — *(Completed)* Users can report misclassified ingredients, vote, and admins can resolve reports.
 - [x] **In-App Notifications** — *(Completed)* Users receive notifications for report resolutions and admin messages.
 - [x] **Vietnamese Localization** — *(Completed)* Full UI localization to Vietnamese.
-- [x] **Client-Side Pagination** — *(Completed)* Admin tables support 15-item pagination.
+- [x] **Admin Pagination** — *(Completed)* Admin tables support 15-item server-backed pagination/search.
 - [x] **Deployment** — *(Completed)* Frontend on Vercel, backend + DB on Render. Production environment is live.
 - [ ] **Advanced Filtering** — Let users filter analysis results or products by category, brand, or safety rating.
 - [ ] **Weighted Scoring System** — Rank recommendations by a composite score based on the number and weight of GOOD ingredients, not just the absence of BAD ones.

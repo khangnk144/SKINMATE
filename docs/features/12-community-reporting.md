@@ -49,8 +49,8 @@ model ReportVote {
 |--------|------|-------------|
 | `POST` | `/api/v1/reports` | Submit a report: `{ ingredientId, skinType, reportedEffect, reason, evidenceUrl? }` |
 | `POST` | `/api/v1/reports/vote` | Vote on a report: `{ reportId, voteType }`. Same vote toggles off, different vote updates. |
-| `GET` | `/api/v1/reports/pending` | List pending reports with sorting (`?sortBy=votes|newest`) and pagination (`?limit=&offset=`). Returns `{ data, total }`. |
-| `GET` | `/api/v1/reports/vote/:reportId` | Get authenticated user's vote on a specific report. |
+| `GET` | `/api/v1/reports/pending` | List pending reports with sorting (`?sortBy=votes|newest`) and pagination (`?limit=&offset=`). Returns `{ data, total }`; each report includes `userVote` for the authenticated user when available. |
+| `GET` | `/api/v1/reports/vote/:reportId` | Get authenticated user's vote on a specific report. Retained for compatibility; the reports list already includes `userVote`. |
 
 **Admin Endpoint (requires `authMiddleware` + `adminMiddleware`):**
 
@@ -74,6 +74,7 @@ model ReportVote {
 **User-facing:**
 - **Analysis page** (`/analysis`): After results, users can click a "report" button on each ingredient to submit a report with their suggested correction.
 - **Community reports page** (`/community/reports`): Browse pending reports, vote, and see vote counts.
+- The community reports page reads `userVote` from `/reports/pending`, avoiding one extra request per report.
 
 **Admin-facing:**
 - **Admin community reports page** (`/admin/community-reports`): Review pending reports, approve/reject with optional admin notes.

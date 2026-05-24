@@ -16,7 +16,7 @@ The admin panel allows users with the `ADMIN` role to manage the core data drivi
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| `GET` | `/ingredients` | List all ingredients, ordered alphabetically |
+| `GET` | `/ingredients` | List ingredients, ordered alphabetically. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
 | `POST` | `/ingredients` | Create new ingredient. Name auto-normalized to lowercase. Returns 409 if duplicate. |
 | `PUT` | `/ingredients/:id` | Update name/description. Checks for duplicate name conflicts. |
 | `DELETE` | `/ingredients/:id` | Deletes ingredient. Cascades to rules and product-ingredient links. |
@@ -26,7 +26,7 @@ The admin panel allows users with the `ADMIN` role to manage the core data drivi
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| `GET` | `/rules` | List all rules, includes ingredient info, ordered newest first |
+| `GET` | `/rules` | List rules, includes ingredient info, ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
 | `POST` | `/rules` | Upsert: creates rule if not exists, updates effect if already exists for that `(ingredientId, skinType)` pair |
 | `DELETE` | `/rules/:id` | Delete a specific rule |
 | `DELETE` | `/rules/all` | Delete ALL safety rules |
@@ -35,7 +35,7 @@ The admin panel allows users with the `ADMIN` role to manage the core data drivi
 
 | Method | Path | Behavior |
 |--------|------|----------|
-| `GET` | `/products` | List all products, includes full ingredient list, ordered newest first |
+| `GET` | `/products` | List products, includes full ingredient list, ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
 | `POST` | `/products` | Create product. Accepts `ingredientNames` as array (parsed from INCI string on frontend). Auto-creates any unknown ingredients. |
 | `PUT` | `/products/:id` | Update product. Replaces all ingredient relations. |
 | `DELETE` | `/products/:id` | Delete product. Cascades to product-ingredient links. |
@@ -65,9 +65,9 @@ Import endpoints use `multer` for `multipart/form-data` file upload (max 10 MB).
 * **Layout:** `admin/layout.tsx` provides a sidebar with navigation links to each management section (Dashboard, Ingredients, Rules, Products, Users, Reports, Import/Export).
 * **Product INCI input:** The product form uses a **text area** where admins paste an INCI string. The frontend parses it (split by comma, trim) and sends the resulting array as `ingredientNames` to the backend.
 * **Management pages:**
-  - `/admin/ingredients` — Table with Edit/Delete actions per row, modal form for add/edit. Client-side search by ingredient name.
-  - `/admin/rules` — Table with Delete action, form for creating/updating rules. Client-side search by related component.
-  - `/admin/products` — Table with Edit/Delete actions, modal form with INCI textarea input. Client-side search by product/brand name.
+  - `/admin/ingredients` — Table with Edit/Delete actions per row, modal form for add/edit. Uses server-backed search and pagination by ingredient name.
+  - `/admin/rules` — Table with Delete action, form for creating/updating rules. Uses server-backed search and pagination by related ingredient.
+  - `/admin/products` — Table with Edit/Delete actions, modal form with INCI textarea input. Uses server-backed search and pagination by product/brand name.
   - `/admin/import-export` — Export database tables as `.xlsx`, import from `.xlsx` with drag-and-drop upload, and "Delete All" danger zone for bulk deletion of ingredients, rules, or products.
 
 ## 4. Testing
