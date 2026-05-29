@@ -242,6 +242,15 @@ export const adminController = {
     }
   },
 
+  getDashboardStats: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const stats = await adminService.getDashboardStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+    }
+  },
+
   getReports: async (req: Request, res: Response): Promise<void> => {
     try {
       const reports = await adminService.getReports();

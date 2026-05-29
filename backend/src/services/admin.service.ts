@@ -342,6 +342,18 @@ export const adminService = {
     });
   },
 
+  async getDashboardStats() {
+    const [ingredients, rules, products, users, analyses] = await prisma.$transaction([
+      prisma.ingredient.count(),
+      prisma.ingredientRule.count(),
+      prisma.product.count(),
+      prisma.user.count(),
+      prisma.analysisHistory.count(),
+    ]);
+
+    return { ingredients, rules, products, users, analyses };
+  },
+
   async getReports() {
     const totalUsers = await prisma.user.count();
     const totalAnalyses = await prisma.analysisHistory.count();

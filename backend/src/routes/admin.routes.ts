@@ -17,6 +17,9 @@ const router = Router();
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
+// Dashboard stats
+router.get('/stats', adminController.getDashboardStats);
+
 // Ingredients
 router.get('/ingredients', adminController.getIngredients);
 router.post('/ingredients', adminController.createIngredient);
