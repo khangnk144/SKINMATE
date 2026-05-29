@@ -2,7 +2,10 @@ import axios from 'axios';
 import { extractIngredients } from './ingredientsExtractor';
 
 export async function parseImageForIngredients(fileBuffer: Buffer, mimetype: string): Promise<string> {
-    const apiKey = "K88482326888957";
+    const apiKey = process.env.OCR_API_KEY;
+    if (!apiKey) {
+        throw new Error("OCR_API_KEY is not defined in environment variables");
+    }
     const base64Str = fileBuffer.toString('base64');
     const base64Image = `data:${mimetype};base64,${base64Str}`;
 
@@ -24,7 +27,7 @@ export async function parseImageForIngredients(fileBuffer: Buffer, mimetype: str
             const parsedText = data.ParsedResults[0].ParsedText;
             return extractIngredients(parsedText);
         }
-        
+
         return "";
     } catch (error) {
         console.error("OCR Space API error:", error);
