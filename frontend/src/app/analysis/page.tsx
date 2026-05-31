@@ -71,6 +71,8 @@ function AnalysisContent() {
   const [reportReason, setReportReason] = useState('');
   const [reportEvidence, setReportEvidence] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [reportFormError, setReportFormError] = useState<string | null>(null);
+  const [reportSuccess, setReportSuccess] = useState(false);
 
   const { user, token } = useAuth();
 
@@ -161,10 +163,11 @@ function AnalysisContent() {
   const handleReportSubmit = async () => {
     if (!selectedIngredient) return;
     if (reportReason.length < 20) {
-      alert('Vui lòng nhập lý do ít nhất 20 ký tự.');
+      setReportFormError('Vui lòng nhập lý do ít nhất 20 ký tự.');
       return;
     }
     
+    setReportFormError(null);
     setIsSubmittingReport(true);
     try {
       // 1. Fetch ingredientId
@@ -197,12 +200,11 @@ function AnalysisContent() {
         throw new Error(errorData.error || 'Gửi báo cáo thất bại');
       }
       
-      alert('Báo cáo thành công! Cảm ơn bạn đã đóng góp cho cộng đồng.');
-      setShowReportModal(false);
+      setReportSuccess(true);
       setReportReason('');
       setReportEvidence('');
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi gửi báo cáo');
+      setReportFormError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi gửi báo cáo');
     } finally {
       setIsSubmittingReport(false);
     }
@@ -476,13 +478,13 @@ function AnalysisContent() {
 
         {/* Report Modal */}
         {showReportModal && selectedIngredient && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4" onClick={() => setShowReportModal(false)}>
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4" onClick={() => { setShowReportModal(false); setReportFormError(null); setReportSuccess(false); }}>
             <div 
               className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative"
               onClick={e => e.stopPropagation()}
             >
               <button 
-                onClick={() => setShowReportModal(false)}
+                onClick={() => { setShowReportModal(false); setReportFormError(null); setReportSuccess(false); }}
                 className="absolute top-6 right-6 text-slate-400 hover:text-slate-800"
               >
                 <X className="w-5 h-5" />
@@ -491,77 +493,98 @@ function AnalysisContent() {
               <h3 className="text-2xl font-serif text-slate-800 mb-2">Báo cáo phân loại</h3>
               <p className="text-slate-500 text-sm mb-6">Thành phần: <span className="font-semibold text-slate-700">{selectedIngredient.mappedName}</span></p>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Theo bạn, thành phần này nên được xếp loại thế nào cho da {SKIN_TYPE_LABELS[user.skinType]}?</label>
-                  <div className="grid grid-cols-3 gap-3">
+              {reportSuccess ? (
+                <div className="flex flex-col items-center py-8 text-center">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
+                    <svg className="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <p className="text-slate-700 font-semibold mb-1">Báo cáo thành công!</p>
+                  <p className="text-slate-400 text-sm">Cảm ơn bạn đã đóng góp cho cộng đồng.</p>
+                  <button
+                    onClick={() => { setShowReportModal(false); setReportSuccess(false); }}
+                    className="mt-6 px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-colors"
+                  >Đóng</button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Theo bạn, thành phần này nên được xếp loại thế nào cho da {SKIN_TYPE_LABELS[user.skinType]}?</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setReportEffect('GOOD')}
+                        className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
+                          reportEffect === 'GOOD' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        Tốt
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReportEffect('NEUTRAL')}
+                        className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
+                          reportEffect === 'NEUTRAL' ? 'bg-stone-50 border-stone-200 text-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        Trung bình
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReportEffect('BAD')}
+                        className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
+                          reportEffect === 'BAD' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        Xấu
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Lý do (ít nhất 20 ký tự)</label>
+                    <textarea
+                      value={reportReason}
+                      onChange={(e) => { setReportReason(e.target.value); if (reportFormError) setReportFormError(null); }}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none resize-none h-24"
+                      placeholder="Tại sao bạn cho rằng đánh giá hiện tại là chưa chính xác..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Link dẫn chứng (không bắt buộc)</label>
+                    <input
+                      type="url"
+                      value={reportEvidence}
+                      onChange={(e) => setReportEvidence(e.target.value)}
+                      className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none"
+                      placeholder="Link bài nghiên cứu, blog, v.v."
+                    />
+                  </div>
+
+                  {reportFormError && (
+                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">
+                      <svg className="w-4 h-4 text-rose-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <p className="text-sm text-rose-700">{reportFormError}</p>
+                    </div>
+                  )}
+
+                  <div className="pt-2 flex justify-end gap-3">
                     <button
-                      type="button"
-                      onClick={() => setReportEffect('GOOD')}
-                      className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
-                        reportEffect === 'GOOD' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                      onClick={() => { setShowReportModal(false); setReportFormError(null); }}
+                      className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors"
                     >
-                      Tốt
+                      Hủy
                     </button>
                     <button
-                      type="button"
-                      onClick={() => setReportEffect('NEUTRAL')}
-                      className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
-                        reportEffect === 'NEUTRAL' ? 'bg-stone-50 border-stone-200 text-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                      onClick={handleReportSubmit}
+                      disabled={isSubmittingReport || reportReason.length < 20}
+                      className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
-                      Trung bình
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setReportEffect('BAD')}
-                      className={`py-2 px-4 rounded-xl border text-sm font-medium transition-colors ${
-                        reportEffect === 'BAD' ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      Xấu
+                      {isSubmittingReport ? 'Đang gọui...' : 'Gọui báo cáo'}
                     </button>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Lý do (ít nhất 20 ký tự)</label>
-                  <textarea
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none resize-none h-24"
-                    placeholder="Tại sao bạn cho rằng đánh giá hiện tại là chưa chính xác..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Link dẫn chứng (không bắt buộc)</label>
-                  <input
-                    type="url"
-                    value={reportEvidence}
-                    onChange={(e) => setReportEvidence(e.target.value)}
-                    className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-200 focus:border-rose-300 outline-none"
-                    placeholder="Link bài nghiên cứu, blog, v.v."
-                  />
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowReportModal(false)}
-                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={handleReportSubmit}
-                  disabled={isSubmittingReport || reportReason.length < 20}
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center gap-2"
-                >
-                  {isSubmittingReport ? 'Đang gửi...' : 'Gửi báo cáo'}
-                </button>
-              </div>
+              )}
             </div>
           </div>
         )}

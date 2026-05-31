@@ -2,8 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Search } from 'lucide-react';
+import { Search, AlertTriangle, X as XIcon } from 'lucide-react';
 import { API_URL, buildListUrl, getItems, getPaginationMeta } from '@/lib/api';
+
+interface ConfirmDialog {
+  open: boolean;
+  message: string;
+  onConfirm: () => void;
+}
+const CLOSED_DIALOG: ConfirmDialog = { open: false, message: '', onConfirm: () => {} };
 
 interface Ingredient {
   id: number;
@@ -27,6 +34,7 @@ export default function AdminIngredients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [dialog, setDialog] = useState<ConfirmDialog>(CLOSED_DIALOG);
 
   const fetchIngredients = async () => {
     try {
@@ -112,24 +120,28 @@ export default function AdminIngredients() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa thành phần này không?')) return;
-    
-    try {
-      const res = await fetch(`${API_URL}/admin/ingredients/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!res.ok) throw new Error('Failed to delete');
-      await fetchIngredients();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
-      }
-    }
+  const handleDelete = (id: number) => {
+    setDialog({
+      open: true,
+      message: 'Bạn có chắc chắn muốn xóa thành phần này không?',
+      onConfirm: async () => {
+        setDialog(CLOSED_DIALOG);
+        try {
+          const res = await fetch(`${API_URL}/admin/ingredients/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error('Failed to delete');
+          await fetchIngredients();
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError('An unknown error occurred');
+          }
+        }
+      },
+    });
   };
 
   if (loading) return <div className="text-lg font-light text-slate-400 animate-pulse tracking-wide">Đang tải thành phần...</div>;
@@ -139,6 +151,22 @@ export default function AdminIngredients() {
 
   return (
     <div>
+      {/* Custom Confirm Dialog */}
+      {dialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setDialog(CLOSED_DIALOG)} />
+          <div className="relative bg-white rounded-2xl shadow-xl border border-rose-50 max-w-sm w-full p-8 flex flex-col items-center text-center" style={{ animation: 'fadeInScale 0.18s ease-out' }}>
+            <button onClick={() => setDialog(CLOSED_DIALOG)} className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-gray-500 hover:bg-gray-100 rounded-full transition-all"><XIcon className="w-4 h-4" /></button>
+            <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mb-4"><AlertTriangle className="w-6 h-6 text-rose-400" /></div>
+            <p className="text-sm text-slate-600 leading-relaxed mb-6">{dialog.message}</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setDialog(CLOSED_DIALOG)} className="flex-1 px-4 py-2.5 text-sm text-slate-500 bg-gray-100 hover:bg-gray-200 rounded-full transition-all">Hủy</button>
+              <button onClick={dialog.onConfirm} className="flex-1 px-4 py-2.5 text-sm text-white bg-rose-400 hover:bg-rose-500 rounded-full hover:shadow-md transition-all">Xóa</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes fadeInScale { from { opacity:0; transform:scale(0.95) } to { opacity:1; transform:scale(1) } }`}</style>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Thành phần</h1>
         <button 

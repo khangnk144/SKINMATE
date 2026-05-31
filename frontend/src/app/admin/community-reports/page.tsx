@@ -44,6 +44,7 @@ export default function AdminCommunityReportsPage() {
   const [resolveModal, setResolveModal] = useState<{ isOpen: boolean; reportId: number | null; status: 'APPROVED' | 'REJECTED' | null }>({ isOpen: false, reportId: null, status: null });
   const [adminNote, setAdminNote] = useState('');
   const [isResolving, setIsResolving] = useState(false);
+  const [resolveError, setResolveError] = useState<string | null>(null);
 
   const fetchReports = async () => {
     if (!token) return;
@@ -74,6 +75,7 @@ export default function AdminCommunityReportsPage() {
     if (!resolveModal.reportId || !resolveModal.status || !token) return;
     
     setIsResolving(true);
+    setResolveError(null);
     try {
       const res = await fetch(`${API_URL}/reports/resolve`, {
         method: 'POST',
@@ -93,11 +95,11 @@ export default function AdminCommunityReportsPage() {
         setResolveModal({ isOpen: false, reportId: null, status: null });
         setAdminNote('');
       } else {
-        alert('Có lỗi xảy ra khi duyệt báo cáo');
+        setResolveError('Có lỗi xảy ra khi duyệt báo cáo');
       }
     } catch (err) {
       console.error(err);
-      alert('Lỗi kết nối');
+      setResolveError('Lỗi kết nối');
     } finally {
       setIsResolving(false);
     }
@@ -220,6 +222,13 @@ export default function AdminCommunityReportsPage() {
                 placeholder="Lý do duyệt/từ chối để giải thích cho người dùng..."
               />
             </div>
+
+            {resolveError && (
+              <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3 mb-4">
+                <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                <p className="text-sm text-rose-700">{resolveError}</p>
+              </div>
+            )}
 
             <div className="flex justify-end gap-3">
               <button

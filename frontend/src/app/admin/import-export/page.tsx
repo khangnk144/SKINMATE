@@ -2,8 +2,16 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Download, Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, ChevronDown, Trash2 } from 'lucide-react';
+import { Download, Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, ChevronDown, Trash2, AlertTriangle, X } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+
+interface ConfirmDialog {
+  open: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+}
+const CLOSED: ConfirmDialog = { open: false, title: '', message: '', onConfirm: () => {} };
 
 type EntityType = 'ingredients' | 'rules' | 'products';
 
@@ -44,10 +52,12 @@ const ENTITY_CONFIG: Record<EntityType, { label: string; color: string; accent: 
 function ExportCard({ entity }: { entity: EntityType }) {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const config = ENTITY_CONFIG[entity];
 
   const handleExport = async () => {
     setLoading(true);
+    setExportError(null);
     try {
       const res = await fetch(`${API_URL}/admin/export/${entity}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,7 +72,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert(`Xuất ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.`);
+      setExportError(`Xuất ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.`);
     } finally {
       setLoading(false);
     }
@@ -83,6 +93,13 @@ function ExportCard({ entity }: { entity: EntityType }) {
           <Download size={20} className="text-slate-400" />
         </div>
       </div>
+
+      {exportError && (
+        <div className="flex items-center gap-2 bg-rose-50 border border-rose-100 rounded-2xl px-4 py-3">
+          <AlertCircle size={14} className="text-rose-500 flex-shrink-0" />
+          <p className="text-sm text-rose-700 font-light">{exportError}</p>
+        </div>
+      )}
 
       <button
         onClick={handleExport}
@@ -283,30 +300,33 @@ function ImportCard({ entity }: { entity: EntityType }) {
   );
 }
 
-function DeleteAllCard({ entity }: { entity: EntityType }) {
+function DeleteAllCard({ entity, onRequestConfirm }: { entity: EntityType; onRequestConfirm: (dialog: Omit<ConfirmDialog, 'open'>) => void }) {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const config = ENTITY_CONFIG[entity];
 
-  const handleDeleteAll = async () => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa TẤT CẢ ${config.label.toLowerCase()} không? Hành động này không thể hoàn tác.`)) {
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/admin/${entity}/all`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      
-      if (!res.ok) throw new Error('Xóa tất cả thất bại');
-      alert(`Tất cả ${config.label.toLowerCase()} đã được xóa thành công.`);
-    } catch {
-      alert(`Xóa tất cả ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.`);
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteAll = () => {
+    onRequestConfirm({
+      title: `Xóa tất cả ${config.label}`,
+      message: `Bạn có chắc chắn muốn xóa TẤT CẢ ${config.label.toLowerCase()} không? Hành động này không thể hoàn tác.`,
+      onConfirm: async () => {
+        setLoading(true);
+        setResult(null);
+        try {
+          const res = await fetch(`${API_URL}/admin/${entity}/all`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error('Xóa tất cả thất bại');
+          setResult({ success: true, message: `Tất cả ${config.label.toLowerCase()} đã được xóa thành công.` });
+        } catch {
+          setResult({ success: false, message: `Xóa tất cả ${config.label.toLowerCase()} thất bại. Vui lòng thử lại.` });
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   return (
@@ -324,6 +344,19 @@ function DeleteAllCard({ entity }: { entity: EntityType }) {
           <Trash2 size={20} className="text-red-400" />
         </div>
       </div>
+
+      {result && (
+        <div className={`flex items-center gap-2 rounded-2xl px-4 py-3 border text-sm font-light ${
+          result.success
+            ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
+            : 'bg-rose-50 border-rose-100 text-rose-700'
+        }`}>
+          {result.success
+            ? <CheckCircle size={14} className="flex-shrink-0" />
+            : <AlertCircle size={14} className="flex-shrink-0" />}
+          <p>{result.message}</p>
+        </div>
+      )}
 
       <button
         onClick={handleDeleteAll}
@@ -348,9 +381,42 @@ function DeleteAllCard({ entity }: { entity: EntityType }) {
 
 export default function ImportExportPage() {
   const entities: EntityType[] = ['ingredients', 'rules', 'products'];
+  const [dialog, setDialog] = useState<ConfirmDialog>(CLOSED);
+
+  const handleRequestConfirm = (d: Omit<ConfirmDialog, 'open'>) => {
+    setDialog({ open: true, ...d });
+  };
 
   return (
     <div>
+      {/* Custom Confirm Dialog */}
+      {dialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/25 backdrop-blur-sm" onClick={() => setDialog(CLOSED)} />
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl border border-red-50 max-w-sm w-full p-8 flex flex-col items-center text-center"
+            style={{ animation: 'fadeInScale 0.18s ease-out' }}
+          >
+            <button onClick={() => setDialog(CLOSED)} className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-gray-500 hover:bg-gray-100 rounded-full transition-all">
+              <X className="w-4 h-4" />
+            </button>
+            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-5">
+              <AlertTriangle className="w-7 h-7 text-red-500" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-800 mb-2">{dialog.title}</h3>
+            <p className="text-sm text-slate-500 leading-relaxed mb-7">{dialog.message}</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setDialog(CLOSED)} className="flex-1 px-4 py-2.5 text-sm text-slate-500 bg-gray-100 hover:bg-gray-200 rounded-full transition-all">Hủy</button>
+              <button
+                onClick={() => { setDialog(CLOSED); dialog.onConfirm(); }}
+                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600 hover:bg-red-700 rounded-full hover:shadow-md transition-all"
+              >Xóa</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes fadeInScale { from { opacity:0; transform:scale(0.95) } to { opacity:1; transform:scale(1) } }`}</style>
+
       <div className="mb-10">
         <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Nhập / Xuất</h1>
         <p className="text-slate-400 font-light mt-2">
@@ -421,7 +487,7 @@ export default function ImportExportPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {entities.map((entity) => (
-            <DeleteAllCard key={entity} entity={entity} />
+            <DeleteAllCard key={entity} entity={entity} onRequestConfirm={handleRequestConfirm} />
           ))}
         </div>
       </section>

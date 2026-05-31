@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Trash2, History as HistoryIcon, ArrowLeft, Loader2 } from 'lucide-react';
+import { Trash2, History as HistoryIcon, ArrowLeft, Loader2, AlertTriangle, X } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
 interface HistoryItem {
@@ -14,6 +14,22 @@ interface HistoryItem {
   createdAt: string;
 }
 
+interface ConfirmDialog {
+  open: boolean;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+}
+
+const DEFAULT_DIALOG: ConfirmDialog = {
+  open: false,
+  title: '',
+  message: '',
+  confirmLabel: 'Xác Nhận',
+  onConfirm: () => {},
+};
+
 export default function HistoryPage() {
   const { user, token, isLoading } = useAuth();
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -21,7 +37,10 @@ export default function HistoryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isClearingAll, setIsClearingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<ConfirmDialog>(DEFAULT_DIALOG);
   const router = useRouter();
+
+  const closeDialog = () => setDialog(DEFAULT_DIALOG);
 
   const fetchHistory = async () => {
     if (!token) return;
@@ -57,52 +76,68 @@ export default function HistoryPage() {
     }
   }, [user, token, isLoading]);
 
-  const deleteItem = async (id: string) => {
-    if (!token || !confirm('Bạn có chắc chắn muốn xóa phân tích này không?')) return;
-    
-    setDeletingId(id);
-    try {
-      const res = await fetch(`${API_URL}/history/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
+  const deleteItem = (id: string) => {
+    if (!token) return;
+    setDialog({
+      open: true,
+      title: 'Xóa Phân Tích',
+      message: 'Bạn có chắc chắn muốn xóa phân tích này không?',
+      confirmLabel: 'Xóa',
+      onConfirm: async () => {
+        closeDialog();
+        setDeletingId(id);
+        try {
+          const res = await fetch(`${API_URL}/history/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          if (!res.ok) {
+            throw new Error('Xóa mục thất bại');
+          }
+
+          setHistory(prev => prev.filter(item => item.id !== id));
+        } catch (err: unknown) {
+          setError(err instanceof Error ? err.message : 'Xóa mục thất bại');
+        } finally {
+          setDeletingId(null);
         }
-      });
-
-      if (!res.ok) {
-        throw new Error('Xóa mục thất bại');
-      }
-
-      setHistory(prev => prev.filter(item => item.id !== id));
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Xóa mục thất bại');
-    } finally {
-      setDeletingId(null);
-    }
+      },
+    });
   };
 
-  const clearAllHistory = async () => {
-    if (!token || !confirm('Bạn có chắc chắn muốn xóa TẤT CẢ lịch sử phân tích không? Hành động này không thể hoàn tác.')) return;
-    
-    setIsClearingAll(true);
-    try {
-      const res = await fetch(`${API_URL}/history`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
+  const clearAllHistory = () => {
+    if (!token) return;
+    setDialog({
+      open: true,
+      title: 'Xóa Tất Cả Lịch Sử',
+      message: 'Bạn có chắc chắn muốn xóa TẤT CẢ lịch sử phân tích không? Hành động này không thể hoàn tác.',
+      confirmLabel: 'Xóa Tất Cả',
+      onConfirm: async () => {
+        closeDialog();
+        setIsClearingAll(true);
+        try {
+          const res = await fetch(`${API_URL}/history`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          if (!res.ok) {
+            throw new Error('Xóa lịch sử thất bại');
+          }
+
+          setHistory([]);
+        } catch (err: unknown) {
+          setError(err instanceof Error ? err.message : 'Xóa lịch sử thất bại');
+        } finally {
+          setIsClearingAll(false);
         }
-      });
-
-      if (!res.ok) {
-        throw new Error('Xóa lịch sử thất bại');
-      }
-
-      setHistory([]);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Xóa lịch sử thất bại');
-    } finally {
-      setIsClearingAll(false);
-    }
+      },
+    });
   };
 
   if (isLoading) {
@@ -144,6 +179,63 @@ export default function HistoryPage() {
     <div className="min-h-[calc(100vh-5rem)] relative py-16 px-4 sm:px-6 lg:px-8">
       <div className="absolute top-20 right-[-10%] w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(252,232,238,0.2)_0%,transparent_100%)] rounded-full blur-[150px] -z-10"></div>
       <div className="absolute bottom-20 left-[-10%] w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(245,250,248,0.15)_0%,transparent_100%)] rounded-full blur-[150px] -z-10"></div>
+
+      {/* ── Custom Confirm Dialog ── */}
+      {dialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            onClick={closeDialog}
+          />
+
+          {/* Dialog card */}
+          <div className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[2rem] shadow-[0_32px_80px_rgba(0,0,0,0.1)] max-w-sm w-full p-8 flex flex-col items-center text-center animate-[fadeInScale_0.2s_ease-out]">
+            {/* Close button */}
+            <button
+              onClick={closeDialog}
+              className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-gray-500 hover:bg-gray-100 rounded-full transition-all duration-200"
+              aria-label="Đóng"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Icon */}
+            <div className="w-14 h-14 bg-rose-50 rounded-full flex items-center justify-center mb-5">
+              <AlertTriangle className="w-7 h-7 text-rose-400" />
+            </div>
+
+            {/* Title */}
+            <h3
+              className="text-xl text-gray-900 tracking-tight mb-2"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              {dialog.title}
+            </h3>
+
+            {/* Message */}
+            <p className="text-sm text-gray-500 leading-relaxed mb-8">
+              {dialog.message}
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={closeDialog}
+                className="flex-1 px-5 py-3 text-sm text-gray-500 font-medium bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-200"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={dialog.onConfirm}
+                className="flex-1 px-5 py-3 text-sm text-white font-medium bg-rose-400 hover:bg-rose-500 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              >
+                {dialog.confirmLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -253,6 +345,13 @@ export default function HistoryPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.95) translateY(8px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0);   }
+        }
+      `}</style>
     </div>
   );
 }
