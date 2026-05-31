@@ -1,3 +1,21 @@
+# SE104 - Introduction to Software Engineering
+
+## Course Information
+
+* **Course Name:** Introduction to Software Engineering
+* **Class:** SE104.Q28
+* **Academic Year:** Semester 2 (2025–2026)
+* **Supervisors:** Do Van Tien – Nguyen Tan Toan
+
+## Team Members
+
+| No. | Student ID | Full Name          | GitHub      | Email                                                   |
+| --- | ---------- | ------------------ | ----------- | ------------------------------------------------------- |
+| 1   | 24520119   | Nguyen Thi Van Anh | -           | [24520119@gm.uit.edu.vn](mailto:24520119@gm.uit.edu.vn) |
+| 2   | 24521766   | Le Dan Thao Tien   | thaotien-28 | [24521766@gm.uit.edu.vn](mailto:24521766@gm.uit.edu.vn) |
+| 3   | 24520749   | Nguyen Khang       | khangnk144  | [24520749@gm.uit.edu.vn](mailto:24520749@gm.uit.edu.vn) |
+
+
 # SKINMATE - Cosmetic Ingredient Safety Checker
 
 SKINMATE is a luxury web application designed to help users analyze cosmetic ingredients (INCI lists) based on their specific skin type, using a rule-based engine with a **Gemini AI fallback** for unknown ingredients and a **community reporting** system for continuous improvement.
