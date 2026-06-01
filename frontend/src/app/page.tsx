@@ -139,7 +139,7 @@ export default function Home() {
                 <div className="col-span-2 relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-black/10">
                     <Image
-                      src="https://i.postimg.cc/kgdj1S6K/image.png"
+                      src="/images/home/img-1.jpg"
                       alt="Woman applying luxury serum"
                       width={900}
                       height={400}
@@ -154,7 +154,7 @@ export default function Home() {
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
                     <Image
-                      src="https://i.postimg.cc/BbKgNZJN/image.png"
+                      src="/images/home/img-2.jpg"
                       alt="Luxury skincare products"
                       width={450}
                       height={280}
@@ -169,7 +169,7 @@ export default function Home() {
                 <div className="relative group mt-8">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
                     <Image
-                      src="https://i.postimg.cc/028dW82g/image.png"
+                      src="/images/home/img-3.jpg"
                       alt="Minimal skincare aesthetic"
                       width={450}
                       height={280}
