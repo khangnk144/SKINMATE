@@ -139,7 +139,7 @@ export default function Home() {
                 <div className="col-span-2 relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-black/10">
                     <Image
-                      src="https://i.postimg.cc/cCf9QTmr/image.png"
+                      src="https://i.postimg.cc/kgdj1S6K/image.png"
                       alt="Woman applying luxury serum"
                       width={900}
                       height={400}
@@ -154,7 +154,7 @@ export default function Home() {
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-[2rem] shadow-xl shadow-black/10">
                     <Image
-                      src="https://i.postimg.cc/GpBjFq3b/image.png"
+                      src="https://i.postimg.cc/BbKgNZJN/image.png"
                       alt="Luxury skincare products"
                       width={450}
                       height={280}
@@ -214,14 +214,14 @@ export default function Home() {
               >
                 <div
                   className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color === 'rose'
-                      ? 'from-[var(--rose-100)] to-[var(--rose-200)]'
-                      : 'from-[var(--sage-100)] to-[var(--sage-200)]'
+                    ? 'from-[var(--rose-100)] to-[var(--rose-200)]'
+                    : 'from-[var(--sage-100)] to-[var(--sage-200)]'
                     } mb-6 flex items-center justify-center transition-all duration-500 group-hover:scale-110`}
                 >
                   <div
                     className={`w-8 h-8 rounded-lg ${feature.color === 'rose'
-                        ? 'bg-[var(--rose-400)]'
-                        : 'bg-[var(--sage-400)]'
+                      ? 'bg-[var(--rose-400)]'
+                      : 'bg-[var(--sage-400)]'
                       }`}
                   />
                 </div>

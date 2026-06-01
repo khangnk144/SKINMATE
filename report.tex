@@ -1215,7 +1215,7 @@ Nhờ vào quá trình mô hình hoá yêu cầu, hệ thống được định 
 \textbf {- Đăng nhập}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{image.png}
+    \includegraphics[width=0.75\linewidth]{dfd_login.png}
 \end{figure}
 
 Mô tả luồng dữ liệu:
@@ -1373,6 +1373,67 @@ Thuật toán:
     \item Đóng kết nối.
 \end{enumerate}
 
+\textbf{ - Trích xuất INCI bằng ảnh OCR}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{inci.png}
+\end{figure}
+\vspace{0.5cm}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Ảnh bảng thành phần và yêu cầu trích xuất INCI.
+    \item D2: File ảnh tải lên từ thiết bị, định dạng JPG/PNG.
+    \item D3: Dữ liệu ảnh tạm hoặc trạng thái form phân tích hiện tại.
+    \item D4: Chuỗi INCI đã trích xuất, ghi tạm vào ô nhập liệu của form phân tích.
+    \item D5: Chuỗi INCI được tự động điền lên giao diện.
+    \item D6: Thông báo kết quả OCR thành công hoặc lỗi ảnh không hợp lệ.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 từ người dùng và D2 từ thiết bị nhập.
+    \item Kiểm tra định dạng ảnh JPG/PNG.
+    \item Gửi ảnh qua OCR để nhận dạng ký tự.
+    \item Nếu OCR thất bại, trả D6 là thông báo lỗi.
+    \item Nếu OCR thành công, chuẩn hóa chuỗi thành phần.
+    \item Ghi D4 vào bộ nhớ tạm/form phân tích.
+    \item Trả D5 để tự động điền chuỗi INCI lên giao diện.
+    \item Trả D6 cho người dùng.
+\end{enumerate}
+
+\textbf{ - Phân tích AI dự phòng — Gemini Fallback}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot 2026-05-30 220829.png}
+\end{figure}
+\vspace{0.5cm}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Thành phần chưa có trong CSDL và loại da của người dùng.
+    \item D2: Chuỗi INCI ban đầu hoặc thao tác yêu cầu phân tích.
+    \item D3: Dữ liệu hiện có trong Ingredients, IngredientRules.
+    \item D4: Thành phần mới và luật phân tích mới được lưu vào CSDL.
+    \item D5: Kết quả phân tích từ AI gồm mô tả, nhãn GOOD/BAD/NEUTRAL.
+    \item D6: Kết quả phân tích thành phần lạ trả về cho người dùng.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 là thành phần chưa tồn tại trong CSDL.
+    \item Đọc D3 từ bảng Ingredients và IngredientRules.
+    \item Nếu đã có dữ liệu, trả kết quả từ CSDL.
+    \item Nếu chưa có dữ liệu, gọi Gemini API để phân tích theo loại da.
+    \item Nhận kết quả gồm mô tả và phân loại GOOD/BAD/NEUTRAL.
+    \item Lưu D4 vào Ingredients và IngredientRules.
+    \item Trả D5 cho thiết bị xuất.
+    \item Trả D6 cho người dùng.
+\end{enumerate}
+
+
 \textbf{ - Xem chi tiết mô tả thành phần}
 
 \begin{figure}[H]
@@ -1399,6 +1460,70 @@ Thuật toán:
     \item Lấy thông tin D3.
     \item Trả D6.
     \item Đóng kết nối.
+\end{enumerate}
+
+\textbf{ - Báo cáo phân loại sai thành phần}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot 2026-05-30 222624.png}
+\end{figure}
+\vspace{0.5cm}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Thành phần cần báo cáo, phân loại đề xuất, lý do, link dẫn chứng.
+    \item D2: Thao tác nhập form báo cáo và bấm gửi.
+    \item D3: Thông tin thành phần hiện tại từ CSDL.
+    \item D4: Báo cáo mới ở trạng thái PENDING.
+    \item D5: Cập nhật danh sách báo cáo cộng đồng hoặc trạng thái gửi báo cáo.
+    \item D6: Thông báo gửi báo cáo thành công hoặc lỗi.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 từ người dùng.
+    \item Nhận D2 từ thiết bị nhập.
+    \item Kiểm tra người dùng đã đăng nhập.
+    \item Kiểm tra lý do báo cáo có tối thiểu 20 ký tự.
+    \item Đọc D3 để xác định thành phần đang được báo cáo.
+    \item Nếu dữ liệu không hợp lệ, trả D6 là thông báo lỗi.
+    \item Nếu hợp lệ, lưu D4 vào IngredientReports với trạng thái PENDING.
+    \item Trả D5 để cập nhật giao diện.
+    \item Trả D6 cho người dùng.
+\end{enumerate}
+
+
+\textbf{ - Bình chọn báo cáo cộng đồng}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot 2026-05-30 223639.png}
+\end{figure}
+\vspace{0.5cm}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Mã báo cáo và loại bình chọn UP/DOWN.
+    \item D2: Thao tác bấm nút UP/DOWN hoặc hủy bình chọn.
+    \item D3: Báo cáo hiện tại và phiếu bình chọn hiện có của người dùng.
+    \item D4: Phiếu bình chọn mới, cập nhật hoặc bị xóa.
+    \item D5: Tổng điểm bình chọn mới và trạng thái nút vote.
+    \item D6: Kết quả cập nhật bình chọn.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 gồm mã báo cáo và loại bình chọn.
+    \item Nhận D2 từ thao tác bấm nút.
+    \item Kiểm tra người dùng đã đăng nhập.
+    \item Đọc D3 từ IngredientReports và ReportVotes.
+    \item Nếu người dùng chưa vote, tạo mới D4.
+    \item Nếu người dùng đổi vote, cập nhật D4.
+    \item Nếu người dùng bấm lại cùng vote, hủy vote hiện tại.
+    \item Tính lại tổng điểm.
+    \item Trả D5 để cập nhật giao diện.
+    \item Trả D6 cho người dùng.
 \end{enumerate}
 
 \textbf{- Xem gợi ý sản phẩm}
@@ -1468,6 +1593,37 @@ Thuật toán:
         \item Trả D5 (Làm mới danh sách) và D6 (Thông báo xóa thành công).
     \end{itemize}
     \item Đóng kết nối.
+\end{enumerate}
+
+\textbf{ - Xem thông báo và đánh dấu đã đọc}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot 2026-05-30 223957.png}
+\end{figure}
+\vspace{0.5cm}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Yêu cầu mở danh sách thông báo hoặc đánh dấu đã đọc.
+    \item D2: Thao tác click chuông thông báo, click từng thông báo hoặc “đánh dấu tất cả”.
+    \item D3: Danh sách thông báo của người dùng.
+    \item D4: Trạng thái isRead = true cho một hoặc nhiều thông báo.
+    \item D5: Danh sách thông báo, số lượng chưa đọc, trạng thái đã đọc.
+    \item D6: Hiển thị dropdown thông báo hoặc kết quả cập nhật.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 từ người dùng.
+    \item Nhận D2 từ thiết bị nhập.
+    \item Kiểm tra token đăng nhập.
+    \item Nếu người dùng mở dropdown, đọc D3 từ Notifications.
+    \item Nếu người dùng đánh dấu đã đọc, cập nhật D4.
+    \item Tính lại số thông báo chưa đọc.
+    \item Trả D5 cho thiết bị xuất.
+    \item Trả D6 cho người dùng.
+    \item Hệ thống có thể tự tải lại thông báo định kỳ theo cơ chế polling.
 \end{enumerate}
 
 
@@ -1677,14 +1833,81 @@ Thuật toán:
     \item Đóng kết nối.
 \end{enumerate}
 
+\textbf{- Duyệt báo cáo cộng đồng}
 
-\subsection{Sơ đồ Sử dụng Chức năng (Use Case Diagram)}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{Screenshot 2026-05-06 221718.png}
+    \includegraphics[width=0.8\linewidth]{Screenshot 2026-05-30 225009.png}
 \end{figure}
 
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Mã báo cáo, quyết định APPROVED/REJECTED, ghi chú Admin.
+    \item D2: Thao tác chọn báo cáo, nhập ghi chú, bấm duyệt hoặc từ chối.
+    \item D3: Báo cáo đang chờ duyệt và luật phân tích hiện tại.
+    \item D4: Trạng thái báo cáo đã xử lý, luật phân tích được cập nhật, thông báo gửi cho người báo cáo.
+    \item D5: Danh sách báo cáo chờ duyệt sau khi cập nhật.
+    \item D6: Thông báo duyệt thành công hoặc lỗi.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 từ Admin.
+    \item Nhận D2 từ thiết bị nhập.
+    \item Kiểm tra quyền Admin.
+    \item Đọc D3 từ IngredientReports và IngredientRules.
+    \item Nếu báo cáo không còn trạng thái PENDING, trả D6 là lỗi.
+    \item Nếu Admin chọn REJECTED, cập nhật trạng thái báo cáo.
+    \item Nếu Admin chọn APPROVED, cập nhật trạng thái báo cáo và upsert luật vào IngredientRules.
+    \item Tạo thông báo trong Notifications gửi người đã báo cáo.
+    \item Trả D5 để làm mới danh sách báo cáo chờ duyệt.
+    \item Trả D6 cho Admin.
+\end{enumerate}
+
+\textbf{DFD 7 — Gửi thông báo đến người dùng — Admin}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot 2026-05-30 225024.png}
+\end{figure}
+
+Mô tả luồng dữ liệu:
+\begin{itemize}
+    \item D1: Người nhận, tiêu đề, nội dung, liên kết điều hướng nếu có.
+    \item D2: Dữ liệu nhập từ form Admin hoặc request API.
+    \item D3: Thông tin người dùng nhận thông báo.
+    \item D4: Thông báo mới loại \texttt{ADMIN\_MESSAGE}.
+    \item D5: Kết quả gửi thông báo và cập nhật badge thông báo phía người dùng.
+    \item D6: Thông báo gửi thành công hoặc lỗi.
+\end{itemize}
+
+Thuật toán:
+\begin{enumerate}
+    \item Nhận D1 từ Admin.
+    \item Nhận D2 từ thiết bị nhập.
+    \item Kiểm tra quyền Admin.
+    \item Đọc D3 từ bảng Users để xác định người nhận.
+    \item Nếu người nhận không tồn tại, trả D6 là lỗi.
+    \item Tạo D4 trong bảng Notifications.
+    \item Trả D5 cho thiết bị xuất.
+    \item Trả D6 cho Admin.
+\end{enumerate}
+
+\subsection{Sơ đồ Sử dụng Chức năng (Use Case Diagram)}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{Screenshot 2026-05-06 221718.png}
+% \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{uc_diagram.png}
+    \caption{Sơ đồ Use Case}
+    \label{fig:enter-label}
+\end{figure}
 \subsubsection{Danh sách các Actor}
 
 Trong hệ thống SKINMATE, các tác nhân (Actors) được xác định dựa trên vai trò và quyền hạn tương tác với các chức năng của phần mềm. Hệ thống bao gồm hai tác nhân chính như sau:
@@ -2785,7 +3008,7 @@ Thông báo hệ thống được tạo ở trạng thái UNREAD. Người dùng
 \end{figure}
 
 
-\subsubsection{Sơ đồ trạng thái của AnalysisHistory (Tuỳ chọn)}
+\subsubsection{Sơ đồ trạng thái của AnalysisHistory}
 Minh họa tính năng “Phân tích lại” từ lịch sử. Một bản ghi lịch sử ban đầu ở trạng thái NEW. Khi người dùng bấm nút “Phân tích lại”, hệ thống tạo một bản phân tích mới nhưng vẫn giữ bản ghi cũ, đánh dấu trạng thái là RE\_ANALYZED (có thể dùng để thống kê hành vi người dùng).
 
 \begin{figure}[H]
@@ -3095,6 +3318,18 @@ Lưu trữ các báo cáo của người dùng về việc phân loại sai mứ
 5 & reportedEffect & Enum (SafetyEffect) & Not Null & Mức độ an toàn mà người dùng đề xuất: GOOD, BAD, NEUTRAL. \\ \hline
 6 & reason & Text & Not Null & Lý do chi tiết cho đề xuất; giao diện yêu cầu tối thiểu 20 ký tự trước khi gửi. \\ \hline
 7 & evidenceUrl & String & Nullable & Đường dẫn đến tài liệu tham khảo (nghiên cứu, bài báo,...). \\ \hline
+\end{tabularx}
+\end{center}
+
+
+
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{|c|l|l|l|X|}
+\hline
+\rowcolor{blue!15}
+\textbf{STT} & \textbf{Thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ràng buộc} & \textbf{Mô tả} \\ \hline
 8 & status & Enum (ReportStatus) & Default: PENDING & Trạng thái xử lý: PENDING, APPROVED, REJECTED. \\ \hline
 9 & createdAt & DateTime & Default: now() & Thời điểm gửi báo cáo. \\ \hline
 10 & resolvedAt & DateTime & Nullable & Thời điểm Admin duyệt/từ chối. \\ \hline
@@ -3229,7 +3464,7 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_home.pdf} % Thay bằng ảnh chụp màn hình thực tế của bạn
+    \includegraphics[width=0.9\linewidth]{ui_home.png} % Thay bằng ảnh chụp màn hình thực tế của bạn
     \caption{Giao diện Trang chủ hệ thống SKINMATE}
     \label{fig:ui_home}
 \end{figure}
@@ -3294,7 +3529,7 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_register.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_register.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Đăng ký hệ thống SKINMATE}
     \label{fig:ui_register}
 \end{figure}
@@ -3364,10 +3599,13 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_login.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_login.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Đăng nhập hệ thống SKINMATE}
     \label{fig:ui_login}
 \end{figure}
+
+
+
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -3428,10 +3666,13 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_analysis.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_analysis.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Phân tích thành phần hệ thống SKINMATE}
     \label{fig:ui_analysis}
 \end{figure}
+
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3507,10 +3748,13 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_profile.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_profile.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Hồ sơ cá nhân hệ thống SKINMATE}
     \label{fig:ui_profile}
 \end{figure}
+
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3582,10 +3826,13 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_history.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_history.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Lịch sử hệ thống SKINMATE}
     \label{fig:ui_history}
 \end{figure}
+
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3660,10 +3907,13 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{ui_admin_dashboard.pdf} % Thay bằng ảnh chụp màn hình thực tế
+    \includegraphics[width=0.9\linewidth]{ui_admin_dashboard.png} % Thay bằng ảnh chụp màn hình thực tế
     \caption{Giao diện Màn hình Admin Dashboard hệ thống SKINMATE}
     \label{fig:ui_admin_dashboard}
 \end{figure}
+
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3733,6 +3983,9 @@ Hệ thống được thiết kế theo phong cách Luxury Clean Beauty, tối �
     \caption{Giao diện Màn hình Quản lý Thành phần hệ thống SKINMATE}
     \label{fig:ui_admin_ingredients}
 \end{figure}
+
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3813,6 +4066,8 @@ Hệ thống chặn reload trang. Dựa vào trạng thái \texttt{editingIngred
     \label{fig:ui_admin_rules}
 \end{figure}
 
+
+
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -3885,6 +4140,14 @@ Sau khi có kết quả, Frontend hiển thị thông báo "Rule created/updated
 \textbf{a) Giao diện}
 
 Màn hình được triển khai tại đường dẫn \texttt{/admin/products}, gồm biểu mẫu thêm/chỉnh sửa sản phẩm, vùng nhập chuỗi INCI và bảng dữ liệu có tìm kiếm, phân trang.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_admin_products.png} % Thay bằng ảnh chụp màn hình thực tế
+    \caption{Giao diện Màn hình Quản lý sản phẩm}
+    \label{fig:ui_admin_products}
+\end{figure}
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -3939,6 +4202,15 @@ Màn hình được triển khai tại đường dẫn \texttt{/admin/products},
 
 Màn hình tại \texttt{/admin/users} trình bày danh sách tài khoản và popup xác nhận cho thao tác khóa, mở khóa hoặc xóa người dùng.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_admin_user.png} % Thay bằng ảnh chụp màn hình thực tế
+    \caption{Giao diện Màn hình Quản lý người dùng}
+    % \label{fig:ui_admin_products}
+\end{figure}
+
+
+
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -3989,6 +4261,13 @@ Màn hình tại \texttt{/admin/users} trình bày danh sách tài khoản và p
 \textbf{a) Giao diện}
 
 Màn hình tại \texttt{/admin/reports} hiển thị các thẻ tổng hợp, biểu đồ phân bổ loại da và chức năng xuất dữ liệu báo cáo dưới dạng CSV.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{image.png}
+    \caption{Màn hình Báo cáo Thống kê}
+\end{figure}
+
+
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -4039,6 +4318,12 @@ Màn hình tại \texttt{/admin/reports} hiển thị các thẻ tổng hợp, b
 
 Màn hình tại \texttt{/admin/import-export} cung cấp ba nhóm chức năng cho Thành phần, Quy tắc an toàn và Sản phẩm: xuất Excel, nhập Excel và xóa toàn bộ dữ liệu.
 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_im_ex.png}
+    \caption{Màn hình nhập xuất dữ liệu}
+\end{figure}
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -4090,6 +4375,12 @@ Màn hình tại \texttt{/admin/import-export} cung cấp ba nhóm chức năng 
 
 Popup được mở trên màn hình Phân tích khi người dùng chọn một kết quả thành phần, phủ lớp nền mờ và tập trung thông tin chi tiết của thành phần đang chọn.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_popup_detail.png}
+    \caption{Popup chi tiết thành phần}
+\end{figure}
+
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -4138,7 +4429,11 @@ Popup được mở trên màn hình Phân tích khi người dùng chọn một
 \textbf{a) Giao diện}
 
 Popup xác nhận được thể hiện trực tiếp trong màn hình Quản lý Người dùng; các thao tác xóa tại những màn hình quản trị khác sử dụng hộp xác nhận tương đương của trình duyệt.
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_popup_confirm.png}
+    \caption{Popup xác nhận thao tác}
+\end{figure}
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -4185,6 +4480,13 @@ Popup xác nhận được thể hiện trực tiếp trong màn hình Quản l�
 \textbf{a) Giao diện}
 
 Màn hình tại \texttt{/community/reports} được bảo vệ bởi \texttt{ProtectedRoute}, cho phép người dùng đăng nhập xem và bình chọn các báo cáo đang chờ xử lý.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_community_report.png}
+    \caption{Màn hình Cộng đồng - Báo cáo}
+\end{figure}
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -4235,6 +4537,18 @@ Màn hình tại \texttt{/community/reports} được bảo vệ bởi \texttt{P
 
 Màn hình tại \texttt{/admin/community-reports} nằm trong layout quản trị, trình bày bảng báo cáo cộng đồng chờ duyệt và Modal duyệt hoặc từ chối.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{ui_duyet_report.png}
+    \caption{Màn hình duyệt báo cáo}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{duyet_report_2.png}
+    \caption{Màn hình xác nhận từ chối}
+\end{figure}
+
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -4284,6 +4598,12 @@ Màn hình tại \texttt{/admin/community-reports} nằm trong layout quản tr�
 
 Dropdown Thông báo được gắn tại Navbar cho người dùng đã đăng nhập, hiển thị biểu tượng chuông, số thông báo chưa đọc và danh sách thông báo gần đây.
 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{popup_noti.png}
+    \caption{Màn hình Popup Thông báo}
+\end{figure}
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
 \begin{center}
@@ -4334,6 +4654,12 @@ Dropdown Thông báo được gắn tại Navbar cho người dùng đã đăng 
 \textbf{a) Giao diện}
 
 Popup được mở từ nút Báo cáo trong Chi tiết Thành phần của màn hình Phân tích, cho phép người dùng đóng góp điều chỉnh kết quả phân loại.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{popup_report.png}
+    \caption{Popup Báo cáo phân loại}
+\end{figure}
 
 \textbf{b) Mô tả các đối tượng trên màn hình}
 
@@ -4388,8 +4714,52 @@ Popup được mở từ nút Báo cáo trong Chi tiết Thành phần của mà
 % c) Danh sách biến cố và xử lý
 
 % 1 bảng gồm các cột STT, Biến cố, Xử lý
+\section{Tổng kết}
+
+\subsection{Kết quả đạt được}
+
+Sau quá trình phân tích, thiết kế và xây dựng, nhóm đã hoàn thành hệ thống SKINMATE đúng với mục tiêu của đề tài là hỗ trợ người dùng kiểm tra, đánh giá và lựa chọn mỹ phẩm dựa trên bảng thành phần. Hệ thống không chỉ dừng lại ở chức năng tra cứu đơn lẻ mà đã hình thành một nền tảng Web tương đối hoàn chỉnh, kết hợp giao diện người dùng, xử lý nghiệp vụ phía máy chủ, cơ sở dữ liệu và các tích hợp bên ngoài.
+
+\subsubsection{Ưu điểm}
+
+\begin{itemize}
+    \item \textbf{Đáp ứng nghiệp vụ cốt lõi:} Hệ thống cho phép người dùng đăng ký, đăng nhập, cập nhật hồ sơ loại da và phân tích chuỗi thành phần mỹ phẩm theo từng loại da. Kết quả phân tích được phân loại theo các mức Tốt, Xấu và Trung bình, giúp người dùng phổ thông dễ hiểu hơn khi đọc bảng thành phần INCI.
+    \item \textbf{Kết hợp luật nghiệp vụ và AI:} Cơ chế phân tích chính dựa trên cơ sở dữ liệu thành phần và bảng quy tắc an toàn theo loại da. Khi gặp thành phần chưa có trong dữ liệu, hệ thống có thể sử dụng Gemini AI làm phương án dự phòng và lưu lại kết quả để tái sử dụng, giúp dữ liệu ngày càng đầy đủ hơn.
+    \item \textbf{Hỗ trợ nhập liệu linh hoạt:} Ngoài việc nhập thủ công chuỗi thành phần, người dùng có thể tải ảnh nhãn sản phẩm để hệ thống trích xuất danh sách thành phần bằng OCR, giảm thao tác gõ tay và phù hợp hơn với tình huống sử dụng thực tế.
+    \item \textbf{Có hệ sinh thái chức năng cho người dùng:} Hệ thống đã triển khai lịch sử phân tích, gợi ý sản phẩm an toàn theo loại da, màn hình cộng đồng để bình chọn báo cáo phân loại và popup thông báo trong ứng dụng.
+    \item \textbf{Có hệ thống quản trị tương đối đầy đủ:} Admin có thể quản lý thành phần, quy tắc an toàn, sản phẩm, người dùng, báo cáo thống kê, nhập/xuất dữ liệu Excel và duyệt báo cáo cộng đồng. Khi báo cáo được duyệt, hệ thống tự động cập nhật quy tắc và gửi thông báo cho người gửi báo cáo.
+    \item \textbf{Kiến trúc rõ ràng, dễ mở rộng:} Dự án được tách thành Frontend Next.js và Backend Express.js theo mô hình phân lớp Route -- Middleware -- Controller -- Service -- Prisma. Cơ sở dữ liệu PostgreSQL được quản lý bằng Prisma, giúp định nghĩa quan hệ dữ liệu rõ ràng và giảm lỗi truy vấn thủ công.
+    \item \textbf{Chú trọng bảo mật và độ ổn định:} Hệ thống sử dụng JWT để xác thực, bcrypt để băm mật khẩu, middleware phân quyền Admin, kiểm tra tài khoản bị khóa, giới hạn số lượt phân tích, giới hạn dung lượng request và ràng buộc dữ liệu ở mức cơ sở dữ liệu.
+\end{itemize}
+
+\subsubsection{Nhược điểm}
+
+\begin{itemize}
+    \item \textbf{Chất lượng phân tích phụ thuộc vào dữ liệu:} Với các thành phần hoặc quy tắc chưa được quản trị đầy đủ, kết quả có thể chỉ ở mức Trung bình hoặc phải phụ thuộc vào AI fallback.
+    \item \textbf{Phụ thuộc dịch vụ bên ngoài:} Các chức năng Gemini AI và OCR cần API key và kết nối Internet ổn định; khi dịch vụ bên ngoài lỗi, hệ thống phải chuyển sang cơ chế dự phòng.
+    \item \textbf{Chưa phải hệ thống tư vấn y khoa:} Kết quả phân tích chỉ hỗ trợ tham khảo theo dữ liệu và quy tắc đã xây dựng, chưa thể thay thế tư vấn của chuyên gia da liễu trong các trường hợp bệnh lý hoặc dị ứng nghiêm trọng.
+    \item \textbf{Dữ liệu sản phẩm còn cần mở rộng:} Chức năng gợi ý sản phẩm đã có nền tảng xử lý, nhưng độ hữu ích thực tế phụ thuộc vào số lượng sản phẩm và thành phần được Admin nhập vào hệ thống.
+\end{itemize}
+
+\subsection{Hướng phát triển}
+
+Để SKINMATE có thể ứng dụng rộng rãi và chuyên nghiệp hơn, nhóm đề xuất một số hướng phát triển sau:
+
+\begin{itemize}
+    \item \textbf{Mở rộng cơ sở dữ liệu thành phần và sản phẩm:} Bổ sung thêm dữ liệu INCI, mô tả khoa học, nguồn tham khảo và danh mục sản phẩm phổ biến tại thị trường Việt Nam.
+    \item \textbf{Nâng cao độ chính xác của phân tích:} Hoàn thiện bộ quy tắc theo từng loại da, bổ sung mức độ rủi ro theo nồng độ hoặc vị trí thành phần trong danh sách INCI, đồng thời cải tiến cơ chế kiểm chứng dữ liệu do AI sinh ra.
+    \item \textbf{Cải thiện OCR và trải nghiệm quét ảnh:} Tối ưu khả năng nhận diện ảnh nhãn sản phẩm trong điều kiện ánh sáng, góc chụp và bố cục khác nhau; bổ sung bước cho phép người dùng chỉnh sửa danh sách thành phần trước khi phân tích.
+    \item \textbf{Phát triển tính năng cá nhân hóa sâu hơn:} Cho phép người dùng lưu danh sách thành phần cần tránh, ghi nhận phản ứng da sau khi dùng sản phẩm và nhận gợi ý phù hợp hơn với lịch sử cá nhân.
+    \item \textbf{Tăng cường quản trị cộng đồng:} Bổ sung cơ chế uy tín người dùng, lọc báo cáo trùng lặp, lưu vết thay đổi quy tắc và hiển thị nguồn tham khảo rõ ràng hơn khi Admin duyệt báo cáo.
+    \item \textbf{Hoàn thiện triển khai thực tế:} Chuẩn hóa môi trường production, bổ sung CI/CD, logging, giám sát lỗi và các bài kiểm thử tự động cho những luồng nghiệp vụ quan trọng.
+\end{itemize}
+
+\subsection{Tổng kết chung}
+
+Đồ án SKINMATE là cơ hội để nhóm áp dụng các kiến thức của môn Nhập môn Công nghệ Phần mềm vào một bài toán thực tế có ý nghĩa với người dùng: hỗ trợ lựa chọn mỹ phẩm an toàn và phù hợp hơn với từng loại da. Thông qua quá trình xây dựng hệ thống, nhóm đã thực hành đầy đủ các bước từ khảo sát nhu cầu, phân tích yêu cầu, thiết kế cơ sở dữ liệu, xây dựng giao diện, phát triển API, kiểm thử đến hoàn thiện các chức năng quản trị.
+
+Mặc dù sản phẩm vẫn còn những hạn chế về độ bao phủ dữ liệu, khả năng phụ thuộc vào dịch vụ bên ngoài và mức độ kiểm chứng chuyên môn, hệ thống hiện tại đã tạo được nền tảng vững chắc cho một ứng dụng phân tích thành phần mỹ phẩm có thể tiếp tục mở rộng. Quan trọng hơn, nhóm hiểu rõ hơn vai trò của việc phân tích yêu cầu, thiết kế kiến trúc, phân chia module và phối hợp giữa các thành viên trong quá trình phát triển phần mềm.
+
 \end{document}
-
-
 
 
