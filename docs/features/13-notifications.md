@@ -1,61 +1,47 @@
-# Feature 13: In-App Notifications
+# Feature 13 - Notifications
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## Backend Files
 
-Users receive in-app notifications for important events, such as when their community ingredient report is resolved by an admin. Admins can also send custom messages to individual users. Notifications appear in a bell icon in the navbar with an unread count badge.
+- `backend/src/routes/notification.routes.ts`
+- `backend/src/controllers/notification.controller.ts`
+- `backend/src/services/report.service.ts`
 
-## 2. Database Schema
+## Frontend File
 
-```prisma
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String   // Recipient user
-  type      String   // e.g., "REPORT_RESOLVED", "ADMIN_MESSAGE"
-  title     String   // Short summary
-  message   String   @db.Text
-  link      String?  // Optional navigation URL
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-```
+- `frontend/src/components/NotificationBell.tsx`
 
-## 3. Backend Implementation (`/backend`)
+## Data Model
 
-**Files:** `notification.controller.ts`, `notification.routes.ts`
+`Notification` fields:
 
-**User Endpoints (require `authMiddleware`):**
+- `id`
+- `userId`
+- `type`
+- `title`
+- `message`
+- `link`
+- `isRead`
+- `createdAt`
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/v1/notifications` | Get user's notifications (newest first, max 50) |
-| `PATCH` | `/api/v1/notifications/:id/read` | Mark a specific notification as read (verifies ownership) |
-| `PATCH` | `/api/v1/notifications/read-all` | Mark all unread notifications as read |
+## Endpoints
 
-**Admin Endpoint (requires `authMiddleware` + `adminMiddleware`):**
+All routes require auth. `/send` also requires admin.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/v1/notifications/send` | Send a custom notification: `{ userId, title, message, link? }` |
+- `GET /api/v1/notifications`
+- `PATCH /api/v1/notifications/read-all`
+- `PATCH /api/v1/notifications/:id/read`
+- `POST /api/v1/notifications/send`
 
-**Auto-generated Notifications:**
-- When a community report is resolved (`APPROVED` or `REJECTED`), `report.service.ts` automatically creates a `REPORT_RESOLVED` notification for the reporter with a Vietnamese message.
+`GET /notifications` returns the newest 50 notifications for the current user.
 
-## 4. Frontend Implementation (`/frontend`)
+`PATCH /:id/read` verifies ownership before updating.
 
-**Component:** `src/components/NotificationBell.tsx`
+`POST /send` creates an `ADMIN_MESSAGE` notification.
 
-- Displayed in the Navbar for authenticated users.
-- Shows unread count badge on the bell icon.
-- Dropdown panel lists recent notifications.
-- Clicking a notification marks it as read and navigates to the linked page (if `link` is set).
-- "Mark all as read" action available.
+## Automatic Notifications
 
-## 5. Notification Types
+`report.service.ts` creates a notification when an admin resolves a community report.
 
-| Type | Trigger | Message |
-|------|---------|---------|
-| `REPORT_RESOLVED` | Admin approves/rejects an ingredient report | Vietnamese approval/rejection message |
-| `ADMIN_MESSAGE` | Admin sends a custom message via the admin panel | Custom title and message |
+Current notification controller creates a local `PrismaClient` instance instead of importing the shared `utils/prisma.ts` client.

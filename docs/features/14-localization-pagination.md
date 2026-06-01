@@ -1,44 +1,65 @@
-# Feature 14: Vietnamese Localization & Admin Pagination
+# Feature 14 - Localization And Pagination
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## Localization
 
-The entire SKINMATE user interface has been localized to Vietnamese for the target audience (Vietnamese Gen Z and skincare beginners). Additionally, admin management pages use server-backed search and pagination to handle large datasets efficiently.
+The app is intended for Vietnamese users. The frontend root layout sets:
 
-## 2. Vietnamese Localization
+```tsx
+<html lang="vi">
+```
 
-### Scope
-All user-facing text in the application has been translated to professional, natural-sounding Vietnamese:
+Current implementation uses inline text in TSX files rather than an i18n library.
 
-- **Navigation labels:** Trang chủ, Phân tích, Lịch sử, Hồ sơ, Quản trị, etc.
-- **Admin panel:** Table headers, form labels, placeholders, confirmation messages, sidebar navigation.
-- **Analysis page:** Ingredient labels display Vietnamese translations while underlying data remains in English (as stored in the database).
-- **Notifications:** Report resolution messages are in Vietnamese.
-- **Rate limiting:** Error messages returned to users are in Vietnamese.
-- **Form validation:** Error and success messages throughout the app are in Vietnamese.
+Important caveat: several Vietnamese strings and comments appear as mojibake in the repository. This documentation records code behavior and does not change source strings.
 
-### Implementation
-- No external i18n library is used — translations are hardcoded inline in the component files.
-- A mapping function in the analysis page translates common ingredient-related terms for display.
-- Database values (ingredient names, effects) remain in **English** for consistency and API compatibility.
+## API URL Localization/Environment
 
-## 3. Admin Pagination
+Frontend API base URL is centralized in `frontend/src/lib/api.ts`:
 
-### Scope
-Applied to three admin management pages:
-- `/admin/ingredients`
-- `/admin/rules`
-- `/admin/products`
+```ts
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+export const API_ROOT_URL = API_URL.replace(/\/api\/v1\/?$/, '');
+```
 
-### Implementation
-- **Page size:** 15 items per page.
-- The frontend sends `page`, `limit`, and `search` to the admin list endpoints.
-- The backend returns `{ items, total, page, limit }` when any of those query params are present.
-- For backward compatibility, admin list endpoints still return the legacy array response when no pagination/search query params are sent.
-- Filtering/searching is applied on the server before pagination, so the paginated view respects active search queries without downloading the full dataset.
-- Pagination controls are rendered below the data table with Previous/Next buttons and page indicators.
-- Resets to page 1 when search query changes.
+OCR uses `API_ROOT_URL` because OCR routes are mounted at `/api/ocr`, not `/api/v1`.
 
-### Why Server-Backed?
-The admin pages can grow with the database without forcing the browser to render or filter every record at once. This keeps the existing UI behavior while reducing network payload and client-side work.
+## Admin Pagination
+
+Backend support is in:
+
+- `backend/src/controllers/admin.controller.ts`
+- `backend/src/services/admin.service.ts`
+
+Frontend helpers are in:
+
+- `frontend/src/lib/api.ts`
+
+Paginated admin list endpoints:
+
+- `GET /api/v1/admin/ingredients`
+- `GET /api/v1/admin/rules`
+- `GET /api/v1/admin/products`
+- `GET /api/v1/admin/users`
+
+Query params:
+
+- `page`
+- `limit`
+- `search`
+
+If any of these params are present, response shape is:
+
+```json
+{
+  "items": [],
+  "total": 0,
+  "page": 1,
+  "limit": 20
+}
+```
+
+If none are present, the backend keeps legacy array responses.
+
+The service caps `limit` at 100. The frontend admin pages commonly request 15 items per page.

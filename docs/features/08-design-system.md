@@ -1,93 +1,45 @@
-# Feature 08: Luxury UI/UX Design System
+# Feature 08 - Design System
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Aesthetic Concept: "Modern Clean Beauty"
+## Frontend Stack
 
-**Vibe:** Luxury, feminine, high-end — inspired by Glossier, Sephora, and Korean aesthetic clinics.
+- Next.js 16 App Router.
+- React 19.
+- TailwindCSS 4 through `@tailwindcss/postcss`.
+- Fonts from `next/font/google`: Playfair Display and Inter.
+- Icons from `lucide-react`.
+- Charts from `recharts`.
 
-## 2. Typography
+## Global Files
 
-| Usage | Font | Source |
-|-------|------|--------|
-| Headings & display text | **Playfair Display** (serif) | Google Fonts |
-| Body text & UI labels | **Inter** (sans-serif) | Google Fonts |
+- `frontend/src/app/layout.tsx`
+- `frontend/src/app/globals.css`
+- `frontend/next.config.ts`
 
-Both fonts are loaded via `next/font/google` in `frontend/src/app/layout.tsx`.
+## Visual Pattern In Code
 
-## 3. Color Palette
+The UI uses:
 
-| Role | Color | TailwindCSS Class |
-|------|-------|-------------------|
-| Primary accent (BAD/rose) | Dusty Rose | `rose-300`, `rose-400`, `rose-500` |
-| Secondary accent (GOOD/sage) | Sage Green | `emerald-300`, `emerald-400` |
-| Background | Cream white | `white`, `rose-50` |
-| Text primary | Slate | `slate-800`, `slate-900` |
-| Text secondary | Muted slate | `slate-500`, `slate-600` |
-| Neutral (not found) | Soft gray | `gray-400`, `gray-500` |
+- Soft rose and slate color accents.
+- Serif headings with Playfair Display.
+- Inter for body text.
+- White/rose panels, rounded shapes, subtle borders and shadows.
+- Responsive layouts with Tailwind utility classes.
+- `next/image` for image-heavy pages/components where used.
 
-## 4. Core Visual Patterns
+## Routing And Layout
 
-### Glassmorphism Cards & Menus
-Used on auth forms, analysis cards, modals, and the user navigation menu:
-```html
-<div class="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-```
-For the **User Menu Dropdown**, a tighter radius and specific shadow are used:
-```html
-<div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
-```
+`app/layout.tsx` wraps the whole app with:
 
-### Gradient Aura Backgrounds
-Soft color blobs layered behind page content (home page, analysis page):
-```html
-<div class="absolute top-0 right-0 w-96 h-96 bg-rose-200/50 rounded-full blur-3xl -z-10"></div>
-<div class="absolute bottom-0 left-0 w-96 h-96 bg-pink-100/60 rounded-full blur-3xl -z-10"></div>
-```
+- HTML `lang="vi"`.
+- Font variables.
+- `AuthProvider`.
+- Sticky header with `Navbar`.
+- Footer.
 
-### Split-Screen Layouts
-Login, Register, and Analysis pages use a two-column grid on large screens:
-```html
-<div class="grid lg:grid-cols-2 min-h-screen">
-  <!-- Left: Decorative image column -->
-  <!-- Right: Interactive form column -->
-</div>
-```
+`app/admin/layout.tsx` wraps admin pages.
 
-## 5. Component Standards
+## Current Caveat
 
-| Element | Style Rule |
-|---------|-----------|
-| Cards | `rounded-3xl`, large soft shadow, `bg-white/70 backdrop-blur` |
-| Buttons (primary) | Rose gradient `from-rose-400 to-pink-500`, `rounded-full`, hover scale |
-| Buttons (secondary) | `border border-rose-200`, ghost style |
-| Inputs | `rounded-2xl`, `border-rose-100`, focus ring in rose |
-| Headings | Playfair Display, `tracking-tight`, large scale |
-| Badges (GOOD) | Sage green background, rounded-full |
-| Badges (BAD) | Dusty rose background, rounded-full |
-| Badges (NEUTRAL) | Soft gray background, rounded-full |
-| Badges (OFFICIAL) | **Rose-Slate Style**: Slate-700 text, Rose-50 bg, Rose-100 border |
-
-## 6. Animations & Interactions
-
-* **Hover effects:** Scale transform on cards and buttons (`hover:scale-105`, `transition-transform`).
-* **Page transitions:** Subtle fade-in on route change.
-* **Loading states:** Animated gradient shimmer or spinner in rose tones.
-* **Micro-animations:** Icon and badge entrance animations on analysis results.
-
-## 7. Image Handling
-
-* External product, hero, auth, and OCR preview images are served via Next.js `<Image>` component where possible.
-* Allowed remote domains are configured in `next.config.ts` under `images.remotePatterns`.
-* Currently configured: **all domains** (wildcard `**` for both `http` and `https` protocols).
-* All images use `object-cover`, `w-full`, `h-full` for consistent layout.
-* Local images are stored in `public/images/` (e.g., `aurapink.jpg`, beauty product photos).
-* OCR previews use `unoptimized` because they render local object URLs.
-
-## 8. Anti-Patterns (Never Do)
-
-* ❌ No inline styles — use TailwindCSS classes exclusively.
-* ❌ No plain colors (pure red, pure blue) — always use the curated rose/sage palette.
-* ❌ No sharp corners — use `rounded-2xl` or `rounded-3xl` on cards/inputs.
-* ❌ No default browser fonts — always apply Playfair Display or Inter.
-* ❌ No neon or high-contrast emerald for navigation — use the refined **Rose-Slate** palette for official badges.
+Some source comments and UI strings appear as mojibake text in the repository. This docs update records structure and behavior but does not modify code strings.

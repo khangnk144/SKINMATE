@@ -1,79 +1,68 @@
-# Feature 06: Admin Dashboard & CRUD Operations
+# Feature 06 - Admin CRUD
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## Backend
 
-The admin panel allows users with the `ADMIN` role to manage the core data driving the analysis engine: Ingredients, Safety Rules, and Products. It is the only way to update the database without writing raw SQL.
+Files:
 
-## 2. Backend Implementation (`/backend`)
+- `backend/src/routes/admin.routes.ts`
+- `backend/src/controllers/admin.controller.ts`
+- `backend/src/services/admin.service.ts`
 
-**Middleware Stack (applied to ALL `/api/v1/admin/*` routes):**
-1. `authMiddleware` — validates JWT token.
-2. `adminMiddleware` — checks `req.user.role === 'ADMIN'`. Returns `403 Forbidden` if not admin.
+All admin routes use router-level `authMiddleware` and `adminMiddleware`.
 
-**Ingredient Endpoints (`/api/v1/admin/ingredients`):**
+## Ingredients
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/ingredients` | List ingredients, ordered alphabetically. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
-| `POST` | `/ingredients` | Create new ingredient. Name auto-normalized to lowercase. Returns 409 if duplicate. |
-| `PUT` | `/ingredients/:id` | Update name/description. Checks for duplicate name conflicts. |
-| `DELETE` | `/ingredients/:id` | Deletes ingredient. Cascades to rules and product-ingredient links. |
-| `DELETE` | `/ingredients/all` | Deletes ALL ingredients. Cascades to all rules and product-ingredient links. |
+Endpoints:
 
-**Rule Endpoints (`/api/v1/admin/rules`):**
+- `GET /api/v1/admin/ingredients`
+- `POST /api/v1/admin/ingredients`
+- `PUT /api/v1/admin/ingredients/:id`
+- `DELETE /api/v1/admin/ingredients/all`
+- `DELETE /api/v1/admin/ingredients/:id`
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/rules` | List rules, includes ingredient info, ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
-| `POST` | `/rules` | Upsert: creates rule if not exists, updates effect if already exists for that `(ingredientId, skinType)` pair |
-| `DELETE` | `/rules/:id` | Delete a specific rule |
-| `DELETE` | `/rules/all` | Delete ALL safety rules |
+Names are normalized with `trim().toLowerCase()`. Duplicate names return conflict behavior in the controller.
 
-**Product Endpoints (`/api/v1/admin/products`):**
+## Rules
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/products` | List products, includes full ingredient list, ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
-| `POST` | `/products` | Create product. Accepts `ingredientNames` as array (parsed from INCI string on frontend). Auto-creates any unknown ingredients. |
-| `PUT` | `/products/:id` | Update product. Replaces all ingredient relations. |
-| `DELETE` | `/products/:id` | Delete product. Cascades to product-ingredient links. |
-| `DELETE` | `/products/all` | Delete ALL products. Cascades to all product-ingredient links. |
+Endpoints:
 
-**Excel Export Endpoints (`/api/v1/admin/export`):**
+- `GET /api/v1/admin/rules`
+- `POST /api/v1/admin/rules`
+- `DELETE /api/v1/admin/rules/all`
+- `DELETE /api/v1/admin/rules/:id`
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/export/ingredients` | Download all ingredients as `.xlsx` |
-| `GET` | `/export/rules` | Download all rules as `.xlsx` (includes ingredient name) |
-| `GET` | `/export/products` | Download all products as `.xlsx` (includes INCI string) |
+`POST /rules` validates `SkinType` and `SafetyEffect`, then creates or updates the unique `(ingredientId, skinType)` rule.
 
-**Excel Import Endpoints (`/api/v1/admin/import`):**
+## Products
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `POST` | `/import/ingredients` | Upload `.xlsx` to bulk-import ingredients (upsert by name) |
-| `POST` | `/import/rules` | Upload `.xlsx` to bulk-import rules. Accepts Vietnamese column values (e.g., "DA DẦU" → OILY). |
-| `POST` | `/import/products` | Upload `.xlsx` to bulk-import products. Auto-creates unknown ingredients. Upserts by name+brand. |
+Endpoints:
 
-Import endpoints use `multer` for `multipart/form-data` file upload (max 10 MB). Import responses return `{ created, updated, skipped, errors[] }`.
+- `GET /api/v1/admin/products`
+- `POST /api/v1/admin/products`
+- `PUT /api/v1/admin/products/:id`
+- `DELETE /api/v1/admin/products/all`
+- `DELETE /api/v1/admin/products/:id`
 
-## 3. Frontend Implementation (`/frontend`)
+Product create/update accepts `name`, `brand`, optional `imageUrl`, and optional `ingredientNames`. Unknown ingredients are auto-created. Updating a product replaces all `ProductIngredient` links.
 
-* **Route guard:** `AdminProtectedRoute.tsx` wraps all admin pages and redirects non-admin users to the home page.
-* **Layout:** `admin/layout.tsx` provides a sidebar with navigation links to each management section (Dashboard, Ingredients, Rules, Products, Users, Reports, Import/Export).
-* **Product INCI input:** The product form uses a **text area** where admins paste an INCI string. The frontend parses it (split by comma, trim) and sends the resulting array as `ingredientNames` to the backend.
-* **Management pages:**
-  - `/admin/ingredients` — Table with Edit/Delete actions per row, modal form for add/edit. Uses server-backed search and pagination by ingredient name.
-  - `/admin/rules` — Table with Delete action, form for creating/updating rules. Uses server-backed search and pagination by related ingredient.
-  - `/admin/products` — Table with Edit/Delete actions, modal form with INCI textarea input. Uses server-backed search and pagination by product/brand name.
-  - `/admin/import-export` — Export database tables as `.xlsx`, import from `.xlsx` with drag-and-drop upload, and "Delete All" danger zone for bulk deletion of ingredients, rules, or products.
+## Pagination/Search
 
-## 4. Testing
+Ingredients, rules, products, and users support optional `page`, `limit`, and `search`.
 
-Tests in `admin.routes.test.ts` verify:
-* A user with `role: USER` receives `403 Forbidden` on any `/api/v1/admin/*` route.
-* A user with `role: ADMIN` can successfully call CRUD endpoints.
-* Ingredient creation correctly normalizes names to lowercase.
-* Duplicate ingredient name creation returns an error.
+If any list query param is present, response shape is `{ items, total, page, limit }`. Otherwise the legacy array response is returned.
+
+## Frontend
+
+Pages:
+
+- `/admin/ingredients`
+- `/admin/rules`
+- `/admin/products`
+
+## Tests
+
+Relevant backend test:
+
+- `backend/src/tests/admin.routes.test.ts`

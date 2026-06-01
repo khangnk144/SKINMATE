@@ -1,48 +1,93 @@
 # SKINMATE Frontend
 
-This is the frontend web application for SKINMATE, built with [Next.js 16](https://nextjs.org) (App Router), React 19, and TailwindCSS v4.
+> Last verified against code: June 1, 2026
 
-## Getting Started
+This is the Next.js frontend for SKINMATE.
+
+## Stack
+
+- Next.js 16.2.4 App Router
+- React 19.2.4
+- TypeScript
+- TailwindCSS 4
+- Lucide React
+- Recharts
+
+## Scripts
 
 ```bash
 npm install
 npm run dev
+npm run build
+npm start
+npm run lint
 ```
 
-## Performance Notes
+Development URL:
 
-- `src/lib/api.ts` centralizes `NEXT_PUBLIC_API_URL` usage and handles both legacy array responses and paginated `{ items, total, page, limit }` responses.
-- Admin reports charts and OCR upload UI are lazy-loaded to keep initial page bundles smaller.
-- Image-heavy pages use Next.js `<Image>` with `sizes`/`priority` where appropriate.
-
-Open [http://localhost:3000](http://localhost:3000) with your browser.
-
-> **Note:** The backend server must be running on `http://localhost:5000` for the app to function. See the [main docs](../docs/README.md) for full setup instructions.
-
-## Tech Stack
-
-- **Framework:** Next.js 16 (App Router)
-- **UI:** React 19, TailwindCSS v4
-- **Typography:** Playfair Display (headings) + Inter (body) via `next/font/google`
-- **Charts:** Recharts 3 (admin reports)
-- **Icons:** Lucide React
-- **Language:** TypeScript
-
-## Project Structure
-
+```text
+http://localhost:3000
 ```
+
+## Backend Dependency
+
+The frontend expects the backend API to be available at:
+
+```text
+http://localhost:5000/api/v1
+```
+
+Override with:
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:5000/api/v1"
+```
+
+OCR calls use the root derived from this URL and then call `/api/ocr/ingredients`.
+
+## Optional Environment
+
+```env
+NEXT_PUBLIC_ENABLE_HEALTH_CHECK="true"
+```
+
+The home page checks this flag before running the health check behavior.
+
+## Structure
+
+```text
 src/
-├── app/            ← Pages (folder name = URL path)
-│   ├── layout.tsx      Root layout (fonts, AuthProvider, Navbar, Footer)
-│   ├── page.tsx        Home page (/)
-│   ├── login/          Login page
-│   ├── register/       Register page
-│   ├── profile/        User profile & skin type
-│   ├── analysis/       INCI analysis + OCR upload + recommendations + report buttons
-│   ├── history/        Analysis history
-│   ├── community/      Community features
-│   │   └── reports/    Browse & vote on ingredient reports
-│   └── admin/          Admin panel (ingredients, rules, products, users, reports, community-reports, import-export)
-├── components/     ← Reusable UI (Navbar, ProductCard, ProtectedRoute, AdminProtectedRoute, NotificationBell, ImageOCRUploader)
-└── context/        ← AuthContext (login state management)
+|-- app/
+|   |-- layout.tsx
+|   |-- page.tsx
+|   |-- login/page.tsx
+|   |-- register/page.tsx
+|   |-- profile/page.tsx
+|   |-- analysis/page.tsx
+|   |-- history/page.tsx
+|   |-- community/reports/page.tsx
+|   `-- admin/
+|       |-- layout.tsx
+|       |-- page.tsx
+|       |-- ingredients/page.tsx
+|       |-- rules/page.tsx
+|       |-- products/page.tsx
+|       |-- users/page.tsx
+|       |-- reports/page.tsx
+|       |-- community-reports/page.tsx
+|       `-- import-export/page.tsx
+|-- components/
+|-- context/
+`-- lib/
 ```
+
+## Important Files
+
+- `src/context/AuthContext.tsx`: auth state, token/user localStorage.
+- `src/lib/api.ts`: API base URL, pagination helpers.
+- `src/components/Navbar.tsx`: navigation and auth/admin display.
+- `src/components/NotificationBell.tsx`: notification dropdown.
+- `src/components/ImageOCRUploader.tsx`: upload to OCR endpoint.
+- `src/components/ProtectedRoute.tsx`: user route guard.
+- `src/components/AdminProtectedRoute.tsx`: admin route guard.
+- `next.config.ts`: image remote patterns and `allowedDevOrigins`.

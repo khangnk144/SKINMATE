@@ -1,63 +1,58 @@
-# Feature 07: User Management & Statistical Reports (Admin)
+# Feature 07 - Admin Users And Reports
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## User Management
 
-This feature completes the Admin Dashboard with two sections:
-1. **User Management:** Admins can view, lock/unlock, or permanently delete user accounts.
-2. **Statistical Reports:** A visual dashboard showing system usage metrics and skin type distribution.
+Backend endpoints:
 
-## 2. Database Schema
+- `GET /api/v1/admin/users`
+- `PATCH /api/v1/admin/users/:id/status`
+- `DELETE /api/v1/admin/users/:id`
 
-The `User` model includes the `isActive` field (added via migration):
+`GET /users` excludes `passwordHash` and supports optional pagination/search.
 
-```prisma
-model User {
-  ...
-  isActive  Boolean  @default(true)  // false = account locked
-  ...
+`PATCH /users/:id/status` toggles `isActive`. Locked users cannot log in.
+
+`DELETE /users/:id` deletes the user; related rows cascade through Prisma relations.
+
+Frontend page:
+
+- `frontend/src/app/admin/users/page.tsx`
+
+## Dashboard Stats
+
+Backend endpoint:
+
+- `GET /api/v1/admin/stats`
+
+Response:
+
+```json
+{
+  "ingredients": 0,
+  "rules": 0,
+  "products": 0,
+  "users": 0,
+  "analyses": 0
 }
 ```
 
-Locked users (`isActive: false`) are **blocked at login** — the `loginUser` service throws `'Your account has been locked by an Administrator.'` before issuing a JWT token.
+Frontend page:
 
-## 3. Backend Implementation (`/backend`)
+- `frontend/src/app/admin/page.tsx`
 
-All routes are protected by both `authMiddleware` and `adminMiddleware`.
+## Reports Dashboard
 
-**User Management API (`/api/v1/admin/users`):**
+Backend endpoint:
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/admin/users` | List users. Excludes `passwordHash`. Includes `id`, `username`, `skinType`, `role`, `isActive`, `createdAt`. Ordered newest first. Optional `page`, `limit`, `search` returns paginated `{ items, total, page, limit }`; no query params keeps the legacy array response. |
-| `PATCH` | `/admin/users/:id/status` | Toggles `isActive` (true↔false). Finds user first to determine current state, then flips. |
-| `DELETE` | `/admin/users/:id` | Permanently deletes the user and all their history (cascade). |
+- `GET /api/v1/admin/reports`
 
-**Reports API (`/api/v1/admin/reports`):**
+Response contains `totalUsers`, `totalAnalyses`, and `skinTypeDistribution`.
 
-| Method | Path | Behavior |
-|--------|------|----------|
-| `GET` | `/admin/reports` | Aggregates: `totalUsers` (count), `totalAnalyses` (count), `skinTypeDistribution` (array of `{ type, count }` using `groupBy`) |
+Frontend files:
 
-## 4. Frontend Implementation (`/frontend`)
+- `frontend/src/app/admin/reports/page.tsx`
+- `frontend/src/components/AdminReportsCharts.tsx`
 
-**Users Tab (`/admin/users`):**
-* Data table showing all users with their status (Active/Locked badge), skin type, role, and join date.
-* Fetches users through the shared API helper and avoids loading before auth token is available.
-* **Lock/Unlock button:** Toggles `isActive` on the selected user.
-* **Delete button:** Permanently removes the user account.
-* **Confirmation Modal:** Both Lock and Delete actions trigger a modal: *"Are you sure you want to perform this action?"* before executing.
-
-**Reports Tab (`/admin/reports`):**
-* **Summary cards:** Total Users count, Total Analyses count.
-* **Pie Chart:** Visual distribution of skin types among all registered users, powered by `recharts`.
-* The chart bundle is lazy-loaded so the reports page shell can render before `recharts` loads.
-* Empty-state handling if no data is available.
-
-## 5. Testing
-
-* `PATCH /admin/users/:id/status` correctly flips `isActive` in the database.
-* `DELETE /admin/users/:id` removes the user record.
-* `POST /api/v1/auth/login` with a locked account returns an appropriate error (not a token).
-* All endpoints return `403 Forbidden` for non-admin users.
+Charts use Recharts.

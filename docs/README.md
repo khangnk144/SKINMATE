@@ -1,109 +1,70 @@
-# SE104 - Introduction to Software Engineering
+# SKINMATE Documentation Index
 
-## Course Information
+> Last verified against code: June 1, 2026
 
-* **Course Name:** Introduction to Software Engineering
-* **Class:** SE104.Q28
-* **Academic Year:** Semester 2 (2025–2026)
-* **Supervisors:** Do Van Tien – Nguyen Tan Toan
+Start here if you are trying to understand or modify the project.
 
-## Team Members
+## Recommended Reading Order
 
-| No. | Student ID | Full Name          | GitHub      | Email                                                   |
-| --- | ---------- | ------------------ | ----------- | ------------------------------------------------------- |
-| 1   | 24520119   | Nguyen Thi Van Anh | -           | [24520119@gm.uit.edu.vn](mailto:24520119@gm.uit.edu.vn) |
-| 2   | 24521766   | Le Dan Thao Tien   | thaotien-28 | [24521766@gm.uit.edu.vn](mailto:24521766@gm.uit.edu.vn) |
-| 3   | 24520749   | Nguyen Khang       | khangnk144  | [24520749@gm.uit.edu.vn](mailto:24520749@gm.uit.edu.vn) |
+1. [`../GENERAL.md`](../GENERAL.md) - onboarding and full project map.
+2. [`../STATUS.md`](../STATUS.md) - current implemented status.
+3. [`CONTEXT.md`](./CONTEXT.md) - product goals and core workflows.
+4. [`ARCHITECTURE.md`](./ARCHITECTURE.md) - backend/frontend/database architecture.
+5. [`DATABASE.md`](./DATABASE.md) - Prisma schema reference.
+6. [`API_SPEC.md`](./API_SPEC.md) - implemented REST API.
+7. [`PROJECT-RULES.md`](./PROJECT-RULES.md) - contribution rules.
+8. [`features/`](./features/) - one file per implemented feature.
 
+## Project Summary
 
-# SKINMATE - Cosmetic Ingredient Safety Checker
+SKINMATE is a full-stack skincare ingredient checker. Users analyze INCI lists by skin type, upload product label images for OCR extraction, get safe product recommendations, save history, submit community reports, vote on reports, and receive notifications. Admins manage the content database and moderation workflows.
 
-SKINMATE is a luxury web application designed to help users analyze cosmetic ingredients (INCI lists) based on their specific skin type, using a rule-based engine with a **Gemini AI fallback** for unknown ingredients and a **community reporting** system for continuous improvement.
+## Source Of Truth
 
-> **New team member?** Start with [`GENERAL.md`](../GENERAL.md) in the project root — it is a complete 30-minute onboarding walkthrough.
+- Database: `backend/prisma/schema.prisma`
+- Backend routes: `backend/src/routes/*.ts` and `backend/src/index.ts`
+- Backend behavior: `backend/src/controllers/*.ts`, `backend/src/services/*.ts`, `backend/src/modules/ocr/*.ts`
+- Frontend pages: `frontend/src/app/**/page.tsx`
+- Frontend API helpers: `frontend/src/lib/api.ts`
+- Package versions: `backend/package.json`, `frontend/package.json`
 
-## 🚀 Quick Start
+## Local Quick Start
 
-### 1. Prerequisites
-* Node.js (v18+)
-* Docker Desktop (for PostgreSQL database)
-* npm
-
-### 2. Environment Variables
-Create `backend/.env` with:
-```env
-PORT=5000
-DATABASE_URL="postgresql://postgres:password@localhost:5432/skinmate"
-JWT_SECRET="your_jwt_secret_here"
-GEMINI_API_KEY="your_gemini_api_key_here"
-```
-
-### 3. Database Setup
-1. Open Docker Desktop.
-2. Start (or create) the database container:
 ```bash
-# First time only:
 docker run --name skinmate-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=skinmate -p 5432:5432 -d postgres
-
-# Every subsequent day:
-docker start skinmate-postgres
-```
-3. Push schema and seed data (first time only):
-```bash
 cd backend
+npm install
 npx prisma db push
 npx prisma generate
 npx prisma db seed
-```
-
-### 4. Running the App
-
-**Start the Backend:**
-```bash
-cd backend
-npm install
 npm run dev
 ```
-Runs on `http://localhost:5000`
 
-**Start the Frontend:**
+In another terminal:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Runs on `http://localhost:3000`
 
-### 5. (Optional) Prisma Studio — Visual DB Browser
-```bash
-cd backend
-npx prisma studio
+Backend default: `http://localhost:5000`
+
+Frontend default: `http://localhost:3000`
+
+## Required Backend Environment
+
+```env
+PORT=5000
+DATABASE_URL="postgresql://postgres:password@localhost:5432/skinmate"
+JWT_SECRET="replace_me"
+GEMINI_API_KEY="replace_me"
+OCR_API_KEY="replace_me"
 ```
-Opens at `http://localhost:5555`
 
-## 📚 Documentation
+## Optional Frontend Environment
 
-All docs are in the `/docs` folder. **Read them in this order:**
-
-1. [`../GENERAL.md`](../GENERAL.md) — **START HERE** (new member onboarding, ~30 min read)
-2. [`CONTEXT.md`](./CONTEXT.md) — Project overview & goals
-3. [`ARCHITECTURE.md`](./ARCHITECTURE.md) — System design & data flow
-4. [`DATABASE.md`](./DATABASE.md) — Schema & data models (9 tables)
-5. [`API_SPEC.md`](./API_SPEC.md) — All backend API endpoints
-6. [`PROJECT-RULES.md`](./PROJECT-RULES.md) — Coding standards & conventions
-7. [`features/`](./features/) — Detailed spec per feature (01 through 14)
-
-There is also a comprehensive [`STATUS.md`](../STATUS.md) in the root directory with the full project status, annotated file tree, and setup guide.
-
-## 🛠 Tech Stack
-
-* **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS v4 (Luxury Design System), TypeScript.
-* **Backend:** Node.js, Express.js 4, Prisma 5 ORM, TypeScript.
-* **Database:** PostgreSQL 15 (via Docker container `skinmate-postgres`). 9 tables.
-* **AI Integration:** Google Gemini 1.5 Flash (ingredient analysis fallback).
-* **OCR:** OCR.space API + rule-based ingredient parser (product label scanning).
-* **Community:** Ingredient reporting with voting, admin moderation, and in-app notifications.
-* **Excel I/O:** xlsx + exceljs + multer (bulk import/export for admin).
-* **Rate Limiting:** express-rate-limit (25 analyses/24h per user; ADMIN exempt).
-* **Performance:** Express response compression, bounded JSON/upload payloads, server-backed admin pagination/search, and lazy-loaded heavy frontend modules.
-* **Testing:** Jest + Supertest.
+```env
+NEXT_PUBLIC_API_URL="http://localhost:5000/api/v1"
+NEXT_PUBLIC_ENABLE_HEALTH_CHECK="true"
+```

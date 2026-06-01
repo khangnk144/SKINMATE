@@ -1,84 +1,64 @@
 # SKINMATE - Project Context
 
-> **Last Updated:** May 24, 2026  
-> **Current Phase:** MVP Complete + Community Features
+> Last verified against code: June 1, 2026
 
-## 1. Project Overview
+## Product Goal
 
-* **Name:** SKINMATE — Skincare Ingredient Consulting & Checking Platform.
-* **Target Audience:** Vietnamese Gen Z, high school/university students, and skincare beginners who lack deep chemical/dermatological knowledge.
-* **Current Phase:** MVP Complete with Community Features. All core features are implemented and running locally. Speed and functional completeness were prioritized over micro-optimizations.
-* **Core Value:** Automate the tedious process of manually checking cosmetic ingredients (INCI lists). The system uses a Rule-based matching engine to evaluate ingredient safety based on the user's specific skin type, then recommends safe products. Users can also contribute to the community by reporting ingredient misclassifications.
+SKINMATE helps skincare beginners check cosmetic ingredient lists without manually researching every INCI ingredient. The app evaluates ingredients against a user's skin type, falls back to AI for unknown ingredients, and recommends products that avoid known bad matches.
 
-## 2. Core Workflows (Do NOT deviate from this logic)
+## Target Users
 
-### User Flow
+- Vietnamese skincare beginners.
+- Students and young users who want quick ingredient guidance.
+- Admin users who maintain the ingredient/rule/product database.
+
+## Core User Workflow
+
+```text
+Register or login
+-> choose skin type and optional display name
+-> paste INCI list or upload label image for OCR
+-> analyze ingredients
+-> save raw input to history
+-> show product recommendations
+-> optionally report wrong ingredient classifications
+-> vote on pending community reports
+-> receive notifications when reports are resolved
 ```
-Register/Login
-  → Set Skin Type (Oily, Dry, Sensitive, Combination, Normal)
-  → Paste INCI string (comma-separated) or upload product label image (OCR)
-  → System splits & trims, normalizes to lowercase
-  → System matches against IngredientRules for the user's skin type
-  → Unknown ingredients (not in DB) → AI Fallback via Gemini 1.5 Flash
-  → AI results are auto-cached to DB (upsert) for future speed
-  → Return visual color-coded results
-  → Save raw input to AnalysisHistory
-  → Show safe product recommendations (excluding products with BAD ingredients)
-  → Users can report misclassified ingredients via the Community Reporting system
+
+## Core Admin Workflow
+
+```text
+Login as ADMIN
+-> manage ingredients
+-> manage safety rules
+-> manage products
+-> manage users
+-> view dashboard stats and reports
+-> import/export Excel data
+-> moderate community reports
+-> send notifications to users
 ```
 
-### Visual Evaluation System (Luxury Aesthetic)
-* 🌸 **Dusty Rose (Bad):** Harmful/Irritating for the user's specific skin type.
-* 🌿 **Sage Green (Good):** Beneficial/Safe for the user's skin type.
-* ☁️ **Soft Gray (Neutral):** Neutral, or ingredient not found in the DB.
+## Business Rules In Code
 
-### Recommendation Logic
-* **Safety-first filter:** A product is ONLY recommended if it contains **zero** ingredients flagged as `BAD` for the user's skin type.
-* The "Recommended for You" section is **only rendered** after the user submits an analysis — hidden on initial page load.
+- Skin types are `OILY`, `DRY`, `SENSITIVE`, `COMBINATION`, and `NORMAL`.
+- Effects are `GOOD`, `BAD`, and `NEUTRAL`.
+- Ingredient names are stored and matched in lowercase.
+- One ingredient can have different effects for different skin types.
+- Missing ingredients are sent to Gemini only during analysis and only when a skin type is available.
+- Gemini results are cached as `Ingredient` plus `IngredientRule` rows.
+- If AI fails or no rule exists, the ingredient result falls back to `NEUTRAL`.
+- Product recommendations exclude products with any `BAD` ingredient for the user's skin type.
+- Safe products are scored by number of `GOOD` ingredients; the service returns 3 randomly shuffled products from the top 6.
+- Report approval updates or creates the matching `IngredientRule`.
+- Report approval/rejection creates a notification for the reporter.
+- Locked users cannot log in.
+- Admins are exempt from the analysis rate limit.
 
-### Community Reporting Flow
-* Users can submit reports claiming an ingredient's safety classification is wrong for a specific skin type.
-* Other users can **upvote/downvote** reports to signal community agreement.
-* Admins can **approve or reject** reports:
-  - **Approved reports** automatically update the corresponding `IngredientRule` in the database.
-  - The reporting user receives an **in-app notification** about the resolution.
+## Important Non-Goals In Current Code
 
-### Admin Flow
-* Admins can manage ingredients, safety rules, and products via the admin dashboard.
-* Admins can lock/unlock user accounts — locked accounts cannot log in.
-* Admins can view statistical reports: total users, total analyses, skin type distribution.
-* Admins can **bulk import/export** data via Excel files (`.xlsx`) for ingredients, rules, and products.
-* Admins can **delete all** records of a given type (ingredients, rules, or products) from the Import/Export page.
-* Admins can **moderate community reports** — approve (auto-updates rules) or reject with an optional note.
-* Admins can **send notifications** to individual users.
-
-## 3. Tech Stack (Implemented)
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 16 (App Router), React 19, TailwindCSS v4, TypeScript |
-| **Charts** | Recharts 3 (admin reports) |
-| **Icons** | Lucide React |
-| **Backend** | Node.js, Express.js 4, TypeScript |
-| **Database** | PostgreSQL 15 via Docker (`skinmate-postgres`), Prisma 5 ORM |
-| **Auth** | bcryptjs (password hashing) + jsonwebtoken (JWT, 24h expiry) |
-| **AI Integration** | Google Gemini 1.5 Flash API (ingredient analysis fallback) |
-| **OCR** | OCR.space API + rule-based ingredient parser (product label scanning) |
-| **Rate Limiting** | express-rate-limit (25 analyses/24h per user; unlimited for ADMIN) |
-| **Excel I/O** | xlsx (reading) + exceljs (writing) + multer (file upload) |
-| **HTTP Client** | axios (OCR API calls) |
-| **Backend Performance** | compression middleware, JSON body limit, OCR upload/timeout safeguards |
-| **Testing** | Jest & Supertest |
-| **Package Manager** | `npm` |
-
-## 4. Absolute AI Directives (The "Never Do" List)
-
-1. **NO Schema Alteration:** Never modify the Prisma/DB schema without explicit user confirmation.
-2. **NO Ghost Dependencies:** Do not install new `npm` packages unless specifically requested or strictly necessary for the current task (must confirm first).
-3. **MANDATORY Testing:** After writing code for a new feature or endpoint, you MUST provide the corresponding test cases (Unit/Integration) to verify it works.
-4. **NO Environment Tampering:** Never modify `.env`, `.gitignore`, or core config files (e.g., `tsconfig.json`, `next.config.ts`) outside of the initial setup scope.
-5. **Scope Discipline:** Do NOT refactor code outside the immediate scope of the user's prompt.
-6. **API Contract Strictness:** Never change the JSON response format of existing APIs, as the Client application depends on strict contracts.
-7. **NO Inline Styles:** Use TailwindCSS v4 utility classes exclusively. Adhere to the SKINMATE Luxury Design System (rose accents, soft shadows, serif headings, glassmorphism).
-
-> Current exception: admin list endpoints support optional `page`, `limit`, and `search` query params. When those params are present they return `{ items, total, page, limit }`; without those params they keep the legacy array response for compatibility.
+- No product-level Gemini analysis.
+- No frontend test runner configured.
+- No Prisma migrations folder tracked in the repository.
+- No external i18n framework; user-facing text lives inline in components.

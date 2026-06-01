@@ -1,58 +1,70 @@
-# Feature 10: Excel Import/Export & Bulk Data Management
+# Feature 10 - Excel Import And Export
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## Files
 
-Administrators can bulk-manage the ingredient database by exporting data to Excel files and importing data from Excel files. This feature also provides "Delete All" functionality for each entity type.
+- `backend/src/controllers/excel.controller.ts`
+- `backend/src/services/excel.service.ts`
+- `backend/src/routes/admin.routes.ts`
+- `frontend/src/app/admin/import-export/page.tsx`
 
-## 2. Backend Implementation (`/backend`)
+## Backend Endpoints
 
-**Files:** `excel.controller.ts`, `excel.service.ts`
+All endpoints require admin.
 
-**Export Endpoints (`GET /api/v1/admin/export/{entity}`):**
+Exports:
 
-| Entity | Endpoint | Columns |
-|--------|----------|---------|
-| Ingredients | `/export/ingredients` | ID, Name, Description |
-| Rules | `/export/rules` | ID, Ingredient Name, Skin Type, Effect |
-| Products | `/export/products` | ID, Name, Brand, Image URL, INCI String |
+- `GET /api/v1/admin/export/ingredients`
+- `GET /api/v1/admin/export/rules`
+- `GET /api/v1/admin/export/products`
 
-- Returns `.xlsx` files with proper column widths via `exceljs`.
-- Uses `Content-Disposition: attachment` header for browser download.
+Imports:
 
-**Import Endpoints (`POST /api/v1/admin/import/{entity}`):**
+- `POST /api/v1/admin/import/ingredients`
+- `POST /api/v1/admin/import/rules`
+- `POST /api/v1/admin/import/products`
 
-| Entity | Endpoint | Upsert Key |
-|--------|----------|------------|
-| Ingredients | `/import/ingredients` | Name (lowercase) |
-| Rules | `/import/rules` | (Ingredient Name + Skin Type) |
-| Products | `/import/products` | (Name + Brand) |
+Upload field name is `file`; upload limit is 10 MB.
 
-- File upload via `multer` (`multipart/form-data`, max 10 MB).
-- Uses `xlsx` library for reading uploaded files.
-- Upsert logic: creates new records, updates existing ones.
-- Supports Vietnamese column values for rules (e.g., "DA DẦU" → OILY, "TỐT" → GOOD).
-- Response: `{ created, updated, skipped, errors[] }`.
+## Implementation
 
-**Bulk Delete Endpoints (`DELETE /api/v1/admin/{entity}/all`):**
-- `/ingredients/all` — cascades to rules and product-ingredient links.
-- `/rules/all` — removes all safety rules.
-- `/products/all` — cascades to product-ingredient links.
+The service currently uses `xlsx` to read and write workbooks. The backend package also includes `exceljs`, but this service does not use it.
 
-## 3. Frontend Implementation (`/frontend`)
+## Import Rules
 
-**Page:** `/admin/import-export`
+Ingredients:
 
-Three sections:
-1. **Export:** One-click download cards for each entity type.
-2. **Import:** Drag-and-drop file upload with progress indicator, result stats (created/updated/skipped), and collapsible error details.
-3. **Danger Zone:** "Delete All" buttons with confirmation prompts for each entity type.
+- Required column: `name`.
+- Optional column: `description`.
+- Existing ingredients are updated only when description changes.
 
-## 4. Dependencies
+Rules:
 
-| Package | Purpose |
-|---------|---------|
-| `xlsx` | Reading uploaded `.xlsx` files |
-| `exceljs` | Writing/generating `.xlsx` files with formatting |
-| `multer` | Handling `multipart/form-data` file uploads |
+- Accepts `ingredient_name` or `ingredient_id`.
+- Requires `skin_type` and `effect`.
+- Supports English enum values and several Vietnamese labels as coded in the mapping table.
+- Creates or updates the unique `(ingredientId, skinType)` rule.
+
+Products:
+
+- Required columns: `name`, `brand`.
+- Optional: `image_url`, `ingredients_inci`.
+- Existing product match is `name + brand`.
+- Existing product ingredients are replaced.
+
+## Response
+
+Imports return:
+
+```json
+{
+  "success": true,
+  "result": {
+    "created": 0,
+    "updated": 0,
+    "skipped": 0,
+    "errors": []
+  }
+}
+```

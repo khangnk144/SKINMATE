@@ -1,35 +1,61 @@
-# SKINMATE - Project Rules & Conventions
+# SKINMATE - Project Rules
 
-## 1. Coding Philosophy (CRITICAL)
-* **Readability over Cleverness:** Prioritize easy-to-understand, maintainable, and predictable code over overly optimized, concise, or "clever" code. Write code as if the person maintaining it is a junior developer.
-* **KISS (Keep It Simple, Stupid):** Avoid premature abstraction. Don't build complex generic factories if a simple function does the job.
-* **Fail Fast & Loud:** Validate inputs early. Throw clear, descriptive errors immediately when something goes wrong instead of letting the app fail silently later.
+> Last verified against code: June 1, 2026
 
-## 2. Naming Conventions
-* **Files & Folders:** * React Components: `PascalCase.tsx` (e.g., `ProductCard.tsx`).
-  * Hooks/Utils/Services: `camelCase.ts` (e.g., `useSkinAnalysis.ts`, `formatDate.ts`).
-* **Variables & Functions:** `camelCase` (e.g., `isUserLoggedIn`, `calculateSafetyScore`). Use descriptive verbs for functions (`get`, `set`, `fetch`, `handle`, `calculate`).
-* **Types & Interfaces:** `PascalCase` with NO 'I' prefix (e.g., `UserProfile`, `IngredientRule`, NOT `IUserProfile`).
-* **Constants:** `UPPER_SNAKE_CASE` for global constants (e.g., `MAX_RETRY_COUNT`).
+## Do Not Change Code Unless Asked
 
-## 3. Code Style & Formatting
-* **Quotes:** Use single quotes (`'`) for JS/TS strings, double quotes (`"`) for JSX attributes.
-* **Semicolons:** Always use semicolons (`;`) at the end of statements.
-* **Indentation:** 2 spaces.
-* **Comments:** Explain the *WHY*, not the *WHAT*. (e.g., DO NOT comment `// Loop through ingredients`, DO comment `// Need to reverse loop to match the API priority requirement`). Use JSDoc for complex functions.
+For documentation work, do not modify TypeScript, TSX, Prisma, package, or config files.
 
-## 4. Architecture & Patterns
-* **Functional Programming:** Favor pure functions. DO NOT use Class Components in React. Use Hooks.
-* **Async/Await:** Always use `async/await` with `try/catch` blocks. Absolutely NO Promise chaining (`.then().catch()`).
-* **Early Return (Guard Clauses):** Handle error/edge cases at the top of the function and return early to avoid deep nesting (Arrow Anti-Pattern).
-* **State Management:** Use standard React Context/Hooks for local state. For server state/data fetching, use `SWR` or `React Query`.
+## Source Of Truth
 
-## 5. The "Never Do" List (Anti-Patterns)
-* **NO Magic Numbers/Strings:** Extract them into named constants.
-* **NO Nested Ternaries:** Never nest `condition ? a : b` inside another ternary. Use `if/else` or separate variables for readability.
-* **NO Inline Styles:** Use TailwindCSS v4 utility classes exclusively. Adhere to the SKINMATE Luxury Design System (rose accents, soft shadows, serif headings).
-* **NO `any` Type:** This is a TypeScript project. Use explicit typing, generics, or `unknown` if absolutely necessary. Using `any` is a strict failure.
+- API behavior: backend routes/controllers/services.
+- Database: `backend/prisma/schema.prisma`.
+- Frontend routes: `frontend/src/app`.
+- Package versions/scripts: each `package.json`.
 
-## 6. Mandatory AI Workflow Requirements
-* **Test-Driven Delivery:** After generating a feature's code, you MUST automatically generate the corresponding Unit Tests (using Jest/React Testing Library) without waiting for the user to ask.
-* **Linting:** Assume the project uses standard ESLint and Prettier. Do not output code that would fail basic linting rules (e.g., unused variables, missing dependencies in `useEffect` arrays).
+## Backend Conventions
+
+- Keep route files thin.
+- Put validation and HTTP status handling in controllers.
+- Put business rules in services.
+- Use `authMiddleware` before code that expects `req.user`.
+- Use `adminMiddleware` only after `authMiddleware`.
+- Normalize ingredient names with `trim().toLowerCase()`.
+- Do not change `schema.prisma` without explicit approval.
+- Do not commit `.env`.
+
+## Frontend Conventions
+
+- Use Next.js App Router pages under `src/app`.
+- Use `AuthContext` for client auth state.
+- Use `frontend/src/lib/api.ts` for API base URLs.
+- Use TailwindCSS utility classes for styling.
+- Keep admin-only pages behind `AdminProtectedRoute`.
+- Keep login-required pages behind `ProtectedRoute`.
+
+## TypeScript And Style
+
+- Prefer explicit types.
+- Avoid new `any` usage.
+- Prefer `async/await`.
+- Use guard clauses for validation.
+- Use single quotes in TS/JS where the local file does.
+- Keep comments focused on why a decision exists.
+
+## Testing Expectations
+
+Backend has Jest/Supertest configured. Run:
+
+```bash
+cd backend
+npm test
+```
+
+Frontend currently has lint only:
+
+```bash
+cd frontend
+npm run lint
+```
+
+Do not claim frontend tests exist unless a test runner is added.

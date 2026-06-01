@@ -1,33 +1,44 @@
-# Feature 04: Safe Product Recommendations
+# Feature 04 - Product Recommendations
 
-> **Status: ✅ Implemented**
+> Last verified against code: June 1, 2026
 
-## 1. Overview
+## Backend
 
-After the user submits an INCI ingredient list for analysis, the system automatically shows the "Recommended for You" section. Only products that are **completely safe** for the user's specific `skinType` are shown. A product is considered safe if it does **NOT** contain any ingredient marked as `BAD` for that user's skin type.
+Files:
 
-## 2. Backend Implementation (`/backend`)
+- `backend/src/routes/product.routes.ts`
+- `backend/src/controllers/product.controller.ts`
+- `backend/src/services/product.service.ts`
 
-**`GET /api/v1/products/recommendations`**
-* **Middleware:** `authMiddleware` (extracts the user's `skinType` from JWT).
-* **Logic Pipeline (in `product.service.ts`):**
-  1. Fetch ALL products from the database, including their ingredients and the skin-type-specific rules.
-  2. **Safety-first filter:** Exclude any product where at least one ingredient has `effect === 'BAD'` for the user's `skinType`.
-  3. Return all remaining safe products.
-* **Response:** Array of `{ id, name, brand, imageUrl }` objects.
+Endpoint:
 
-> **Note:** There is no limit on the number of results — all safe products are returned. The frontend handles display.
+- `GET /api/v1/products/recommendations`
 
-## 3. Frontend Implementation (`/frontend`)
+The route requires auth. The controller reads the user's skin type from `req.user`, parses optional query `ingredients`, and passes both to the service.
 
-* **Integration:** Rendered on the `/analysis` page below the INCI analysis results.
-* **Conditional rendering:** The "Recommended for You" section is **hidden on initial page load** and only appears after the user submits an ingredient list for analysis. This prevents a confusing empty state.
-* **UI/UX:** Uses `ProductCard` component in a responsive grid (1 column on mobile, up to 3 columns on desktop).
-* **Image support:** Next.js `next.config.ts` is configured with `remotePatterns` to allow external image domains (e.g., `i.postimg.cc`).
+Current service logic:
 
-## 4. Testing
+1. Fetch all products with ingredients and matching rules for the user's skin type.
+2. Exclude any product with at least one `BAD` ingredient rule.
+3. Score safe products by number of `GOOD` ingredient rules.
+4. Sort by score.
+5. Keep the top 6.
+6. Shuffle that pool.
+7. Return 3 products with `id`, `name`, `brand`, and `imageUrl`.
 
-Backend tests in `product.service.test.ts` verify:
-* Returned products contain **zero** BAD ingredients for the mocked user's skin type.
-* Products with even a single BAD ingredient for the target skin type are excluded.
-* Products with no ingredients, or ingredients with no rules, are included (safe by default).
+`contextIngredients` exists as a parameter but is not used in ranking yet.
+
+## Frontend
+
+Files:
+
+- `frontend/src/app/analysis/page.tsx`
+- `frontend/src/components/ProductCard.tsx`
+
+Recommendations are shown as product cards after analysis flow.
+
+## Tests
+
+Relevant backend test:
+
+- `backend/src/tests/product.service.test.ts`
