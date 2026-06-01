@@ -11,6 +11,62 @@ Users can register, choose a skin type, paste an INCI ingredient list or upload 
 
 Admins can manage ingredients, safety rules, products, users, community reports, notifications, and Excel import/export data.
 
+## 3-Day Onboarding Plan
+
+Use this when a new member needs to understand the project quickly without getting lost in every file at once.
+
+### Day 1 - Product And Docs
+
+| Order | File | Goal |
+| --- | --- | --- |
+| 1 | `GENERAL.md` | Understand the whole project map and main flows |
+| 2 | `docs/README.md` | Course/team info, setup, and documentation index |
+| 3 | `STATUS.md` | Current implemented status and feature map |
+| 4 | `docs/CONTEXT.md` | Product goals and business rules |
+| 5 | `docs/ARCHITECTURE.md` | Backend/frontend/database shape |
+| 6 | `docs/DATABASE.md` | Prisma models and relationships |
+| 7 | `docs/API_SPEC.md` | Implemented API endpoints |
+| 8 | `docs/PROJECT-RULES.md` | Project contribution rules |
+
+End goal: explain what SKINMATE does, what the main user/admin flows are, and which docs answer which question.
+
+### Day 2 - Backend Code
+
+| Order | File or folder | Focus |
+| --- | --- | --- |
+| 1 | `backend/prisma/schema.prisma` | Database source of truth |
+| 2 | `backend/src/index.ts` | Express app setup and route mounting |
+| 3 | `backend/src/middlewares/` | JWT auth, admin guard, analysis rate limit |
+| 4 | `backend/src/routes/` | Endpoint wiring |
+| 5 | `backend/src/controllers/` | Request validation and response status codes |
+| 6 | `backend/src/services/auth.service.ts` | Register/login/password logic |
+| 7 | `backend/src/services/analysis.service.ts` | INCI parsing, DB lookup, Gemini fallback |
+| 8 | `backend/src/services/product.service.ts` | Safe product filtering and recommendation selection |
+| 9 | `backend/src/services/admin.service.ts` | Admin CRUD, pagination/search, stats |
+| 10 | `backend/src/services/report.service.ts` | Community reports, votes, resolution |
+| 11 | `backend/src/modules/ocr/` | OCR upload, OCR.space call, ingredient extraction |
+| 12 | `backend/src/tests/` | How behavior is verified |
+
+End goal: trace `POST /api/v1/analysis/check` from route to controller to service to Prisma and back.
+
+### Day 3 - Frontend Code And Local Run
+
+| Order | File or folder | Focus |
+| --- | --- | --- |
+| 1 | Local setup section below | Run DB, backend, and frontend |
+| 2 | `frontend/src/app/layout.tsx` | Fonts, AuthProvider, Navbar, footer |
+| 3 | `frontend/src/context/AuthContext.tsx` | Token/user state and localStorage |
+| 4 | `frontend/src/lib/api.ts` | API URL and pagination helpers |
+| 5 | `frontend/src/components/Navbar.tsx` | Guest/user/admin navigation |
+| 6 | `frontend/src/components/ProtectedRoute.tsx` | Authenticated route guard |
+| 7 | `frontend/src/components/AdminProtectedRoute.tsx` | Admin route guard |
+| 8 | `frontend/src/app/analysis/page.tsx` | Main analysis UI |
+| 9 | `frontend/src/app/profile/page.tsx` | Profile and password update |
+| 10 | `frontend/src/app/history/page.tsx` | History and re-analysis |
+| 11 | `frontend/src/app/admin/` | Admin dashboard and management pages |
+
+End goal: run the app, register/login, analyze an INCI string, inspect history, and understand how frontend calls backend.
+
 ## Current Tech Stack
 
 | Area | Code-backed implementation |
@@ -286,6 +342,42 @@ There is no frontend test runner configured in `frontend/package.json` at this t
 8. `docs/features/*.md`
 9. Backend source under `backend/src`
 10. Frontend source under `frontend/src`
+
+## Quick Reference
+
+| Need | Go to |
+| --- | --- |
+| Project overview and onboarding | `GENERAL.md` |
+| Course/team info | `docs/README.md` |
+| Current implemented status | `STATUS.md` |
+| Product/business rules | `docs/CONTEXT.md` |
+| Architecture and data flow | `docs/ARCHITECTURE.md` |
+| Database fields and relationships | `docs/DATABASE.md` |
+| Endpoint list and request notes | `docs/API_SPEC.md` |
+| Feature-by-feature notes | `docs/features/*.md` |
+| Backend route mounting | `backend/src/index.ts` |
+| Auth flow | `backend/src/services/auth.service.ts`, `frontend/src/context/AuthContext.tsx` |
+| Analysis engine | `backend/src/services/analysis.service.ts` |
+| Gemini integration | `backend/src/utils/gemini.ts` |
+| OCR integration | `backend/src/modules/ocr/` |
+| Recommendation logic | `backend/src/services/product.service.ts` |
+| Admin CRUD | `backend/src/services/admin.service.ts` |
+| API base URL helpers | `frontend/src/lib/api.ts` |
+| Frontend pages | `frontend/src/app/` |
+
+## Common Gotchas
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Backend cannot connect to DB | PostgreSQL container is stopped or `DATABASE_URL` is wrong | Run `docker start skinmate-postgres` and check `backend/.env` |
+| Prisma client errors | Client was not generated after install/schema sync | Run `cd backend && npx prisma generate` |
+| Tables do not exist | Schema was not pushed | Run `cd backend && npx prisma db push` |
+| OCR upload fails | Missing `OCR_API_KEY` or file too large | Add key to backend `.env`; keep upload under 5 MB |
+| Unknown ingredients all become `NEUTRAL` | Gemini key missing/failing or AI returned no parseable data | Check `GEMINI_API_KEY` and backend logs |
+| Frontend calls wrong API URL | `NEXT_PUBLIC_API_URL` missing or incorrect | Set it to `http://localhost:5000/api/v1` |
+| Login rejected for a real account | User may be locked | Check `isActive` in DB/admin users page |
+| Admin page redirects | Logged-in user role is not `ADMIN` | Use/admin-create an admin account |
+| Recommendation seems small | Current service returns up to 3 products, not all safe products | This is expected from `product.service.ts` |
 
 ## Current Caveats From Code
 

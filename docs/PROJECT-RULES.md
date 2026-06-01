@@ -59,3 +59,11 @@ npm run lint
 ```
 
 Do not claim frontend tests exist unless a test runner is added.
+
+## Documentation Expectations
+
+- Keep Markdown aligned with code, not wishful architecture.
+- Keep course/team metadata in `docs/README.md`.
+- Mention implementation caveats when the code has them.
+- Do not document deployment targets unless deployment config or a user-confirmed deployment note exists.
+- When updating endpoints, verify route files and controller/service behavior together.

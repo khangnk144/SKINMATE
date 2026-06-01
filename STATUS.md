@@ -14,6 +14,29 @@ The repository contains a working full-stack SKINMATE application with:
 
 No code changes are required to read this status file.
 
+## File Type Glossary
+
+| File type | Meaning in this repo |
+| --- | --- |
+| `.ts` | TypeScript backend source, services, controllers, routes, tests, and config |
+| `.tsx` | React/Next.js pages and components |
+| `.js` | JavaScript scripts/config, such as `fix-urls.js` and Jest config |
+| `.mjs` | JavaScript module config files such as ESLint/PostCSS |
+| `.css` | Global frontend styling through TailwindCSS |
+| `.prisma` | Prisma database schema |
+| `.json` | Package metadata, lockfiles, and TypeScript config |
+| `.md` | Project documentation |
+| `.png`, `.jpg`, `.svg` | Static images and icons |
+| `.tex` | Report artifact; not runtime app code |
+
+Special names:
+
+- `page.tsx`: Next.js route page.
+- `layout.tsx`: Next.js layout wrapper.
+- `globals.css`: global frontend CSS.
+- `index.ts`: backend entry point.
+- `schema.prisma`: database source of truth.
+
 ## Implemented Backend Routes
 
 | Area | Endpoints |
@@ -130,6 +153,49 @@ NEXT_PUBLIC_API_URL="http://localhost:5000/api/v1"
 NEXT_PUBLIC_ENABLE_HEALTH_CHECK="true"
 ```
 
+## How To Start Everything
+
+First-time local setup:
+
+```bash
+docker run --name skinmate-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=skinmate -p 5432:5432 -d postgres
+cd backend
+npm install
+npx prisma db push
+npx prisma generate
+npx prisma db seed
+cd ../frontend
+npm install
+```
+
+Daily startup after setup:
+
+```bash
+docker start skinmate-postgres
+cd backend
+npm run dev
+```
+
+Open another terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Useful optional DB browser:
+
+```bash
+cd backend
+npx prisma studio
+```
+
+Expected local URLs:
+
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:3000`
+- Prisma Studio: `http://localhost:5555`
+
 ## Scripts
 
 Backend:
@@ -186,3 +252,21 @@ npm run lint
 - Replace direct `new PrismaClient()` usage in controllers/services with shared `utils/prisma.ts`.
 - Decide whether `exceljs` should be removed or used.
 - Add real Prisma migrations if the team moves beyond `prisma db push`.
+
+## Current Action Items
+
+| Status | Item |
+| --- | --- |
+| Done | Authentication and profile management |
+| Done | Core INCI analysis and history |
+| Done | Product recommendations |
+| Done | Admin CRUD and admin reports |
+| Done | Excel import/export |
+| Done | OCR ingredient extraction |
+| Done | Gemini fallback for unknown ingredients |
+| Done | Community reports, voting, moderation |
+| Done | In-app notifications |
+| Done | Admin pagination/search |
+| Possible future | Advanced filtering by product/category/brand/safety |
+| Possible future | Product-level or weighted recommendation scoring |
+| Possible future | Frontend automated tests |

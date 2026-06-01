@@ -1,3 +1,22 @@
+# SE104 - Introduction to Software Engineering
+
+## Course Information
+
+| Field | Value |
+| --- | --- |
+| Course Name | Introduction to Software Engineering |
+| Class | SE104.Q28 |
+| Academic Year | Semester 2 (2025-2026) |
+| Supervisors | Do Van Tien - Nguyen Tan Toan |
+
+## Team Members
+
+| No. | Student ID | Full Name | GitHub | Email |
+| --- | --- | --- | --- | --- |
+| 1 | 24520119 | Nguyen Thi Van Anh | - | [24520119@gm.uit.edu.vn](mailto:24520119@gm.uit.edu.vn) |
+| 2 | 24521766 | Le Dan Thao Tien | thaotien-28 | [24521766@gm.uit.edu.vn](mailto:24521766@gm.uit.edu.vn) |
+| 3 | 24520749 | Nguyen Khang | khangnk144 | [24520749@gm.uit.edu.vn](mailto:24520749@gm.uit.edu.vn) |
+
 # SKINMATE Documentation Index
 
 > Last verified against code: June 1, 2026
@@ -18,6 +37,20 @@ Start here if you are trying to understand or modify the project.
 ## Project Summary
 
 SKINMATE is a full-stack skincare ingredient checker. Users analyze INCI lists by skin type, upload product label images for OCR extraction, get safe product recommendations, save history, submit community reports, vote on reports, and receive notifications. Admins manage the content database and moderation workflows.
+
+## Main Runtime Features
+
+- Authentication and profile management.
+- Skin-type-specific INCI analysis.
+- Gemini fallback for unknown ingredients.
+- OCR upload for product label extraction.
+- Safe product recommendations.
+- Analysis history.
+- Admin CRUD for ingredients, rules, products, and users.
+- Excel import/export for admin data.
+- Community reports and voting.
+- Admin moderation for reports.
+- In-app notifications.
 
 ## Source Of Truth
 

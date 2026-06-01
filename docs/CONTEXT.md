@@ -26,6 +26,18 @@ Register or login
 -> receive notifications when reports are resolved
 ```
 
+## Visual Result System
+
+Analysis results use three conceptual labels:
+
+| Effect | Meaning |
+| --- | --- |
+| `GOOD` | Ingredient is considered beneficial or safe for the user's skin type |
+| `BAD` | Ingredient is considered risky or unsuitable for the user's skin type |
+| `NEUTRAL` | Ingredient has no specific known positive/negative rule, AI failed, or no rule exists |
+
+The frontend renders these as distinct visual states on the analysis page. Database values stay as English enum values.
+
 ## Core Admin Workflow
 
 ```text
