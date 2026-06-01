@@ -11,6 +11,7 @@ export const getHistory = async (req: AuthRequest, res: Response): Promise<void>
 
     const { userId } = req.user;
 
+    // Chi lay lich su cua user hien tai, sap xep moi nhat truoc cho UI history.
     const history = await prisma.analysisHistory.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -33,6 +34,7 @@ export const deleteHistory = async (req: AuthRequest, res: Response): Promise<vo
     const { id } = req.params;
     const { userId } = req.user;
 
+    // findFirst voi id + userId dam bao user khong xoa lich su cua tai khoan khac.
     const historyItem = await prisma.analysisHistory.findFirst({
       where: { id, userId },
     });
@@ -62,6 +64,7 @@ export const deleteAllHistory = async (req: AuthRequest, res: Response): Promise
 
     const { userId } = req.user;
 
+    // deleteMany gioi han theo userId, khong xoa lich su toan he thong.
     await prisma.analysisHistory.deleteMany({
       where: { userId },
     });
@@ -71,4 +74,4 @@ export const deleteAllHistory = async (req: AuthRequest, res: Response): Promise
     console.error('Delete all history error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-};
+};

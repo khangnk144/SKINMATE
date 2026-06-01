@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* Global style entry cho Next.js App Router.
+   File nay khai bao theme token dung chung va base typography cho toan frontend. */
 @theme {
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);

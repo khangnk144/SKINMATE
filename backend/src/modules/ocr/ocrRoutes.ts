@@ -3,6 +3,8 @@ import multer from 'multer';
 import { extractIngredientsController } from './ocrController';
 
 const router = Router();
+
+// Multer doc anh upload vao RAM vi file chi can gui sang OCR API, khong luu tren server.
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -11,6 +13,7 @@ const upload = multer({
 });
 
 router.post('/ingredients', (req, res, next) => {
+  // Bat loi upload o day de frontend luon nhan JSON thong nhat thay vi HTML error cua Express.
   upload.single('file')(req, res, (error) => {
     if (error) {
       if (error.code === 'LIMIT_FILE_SIZE') {

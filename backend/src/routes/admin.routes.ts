@@ -14,46 +14,48 @@ import {
 
 const router = Router();
 
+// Tat ca route ben duoi la admin API.
+// Thu tu middleware quan trong: authMiddleware tao req.user, adminMiddleware moi kiem tra role.
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
-// Dashboard stats
+// Dashboard stats: so lieu tong quan cho trang /admin.
 router.get('/stats', adminController.getDashboardStats);
 
-// Ingredients
+// Ingredients: CRUD thanh phan INCI nen, dung cho analysis va product.
 router.get('/ingredients', adminController.getIngredients);
 router.post('/ingredients', adminController.createIngredient);
 router.delete('/ingredients/all', adminController.deleteAllIngredients);
 router.put('/ingredients/:id', adminController.updateIngredient);
 router.delete('/ingredients/:id', adminController.deleteIngredient);
 
-// Rules
+// Rules: map ingredient + skinType -> GOOD/BAD/NEUTRAL.
 router.get('/rules', adminController.getRules);
 router.post('/rules', adminController.createRule);
 router.delete('/rules/all', adminController.deleteAllRules);
 router.delete('/rules/:id', adminController.deleteRule);
 
-// Products
+// Products: CRUD san pham va danh sach ingredient theo thu tu INCI.
 router.get('/products', adminController.getProducts);
 router.post('/products', adminController.createProduct);
 router.delete('/products/all', adminController.deleteAllProducts);
 router.put('/products/:id', adminController.updateProduct);
 router.delete('/products/:id', adminController.deleteProduct);
 
-// Users
+// Users: quan ly tai khoan, khoa/mo khoa va xoa user thuong.
 router.get('/users', adminController.getUsers);
 router.patch('/users/:id/status', adminController.toggleUserStatus);
 router.delete('/users/:id', adminController.deleteUser);
 
-// Reports
+// Reports: so lieu thong ke he thong cho trang bao cao admin.
 router.get('/reports', adminController.getReports);
 
-// Excel Export
+// Excel Export: tra file .xlsx de admin sao luu/lam mau import.
 router.get('/export/ingredients', exportIngredientsExcel);
 router.get('/export/rules', exportRulesExcel);
 router.get('/export/products', exportProductsExcel);
 
-// Excel Import
+// Excel Import: multer doc file vao memory, controller chuyen buffer cho excel.service.
 router.post('/import/ingredients', excelUploadMiddleware, importIngredientsExcel);
 router.post('/import/rules', excelUploadMiddleware, importRulesExcel);
 router.post('/import/products', excelUploadMiddleware, importProductsExcel);

@@ -29,6 +29,7 @@ interface FileUploadState {
 }
 
 const ENTITY_CONFIG: Record<EntityType, { label: string; color: string; accent: string; columns: string }> = {
+  // Config gom label, mau va hint cot cho 3 entity import/export dung chung UI card.
   ingredients: {
     label: 'Thành phần',
     color: 'emerald',
@@ -59,6 +60,7 @@ function ExportCard({ entity }: { entity: EntityType }) {
     setLoading(true);
     setExportError(null);
     try {
+      // Backend tra blob .xlsx; frontend tao object URL de browser download file.
       const res = await fetch(`${API_URL}/admin/export/${entity}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -131,6 +133,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
   const config = ENTITY_CONFIG[entity];
 
   const handleFile = async (file: File) => {
+    // Validate duoi file o client truoc khi upload; backend multer van kiem tra MIME lai.
     if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
       setState({ status: 'error', errorMessage: 'Chỉ hỗ trợ các tệp Excel (.xlsx, .xls).' });
       return;
@@ -143,6 +146,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
     formData.append('file', file);
 
     try {
+      // FormData upload khong set Content-Type thu cong de browser tu tao multipart boundary.
       const res = await fetch(`${API_URL}/admin/import/${entity}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -163,6 +167,7 @@ function ImportCard({ entity }: { entity: EntityType }) {
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    // Drag/drop va file input deu di qua handleFile de dung chung validation/upload logic.
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files[0];
@@ -307,6 +312,7 @@ function DeleteAllCard({ entity, onRequestConfirm }: { entity: EntityType; onReq
   const config = ENTITY_CONFIG[entity];
 
   const handleDeleteAll = () => {
+    // Danger zone yeu cau confirm tu page cha de moi card dung chung modal.
     onRequestConfirm({
       title: `Xóa tất cả ${config.label}`,
       message: `Bạn có chắc chắn muốn xóa TẤT CẢ ${config.label.toLowerCase()} không? Hành động này không thể hoàn tác.`,
@@ -380,6 +386,7 @@ function DeleteAllCard({ entity, onRequestConfirm }: { entity: EntityType; onReq
 }
 
 export default function ImportExportPage() {
+  // Ba entity duoc map thanh cac card export/import/delete tu cung config.
   const entities: EntityType[] = ['ingredients', 'rules', 'products'];
   const [dialog, setDialog] = useState<ConfirmDialog>(CLOSED);
 

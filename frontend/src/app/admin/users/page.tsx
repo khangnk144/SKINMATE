@@ -19,7 +19,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Confirmation Modal state
+  // Modal confirm dung chung cho lock/unlock/delete de tranh bam nham thao tac nguy hiem.
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     type: 'lock' | 'unlock' | 'delete';
@@ -34,6 +34,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
+      // Admin users API tra danh sach user kem role/isActive de quan ly quyen truy cap.
       const res = await fetch(`${API_URL}/admin/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -69,6 +70,7 @@ export default function AdminUsers() {
   const handleAction = async () => {
     const { type, userId } = confirmModal;
     try {
+      // Delete va lock/unlock dung endpoint/method khac nhau nen xac dinh theo modal type.
       let url = `${API_URL}/admin/users/${userId}`;
       let method = 'DELETE';
 
@@ -84,6 +86,7 @@ export default function AdminUsers() {
 
       if (!res.ok) throw new Error('Action failed');
       
+      // Refresh list sau action de trang thai isActive/row bien mat phan anh dung database.
       await fetchUsers();
       closeConfirmModal();
     } catch (err: unknown) {

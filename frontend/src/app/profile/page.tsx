@@ -38,6 +38,7 @@ export default function ProfilePage() {
       if (!token) return;
 
       try {
+        // Lay profile moi nhat tu backend thay vi chi dung user trong localStorage.
         const res = await fetch(`${API_URL}/users/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,6 +65,7 @@ export default function ProfilePage() {
 
   const handlePasswordChange = async () => {
     if (!token) return;
+    // Validate client-side cho UX; backend service van kiem tra lai password cu va do dai mat khau.
     if (passwords.new !== passwords.confirm) {
       setMessage({ type: "error", text: "Mật khẩu mới không khớp" });
       return;
@@ -112,6 +114,7 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      // PUT profile cap nhat skinType/displayName, la du lieu anh huong analysis va navbar.
       const res = await fetch(`${API_URL}/users/profile`, {
         method: "PUT",
         headers: {
@@ -130,7 +133,7 @@ export default function ProfilePage() {
       setProfile(data);
       setMessage({ type: "success", text: "Cập nhật hồ sơ thành công!" });
       
-      // Update local context user data so the navbar greeting refreshes
+      // Cap nhat AuthContext de navbar va cac page khac thay skinType/displayName moi ngay.
       if (user) {
         login(token, { ...user, skinType: data.skinType, displayName: data.displayName ?? null });
       }

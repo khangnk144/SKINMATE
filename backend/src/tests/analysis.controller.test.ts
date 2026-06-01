@@ -1,3 +1,4 @@
+// Test analysis controller: kiem tra request validation, auth guard va viec luu history sau phan tich.
 import { Request, Response } from 'express';
 import { checkAnalysis } from '../controllers/analysis.controller';
 import prisma from '../utils/prisma';

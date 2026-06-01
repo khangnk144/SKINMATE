@@ -11,17 +11,18 @@ export interface AnalysisResult {
 }
 
 export const analyzeIngredients = async (inciString: string, skinType: SkinType | null): Promise<AnalysisResult[]> => {
-  // Normalize: split by comma, trim, keep original case
+  // Tach danh sach INCI theo dau phay, giu originalName de UI hien thi nhu nguoi dung da nhap.
   const rawIngredients = inciString.split(',').map(i => i.trim()).filter(i => i.length > 0);
   
   if (rawIngredients.length === 0) {
     return [];
   }
 
+  // mappedName la lowercase de khop voi Ingredient.name trong database.
   const mappedNames = rawIngredients.map(i => i.toLowerCase());
   const uniqueMappedNames = Array.from(new Set(mappedNames));
 
-  // Query ingredients with IN operator
+  // Query mot lan bang IN de lay tat ca ingredient da co va rule theo skinType hien tai.
   const existingIngredients = await prisma.ingredient.findMany({
     where: {
       name: {
@@ -42,6 +43,7 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
 
   let aiResults: GeminiAnalysisResult[] = [];
   if (missingMappedNames.length > 0 && skinType) {
+    // Chi goi Gemini cho thanh phan DB chua biet; thanh phan da co rule thi uu tien du lieu noi bo.
     console.log(`[AI] Calling Gemini for missing ingredients: ${missingMappedNames.join(', ')}`);
     aiResults = await analyzeWithGemini(missingMappedNames, skinType);
     console.log(`[AI] Received results for ${aiResults.length} ingredients`);
@@ -105,7 +107,7 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
       };
     }
 
-    // Check if it was analyzed by AI in this request
+    // Neu ingredient chua co trong DB nhung AI vua phan tich trong request nay, tra ket qua AI.
     const aiRes = aiResults.find(r => r.mappedName.toLowerCase() === mappedName);
     if (aiRes) {
       return {
@@ -116,7 +118,7 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
       };
     }
 
-    // Default fallback
+    // Fallback an toan: khong co DB/AI thi NEUTRAL, tranh chan nguoi dung boi loi he thong.
     return {
       originalName,
       mappedName,

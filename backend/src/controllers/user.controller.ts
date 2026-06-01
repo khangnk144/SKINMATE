@@ -5,6 +5,7 @@ import { SkinType } from '@prisma/client';
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    // userId khong lay tu body/query de tranh user doc ho so cua nguoi khac.
     const userId = req.user?.userId;
     
     if (!userId) {
@@ -34,11 +35,13 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    // skinType la input quan trong vi recommendation/analysis phu thuoc vao gia tri nay.
     if (!skinType) {
       res.status(400).json({ error: 'skinType is required.' });
       return;
     }
 
+    // Validate theo enum Prisma truoc khi update de service chi xu ly du lieu hop le.
     if (!Object.values(SkinType).includes(skinType as SkinType)) {
       res.status(400).json({ error: 'Invalid skinType.' });
       return;
@@ -62,6 +65,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
+    // Doi mat khau yeu cau mat khau cu de ngan user da bi chiem session doi mat khau tuy y.
     if (!oldPassword || !newPassword) {
       res.status(400).json({ error: 'oldPassword and newPassword are required.' });
       return;

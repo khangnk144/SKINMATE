@@ -8,11 +8,12 @@ import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const { user, logout, isLoading } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);       // mobile hamburger
-  const [dropdownOpen, setDropdownOpen] = useState(false); // user dropdown
+  // Hai state tach rieng de mobile menu va desktop user dropdown khong anh huong nhau.
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // Dong dropdown khi click ra ngoai; ref giup phan biet click ben trong menu.
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -24,12 +25,13 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
+    // Logout xong dong moi menu dang mo de UI quay ve trang thai guest ngay lap tuc.
     logout();
     setDropdownOpen(false);
     setIsOpen(false);
   };
 
-  // First letter of displayName (or username) for the avatar
+  // Avatar lay chu cai dau cua displayName, fallback username, fallback "U" neu user chua hydrate.
   const avatarLetter = (user?.displayName || user?.username || "U")[0].toUpperCase();
   const displayLabel = user?.displayName || user?.username || "";
 

@@ -17,7 +17,7 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Create preview
+    // Tao preview local bang object URL; revoke URL cu de tranh leak memory khi chon anh moi.
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
@@ -28,6 +28,8 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
     formData.append('file', file);
 
     try {
+      // OCR endpoint khong dung /api/v1 nen su dung API_ROOT_URL.
+      // Body la FormData, khong set Content-Type de browser tu them boundary.
       const response = await fetch(`${API_ROOT_URL}/api/ocr/ingredients`, {
         method: 'POST',
         body: formData,
@@ -54,6 +56,7 @@ export function ImageOCRUploader({ onExtracted }: ImageOCRUploaderProps) {
   };
 
   const clearImage = () => {
+    // Clear preview va reset input de co the chon lai cung mot file neu muon.
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setError(null);

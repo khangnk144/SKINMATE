@@ -46,6 +46,7 @@ export default function HistoryPage() {
     if (!token) return;
     setFetching(true);
     try {
+      // History API chi tra ve cac lan phan tich cua user trong token.
       const res = await fetch(`${API_URL}/history`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -78,6 +79,7 @@ export default function HistoryPage() {
 
   const deleteItem = (id: string) => {
     if (!token) return;
+    // Mo confirm dialog truoc khi goi DELETE vi thao tac xoa history khong co undo.
     setDialog({
       open: true,
       title: 'Xóa Phân Tích',
@@ -98,6 +100,7 @@ export default function HistoryPage() {
             throw new Error('Xóa mục thất bại');
           }
 
+          // Cap nhat local state sau khi backend xoa thanh cong de khong can fetch lai toan bo list.
           setHistory(prev => prev.filter(item => item.id !== id));
         } catch (err: unknown) {
           setError(err instanceof Error ? err.message : 'Xóa mục thất bại');
@@ -110,6 +113,7 @@ export default function HistoryPage() {
 
   const clearAllHistory = () => {
     if (!token) return;
+    // Xoa tat ca history chi ap dung cho user hien tai; backend gioi han theo req.user.userId.
     setDialog({
       open: true,
       title: 'Xóa Tất Cả Lịch Sử',

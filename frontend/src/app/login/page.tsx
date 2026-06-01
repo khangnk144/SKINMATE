@@ -21,6 +21,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Login API tra ve token + user; AuthContext se luu vao state/localStorage.
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -33,6 +34,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Đăng nhập thất bại");
       }
 
+      // Sau khi login thanh cong, navbar/route guards cap nhat ngay vi context da thay doi.
       login(data.token, data.user);
       router.push("/");
     } catch (err: unknown) {

@@ -9,6 +9,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const router = useRouter();
 
   useEffect(() => {
+    // Doi AuthContext hydrate xong roi moi redirect, tranh flicker khi user da co token trong localStorage.
     if (!isLoading && !user) {
       router.replace('/login');
     }
@@ -23,7 +24,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }
 
   if (!user) {
-    return null; // Will redirect in useEffect
+    // Return null trong luc router.replace dang chuyen trang.
+    return null;
   }
 
   return <>{children}</>;

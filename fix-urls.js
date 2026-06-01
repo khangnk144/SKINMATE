@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+// Script mot lan de thay URL API hard-code trong frontend bang NEXT_PUBLIC_API_URL.
+// Chi quet file .ts/.tsx trong frontend/src va ghi lai file neu regex co thay doi.
 function walk(dir) {
   let results = [];
   const list = fs.readdirSync(dir);

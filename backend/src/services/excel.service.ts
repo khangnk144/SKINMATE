@@ -2,9 +2,13 @@ import * as XLSX from 'xlsx';
 import prisma from '../utils/prisma';
 import { SkinType, SafetyEffect } from '@prisma/client';
 
+// Service nay chuyen doi qua lai giua database va workbook Excel.
+// Controller chi nhan/gui file; validation tung dong nam o day.
+
 // ─── EXPORT ────────────────────────────────────────────────────────────────
 
 export const exportIngredients = async (): Promise<Buffer> => {
+  // Export thanh phan theo thu tu ten de file de doc/de so sanh khi admin sua bang Excel.
   const ingredients = await prisma.ingredient.findMany({
     orderBy: { name: 'asc' },
   });
@@ -25,6 +29,7 @@ export const exportIngredients = async (): Promise<Buffer> => {
 };
 
 export const exportRules = async (): Promise<Buffer> => {
+  // Export rules kem ingredient_name de admin khong can nho ingredient_id.
   const rules = await prisma.ingredientRule.findMany({
     include: { ingredient: true },
     orderBy: { id: 'asc' },
@@ -48,6 +53,7 @@ export const exportRules = async (): Promise<Buffer> => {
 };
 
 export const exportProducts = async (): Promise<Buffer> => {
+  // Export product kem chuoi ingredients_inci, giu thu tu position de import lai khong dao INCI.
   const products = await prisma.product.findMany({
     include: {
       ingredients: {
@@ -86,6 +92,7 @@ export interface ImportResult {
 }
 
 export const importIngredients = async (fileBuffer: Buffer): Promise<ImportResult> => {
+  // Sheet dau tien duoc xem la du lieu import; header duoc normalize lowercase/trim.
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
@@ -115,7 +122,7 @@ export const importIngredients = async (fileBuffer: Buffer): Promise<ImportResul
     try {
       const existing = await prisma.ingredient.findUnique({ where: { name } });
       if (existing) {
-        // Update description if provided
+        // Chi update description khi file co gia tri moi; neu khong thay doi thi tinh skipped.
         if (description !== undefined && description !== existing.description) {
           await prisma.ingredient.update({ where: { name }, data: { description } });
           result.updated++;
@@ -136,6 +143,7 @@ export const importIngredients = async (fileBuffer: Buffer): Promise<ImportResul
 };
 
 export const importRules = async (fileBuffer: Buffer): Promise<ImportResult> => {
+  // Import rule co the tham chieu ingredient bang ten hoac id de linh hoat voi file export/sua tay.
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
@@ -246,6 +254,7 @@ export const importRules = async (fileBuffer: Buffer): Promise<ImportResult> => 
 };
 
 export const importProducts = async (fileBuffer: Buffer): Promise<ImportResult> => {
+  // Product import upsert theo cap name + brand, va thay the toan bo danh sach ingredient.
   const wb = XLSX.read(fileBuffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rowsRaw: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws);
@@ -272,14 +281,14 @@ export const importProducts = async (fileBuffer: Buffer): Promise<ImportResult> 
       continue;
     }
 
-    // Parse ingredient names from INCI string
+    // Parse INCI bang dau phay/cham phay/xuong dong de hop voi cach admin dan tu nhan san pham.
     const ingredientNames = inciString
       .split(/[,;\n]+/)
       .map((s: string) => s.trim().toLowerCase())
       .filter((s: string) => s.length > 0);
 
     try {
-      // Resolve/create ingredients
+      // Resolve hoac tao ingredient moi truoc khi tao ProductIngredient.
       const resolvedIds: number[] = [];
       for (const ingName of ingredientNames) {
         let ing = await prisma.ingredient.findUnique({ where: { name: ingName } });
@@ -289,11 +298,11 @@ export const importProducts = async (fileBuffer: Buffer): Promise<ImportResult> 
         resolvedIds.push(ing.id);
       }
 
-      // Check if product already exists by name + brand
+      // San pham duoc xem la trung khi cung name + brand.
       const existing = await prisma.product.findFirst({ where: { name, brand } });
 
       if (existing) {
-        // Replace ingredients
+        // Cap nhat san pham cu bang cach thay relation ingredient theo file moi.
         await prisma.productIngredient.deleteMany({ where: { productId: existing.id } });
         await prisma.product.update({
           where: { id: existing.id },

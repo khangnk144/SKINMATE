@@ -24,6 +24,7 @@ export default function NotificationBell() {
   const router = useRouter();
 
   const fetchNotifications = useCallback(async () => {
+    // Notification chi co y nghia khi da dang nhap; token dung de backend lay dung userId.
     if (!token || !user) return;
     try {
       const res = await fetch(`${API_URL}/notifications`, {
@@ -40,6 +41,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!token || !user) return;
+    // Poll moi 30s khi dropdown dong de cap nhat badge ma khong lam giat danh sach dang doc.
     const initialTimeout = window.setTimeout(fetchNotifications, 0);
     const interval = setInterval(() => {
       if (!isOpen) fetchNotifications();
@@ -52,6 +54,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!isOpen || !token || !user) return;
+    // Khi mo dropdown, refresh ngay de user thay notification moi nhat.
     const timeout = window.setTimeout(fetchNotifications, 0);
     return () => window.clearTimeout(timeout);
   }, [isOpen, token, user, fetchNotifications]);
@@ -69,7 +72,7 @@ export default function NotificationBell() {
   const handleMarkAsRead = async (id: string, link?: string) => {
     if (!token) return;
     
-    // Optimistic update
+    // Optimistic update: cap nhat UI truoc, backend sync sau de cam giac nhanh hon.
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
@@ -92,6 +95,7 @@ export default function NotificationBell() {
   const handleMarkAllAsRead = async () => {
     if (!token) return;
     
+    // Tuong tu mark one, danh dau tat ca local truoc roi goi API patch read-all.
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
 
     try {
@@ -107,6 +111,7 @@ export default function NotificationBell() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const formatRelativeTime = (dateString: string) => {
+    // Chuyen timestamp backend thanh nhan thoi gian ngan gon cho dropdown.
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);

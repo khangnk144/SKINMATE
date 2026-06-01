@@ -12,6 +12,7 @@ import { API_URL } from '@/lib/api';
 
 const ImageOCRUploader = dynamic(
   () => import('@/components/ImageOCRUploader').then((mod) => mod.ImageOCRUploader),
+  // OCR uploader dung File/FormData va object URL tren browser nen tat SSR.
   { ssr: false }
 );
 
@@ -31,6 +32,7 @@ interface RecommendedProduct {
 }
 
 export default function AnalysisPage() {
+  // useSearchParams can Suspense boundary trong Next App Router, nen boc AnalysisContent o day.
   return (
     <Suspense fallback={
       <div className="flex min-h-screen items-center justify-center bg-stone-50">
@@ -55,6 +57,7 @@ const SKIN_TYPE_LABELS: Record<string, string> = {
 
 function AnalysisContent() {
   const searchParams = useSearchParams();
+  // Khi user bam "Phan tich lai" tu History, INCI duoc truyen qua query param.
   const initialInci = searchParams?.get('inci') || '';
 
   const [inciString, setInciString] = useState(initialInci);
@@ -65,7 +68,7 @@ function AnalysisContent() {
   const [recommendations, setRecommendations] = useState<RecommendedProduct[]>([]);
   const [recLoading, setRecLoading] = useState(false);
   
-  // Report State
+  // State rieng cho modal report phan loai sai cua tung ingredient.
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportEffect, setReportEffect] = useState<'GOOD' | 'BAD' | 'NEUTRAL'>('NEUTRAL');
   const [reportReason, setReportReason] = useState('');
@@ -79,6 +82,7 @@ function AnalysisContent() {
   const fetchRecommendations = async (ingredients: string[] = []) => {
     setRecLoading(true);
     try {
+      // Gui mapped ingredients tu ket qua phan tich de backend co them context recommendation.
       const query = ingredients.length > 0 ? `?ingredients=${encodeURIComponent(ingredients.join(','))}` : '';
       const response = await fetch(`${API_URL}/products/recommendations${query}`, {
         headers: {
@@ -122,6 +126,7 @@ function AnalysisContent() {
   }
 
   const handleAnalyze = async () => {
+    // Khong goi API neu textarea rong vi backend can mot chuoi INCI co noi dung.
     if (!inciString.trim()) {
       setError('Vui lòng nhập một số thành phần để phân tích.');
       return;
@@ -150,6 +155,7 @@ function AnalysisContent() {
       setResults(data);
 
       if (data.length > 0) {
+        // Sau khi co ket qua phan tich, dung mappedName de lay product recommendation.
         const ingredients = (data as AnalysisResult[]).map((r) => r.mappedName);
         fetchRecommendations(ingredients);
       }
@@ -162,6 +168,7 @@ function AnalysisContent() {
 
   const handleReportSubmit = async () => {
     if (!selectedIngredient) return;
+    // Ly do can du dai toi thieu de admin co ngu canh khi duyet report.
     if (reportReason.length < 20) {
       setReportFormError('Vui lòng nhập lý do ít nhất 20 ký tự.');
       return;
@@ -170,7 +177,7 @@ function AnalysisContent() {
     setReportFormError(null);
     setIsSubmittingReport(true);
     try {
-      // 1. Fetch ingredientId
+      // 1. Tim ingredientId tu mappedName vi report API can khoa ngoai ingredientId.
       const searchRes = await fetch(`${API_URL}/ingredients/search?name=${encodeURIComponent(selectedIngredient.mappedName)}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -179,7 +186,7 @@ function AnalysisContent() {
       if (!searchRes.ok) throw new Error('Không tìm thấy thành phần trong hệ thống');
       const ingredientData = await searchRes.json();
       
-      // 2. Submit report
+      // 2. Gui report kem skinType hien tai va effect user cho la dung.
       const reportRes = await fetch(`${API_URL}/reports`, {
         method: 'POST',
         headers: {
@@ -211,6 +218,7 @@ function AnalysisContent() {
   };
 
   const getEffectClasses = (effect: string) => {
+    // Gom class theo effect de cac badge ket qua co mau nhat quan.
     switch (effect) {
       case 'BAD':
         return 'bg-rose-50/60 text-rose-700 border-rose-100 hover:bg-rose-100/80';

@@ -12,6 +12,7 @@ export default function Home() {
   const { user, logout, isLoading } = useAuth();
 
   useEffect(() => {
+    // Health check duoc bat/tat bang env de local dev khong bi spam request neu khong can.
     if (process.env.NEXT_PUBLIC_ENABLE_HEALTH_CHECK !== 'true') return;
 
     async function checkHealth() {

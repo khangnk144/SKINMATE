@@ -9,7 +9,7 @@ import {
   importProducts,
 } from '../services/excel.service';
 
-// Multer: store uploaded files in memory (no disk write)
+// Multer luu file Excel vao memory vi service chi can buffer de parse, khong can ghi disk.
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
@@ -27,6 +27,8 @@ const upload = multer({
 });
 
 export const excelUploadMiddleware = upload.single('file');
+
+// EXPORT handlers: service tao workbook buffer, controller set header de browser tai file.
 
 // ─── EXPORT handlers ──────────────────────────────────────────────────────
 
@@ -70,6 +72,7 @@ export const exportProductsExcel = async (_req: Request, res: Response): Promise
 
 export const importIngredientsExcel = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Neu multer khong tim thay field "file", frontend da gui sai FormData.
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
       return;
@@ -83,6 +86,7 @@ export const importIngredientsExcel = async (req: Request, res: Response): Promi
 
 export const importRulesExcel = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Moi import handler truyen buffer sang service rieng theo entity.
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
       return;
@@ -96,6 +100,7 @@ export const importRulesExcel = async (req: Request, res: Response): Promise<voi
 
 export const importProductsExcel = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Ket qua import tra ve created/updated/skipped/errors de UI hien thong ke sau upload.
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
       return;

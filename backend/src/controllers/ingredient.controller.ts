@@ -9,6 +9,7 @@ export const searchIngredientByName = async (req: Request, res: Response): Promi
       return;
     }
 
+    // Ingredient.name duoc chuan hoa lowercase trong admin/service nen search cung trim + lowercase.
     const ingredient = await prisma.ingredient.findUnique({
       where: { name: name.trim().toLowerCase() },
       select: { id: true, name: true }

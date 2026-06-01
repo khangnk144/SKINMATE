@@ -5,6 +5,7 @@ import { SkinType } from '@prisma/client';
 
 export const getRecommendations = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    // Recommendation phu thuoc vao skinType cua user da dang nhap.
     const skinType = req.user?.skinType;
 
     if (!skinType) {
@@ -12,6 +13,7 @@ export const getRecommendations = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
+    // ingredients la context tu ket qua phan tich hien tai, dung de service co the xep hang phu hop hon.
     const ingredients = req.query.ingredients
       ? (req.query.ingredients as string).split(',').map((i) => i.trim())
       : [];

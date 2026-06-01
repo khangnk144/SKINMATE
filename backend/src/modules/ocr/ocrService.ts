@@ -6,6 +6,7 @@ export async function parseImageForIngredients(fileBuffer: Buffer, mimetype: str
     if (!apiKey) {
         throw new Error("OCR_API_KEY is not defined in environment variables");
     }
+    // OCR.Space nhan anh dang data URL base64, nen buffer upload can duoc encode truoc.
     const base64Str = fileBuffer.toString('base64');
     const base64Image = `data:${mimetype};base64,${base64Str}`;
 
@@ -25,6 +26,7 @@ export async function parseImageForIngredients(fileBuffer: Buffer, mimetype: str
         const data = response.data;
         if (data && data.ParsedResults && data.ParsedResults.length > 0) {
             const parsedText = data.ParsedResults[0].ParsedText;
+            // Tach raw OCR text thanh danh sach ingredient gon hon cho flow analysis.
             return extractIngredients(parsedText);
         }
 

@@ -12,6 +12,7 @@ export const getNotifications = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
+    // Lay notification cua user hien tai, gioi han 50 item de dropdown khong tai qua nang.
     const notifications = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -35,7 +36,7 @@ export const markAsRead = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Verify ownership
+    // Verify ownership de user khong the mark read notification cua nguoi khac.
     const notification = await prisma.notification.findUnique({
       where: { id },
     });
@@ -65,6 +66,7 @@ export const markAllAsRead = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    // updateMany theo userId de chi danh dau notification cua tai khoan hien tai.
     await prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true },
@@ -86,6 +88,7 @@ export const sendAdminMessage = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
+    // Admin tao notification truc tiep; link optional giup frontend dieu huong khi click.
     const notification = await prisma.notification.create({
       data: {
         userId,

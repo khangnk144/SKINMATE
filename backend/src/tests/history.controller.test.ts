@@ -1,3 +1,4 @@
+﻿// Test history controller: dam bao user chi doc/xoa lich su cua chinh minh.
 import { Request, Response } from 'express';
 import { getHistory, deleteHistory, deleteAllHistory } from '../controllers/history.controller';
 import prisma from '../utils/prisma';
@@ -49,7 +50,7 @@ describe('History Controller', () => {
         { id: '1', userId: 'user-id-123', rawInput: 'Water, Glycerin', createdAt: new Date() },
         { id: '2', userId: 'user-id-123', rawInput: 'Water, Peg-40', createdAt: new Date() },
       ];
-      
+
       (prisma.analysisHistory.findMany as jest.Mock).mockResolvedValue(mockHistory);
 
       await getHistory(req as any, res as Response);
@@ -114,4 +115,4 @@ describe('History Controller', () => {
       expect(jsonMock).toHaveBeenCalledWith({ message: 'All history deleted' });
     });
   });
-});
+});

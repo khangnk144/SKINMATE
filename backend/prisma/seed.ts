@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting seed...');
 
-  // Clean up existing data to avoid unique constraint errors during re-seeding
+  // Seed duoc thiet ke chay lai nhieu lan: xoa rules/ingredients truoc de tranh loi unique.
   await prisma.ingredientRule.deleteMany({});
   await prisma.ingredient.deleteMany({});
 
@@ -22,19 +22,19 @@ async function main() {
     ingredientsData.map((data) => prisma.ingredient.create({ data }))
   );
 
-  // Helper to find ID by name
+  // Helper lay id cua ingredient vua tao de tao rule va product relation ben duoi.
   const getId = (name: string) => createdIngredients.find((i) => i.name === name)?.id;
 
   const rulesData = [
-    // Salicylic Acid rules
+    // Rule mau: salicylic acid hop da dau nhung co the khong hop da kho/nhay cam.
     { ingredientId: getId('salicylic acid')!, skinType: SkinType.DRY, effect: SafetyEffect.BAD },
     { ingredientId: getId('salicylic acid')!, skinType: SkinType.OILY, effect: SafetyEffect.GOOD },
     { ingredientId: getId('salicylic acid')!, skinType: SkinType.SENSITIVE, effect: SafetyEffect.BAD },
     
-    // Fragrance rules
+    // Fragrance thuong la vi du BAD cho da nhay cam.
     { ingredientId: getId('fragrance')!, skinType: SkinType.SENSITIVE, effect: SafetyEffect.BAD },
     
-    // Niacinamide rules
+    // Niacinamide duoc seed lam vi du GOOD cho nhieu loai da.
     { ingredientId: getId('niacinamide')!, skinType: SkinType.OILY, effect: SafetyEffect.GOOD },
     { ingredientId: getId('niacinamide')!, skinType: SkinType.DRY, effect: SafetyEffect.GOOD },
     { ingredientId: getId('niacinamide')!, skinType: SkinType.COMBINATION, effect: SafetyEffect.GOOD },
@@ -45,7 +45,7 @@ async function main() {
     await prisma.ingredientRule.create({ data: rule });
   }
 
-  // Clean up products
+  // Xoa products sau khi da tao ingredients/rules de reset bang lien ket ProductIngredient.
   await prisma.productIngredient.deleteMany({});
   await prisma.product.deleteMany({});
 
@@ -65,6 +65,7 @@ async function main() {
   const getProductId = (name: string) => createdProducts.find((p) => p.name === name)?.id;
 
   const productIngredientsData = [
+    // ProductIngredient luu position de giu thu tu ingredient tren nhan INCI.
     // Gentle Cleanser: water, glycerin
     { productId: getProductId('Gentle Cleanser')!, ingredientId: getId('water')!, position: 1 },
     { productId: getProductId('Gentle Cleanser')!, ingredientId: getId('glycerin')!, position: 2 },

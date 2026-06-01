@@ -8,6 +8,8 @@ export interface ListQuery {
   search?: string;
 }
 
+// Chuan hoa pagination cho cac trang admin.
+// limit duoc cap o 100 de tranh query qua lon khi admin tim kiem.
 const getPagination = (query?: ListQuery) => {
   if (!query?.page && !query?.limit && !query?.search) return null;
 
@@ -34,6 +36,7 @@ export const adminService = {
   async getIngredients(query?: ListQuery) {
     const pagination = getPagination(query);
     if (pagination) {
+      // Khi co search/page/limit, tra object co metadata de frontend render pagination.
       const where = pagination.search
         ? { name: { contains: pagination.search, mode: 'insensitive' as const } }
         : {};
@@ -58,7 +61,7 @@ export const adminService = {
   async createIngredient(name: string, description?: string) {
     const normalizedName = name.trim().toLowerCase();
     
-    // Check if exists
+    // Ten ingredient luu lowercase de match voi INCI input sau khi normalize.
     const existing = await prisma.ingredient.findUnique({
       where: { name: normalizedName }
     });
@@ -78,7 +81,7 @@ export const adminService = {
   async updateIngredient(id: number, name: string, description?: string) {
     const normalizedName = name.trim().toLowerCase();
     
-    // Check if another ingredient exists with the same name
+    // Khong cho doi ten ingredient thanh ten da thuoc ve ingredient khac.
     const existing = await prisma.ingredient.findUnique({
       where: { name: normalizedName }
     });
@@ -107,6 +110,7 @@ export const adminService = {
   },
 
   async createOrUpdateRule(ingredientId: number, skinType: SkinType, effect: SafetyEffect) {
+    // Moi ingredient chi co mot rule cho moi skinType, nen thao tac admin la upsert thu cong.
     const existingRule = await prisma.ingredientRule.findUnique({
       where: {
         ingredientId_skinType: {
@@ -169,6 +173,7 @@ export const adminService = {
   },
   
   async findOrCreateIngredients(names: string[]) {
+    // Dung cho product import/CRUD: neu INCI chua co thi tao ingredient nen toi thieu.
     const resolvedIngredients = [];
     for (const name of names) {
       const normalizedName = name.trim().toLowerCase();
@@ -189,6 +194,7 @@ export const adminService = {
   },
 
   async createProduct(name: string, brand: string, imageUrl?: string, ingredientNames: string[] = []) {
+    // San pham luu quan he ProductIngredient theo position de giu thu tu INCI tren nhan.
     const resolvedIngredients = await this.findOrCreateIngredients(ingredientNames);
 
     return await prisma.product.create({
@@ -250,12 +256,12 @@ export const adminService = {
   async updateProduct(id: string, name: string, brand: string, imageUrl?: string, ingredientNames: string[] = []) {
     const resolvedIngredients = await this.findOrCreateIngredients(ingredientNames);
 
-    // Delete existing relations
+    // Xoa relation cu truoc khi tao lai de cap nhat dung danh sach va thu tu INCI moi.
     await prisma.productIngredient.deleteMany({
       where: { productId: id }
     });
 
-    // Update product and create new relations
+    // Update thong tin san pham va tao relation moi trong cung lenh Prisma nested write.
     return await prisma.product.update({
       where: { id },
       data: {
@@ -323,6 +329,7 @@ export const adminService = {
   },
 
   async toggleUserStatus(id: string) {
+    // Toggle trang thai giup admin khoa/mo khoa ma khong mat history/report cua user.
     const user = await prisma.user.findUnique({
       where: { id },
       select: { isActive: true }
@@ -343,6 +350,7 @@ export const adminService = {
   },
 
   async getDashboardStats() {
+    // Transaction gom cac count doc lap vao mot round-trip DB.
     const [ingredients, rules, products, users, analyses] = await prisma.$transaction([
       prisma.ingredient.count(),
       prisma.ingredientRule.count(),
@@ -358,7 +366,7 @@ export const adminService = {
     const totalUsers = await prisma.user.count();
     const totalAnalyses = await prisma.analysisHistory.count();
     
-    // Distribution by skin type
+    // groupBy tinh phan bo loai da cho pie chart admin reports.
     const skinTypeCounts = await prisma.user.groupBy({
       by: ['skinType'],
       _count: {

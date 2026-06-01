@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
 import { SkinType, SafetyEffect } from '@prisma/client';
 
+// Chuyen query string page/limit/search thanh object dung chung cho cac list API.
+// Neu frontend khong gui query, service tra ve mang cu de giu tuong thich voi code cu/test cu.
 const getListQuery = (req: Request) => {
   const hasListQuery = req.query.page || req.query.limit || req.query.search;
   if (!hasListQuery) return undefined;
@@ -29,6 +31,7 @@ export const adminController = {
   createIngredient: async (req: Request, res: Response): Promise<void> => {
     try {
       const { name, description } = req.body;
+      // name la khoa unique cua Ingredient, service se normalize lowercase truoc khi luu.
       if (!name) {
         res.status(400).json({ error: 'Ingredient name is required' });
         return;
@@ -50,6 +53,7 @@ export const adminController = {
       const id = parseInt(req.params.id, 10);
       const { name, description } = req.body;
       
+      // id tu URL la string nen phai parse/validate truoc khi goi Prisma.
       if (isNaN(id) || !name) {
         res.status(400).json({ error: 'Invalid ID or name missing' });
         return;
@@ -94,11 +98,13 @@ export const adminController = {
     try {
       const { ingredientId, skinType, effect } = req.body;
       
+      // Rule la quan he ingredient + skinType -> effect, ca 3 field deu bat buoc.
       if (!ingredientId || !skinType || !effect) {
         res.status(400).json({ error: 'ingredientId, skinType, and effect are required' });
         return;
       }
 
+      // Validate enum o controller de service chi nhan du lieu dung schema.
       if (!Object.values(SkinType).includes(skinType as SkinType)) {
         res.status(400).json({ error: 'Invalid SkinType' });
         return;
@@ -109,6 +115,7 @@ export const adminController = {
         return;
       }
 
+      // Upsert theo unique ingredientId_skinType: them moi neu chua co, cap nhat neu da ton tai.
       const rule = await adminService.createOrUpdateRule(ingredientId, skinType as SkinType, effect as SafetyEffect);
       res.status(201).json(rule);
     } catch (error: any) {
@@ -152,6 +159,7 @@ export const adminController = {
     try {
       const { name, brand, imageUrl, ingredientNames } = req.body;
       
+      // ingredientNames co the rong; service se tu tao Ingredient moi neu ten INCI chua co.
       if (!name || !brand) {
         res.status(400).json({ error: 'Name and brand are required' });
         return;
@@ -183,6 +191,7 @@ export const adminController = {
         return;
       }
 
+      // Update product thay the toan bo danh sach ProductIngredient de giu dung thu tu INCI moi.
       const product = await adminService.updateProduct(id, name, brand, imageUrl, ingredientNames);
       res.json(product);
     } catch (error: any) {
@@ -221,6 +230,7 @@ export const adminController = {
   toggleUserStatus: async (req: Request, res: Response): Promise<void> => {
     try {
       const id = req.params.id;
+      // Toggle isActive de khoa/mo khoa dang nhap ma khong xoa du lieu cua user.
       const user = await adminService.toggleUserStatus(id);
       res.json(user);
     } catch (error: any) {
@@ -244,6 +254,7 @@ export const adminController = {
 
   getDashboardStats: async (req: Request, res: Response): Promise<void> => {
     try {
+      // Tra ve cac count doc lap cho KPI cards tren dashboard admin.
       const stats = await adminService.getDashboardStats();
       res.json(stats);
     } catch (error: any) {

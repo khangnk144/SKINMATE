@@ -6,11 +6,13 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
 const playfair = Playfair_Display({
+  // Font serif dung cho logo/heading; bien CSS duoc gan vao html className.
   variable: "--font-playfair",
   subsets: ["latin"],
 });
 
 const inter = Inter({
+  // Font sans dung cho body text va form controls.
   variable: "--font-inter",
   subsets: ["latin"],
 });
@@ -26,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // AuthProvider boc toan app de Navbar va moi page client co the doc token/user.
     <html
       lang="vi"
       suppressHydrationWarning

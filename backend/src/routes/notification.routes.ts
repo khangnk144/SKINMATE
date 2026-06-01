@@ -10,14 +10,14 @@ import { adminMiddleware } from '../middlewares/admin.middleware';
 
 const router = Router();
 
-// All routes below require authentication
+// Notification gan voi tung user, nen route ben duoi deu can auth.
 router.use(authMiddleware);
 
 router.get('/', getNotifications);
 router.patch('/read-all', markAllAsRead);
 router.patch('/:id/read', markAsRead);
 
-// Admin only route to send messages
+// Admin co the gui thong bao truc tiep den user.
 router.post('/send', adminMiddleware, sendAdminMessage);
 
 export default router;

@@ -1,3 +1,4 @@
+// Test analysis.service: tap trung vao parse INCI, lookup rule va fallback AI/NEUTRAL.
 import { analyzeIngredients } from '../services/analysis.service';
 import { SkinType } from '@prisma/client';
 

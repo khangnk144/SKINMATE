@@ -26,11 +26,11 @@ export default function AdminIngredients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [totalItems, setTotalItems] = useState(0);
   
-  // Pagination state
+  // Pagination state dong bo voi query page/limit tren backend.
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   
-  // Modal state
+  // Modal state dung cho ca tao moi va sua ingredient.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
@@ -38,6 +38,7 @@ export default function AdminIngredients() {
 
   const fetchIngredients = async () => {
     try {
+      // buildListUrl them page/limit/search; getItems giup xu ly ca response cu va response pagination.
       const res = await fetch(buildListUrl('/admin/ingredients', {
         page: currentPage,
         limit: itemsPerPage,
@@ -67,6 +68,7 @@ export default function AdminIngredients() {
   }, [token, currentPage, searchTerm]);
 
   const handleOpenModal = (ingredient?: Ingredient) => {
+    // Co ingredient nghia la edit mode; khong co la create mode.
     if (ingredient) {
       setEditingIngredient(ingredient);
       setFormData({ name: ingredient.name, description: ingredient.description || '' });
@@ -88,6 +90,7 @@ export default function AdminIngredients() {
     e.preventDefault();
     setError('');
     
+    // Chon POST/PUT theo editingIngredient de dung chung mot form cho create/update.
     const url = editingIngredient 
       ? `${API_URL}/admin/ingredients/${editingIngredient.id}`
       : `${API_URL}/admin/ingredients`;
@@ -121,6 +124,7 @@ export default function AdminIngredients() {
   };
 
   const handleDelete = (id: number) => {
+    // Xoa ingredient co the cascade sang rules/product relations nen luon hoi confirm.
     setDialog({
       open: true,
       message: 'Bạn có chắc chắn muốn xóa thành phần này không?',

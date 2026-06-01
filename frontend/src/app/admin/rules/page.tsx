@@ -38,7 +38,7 @@ export default function AdminRules() {
   const [totalItems, setTotalItems] = useState(0);
   const [dialog, setDialog] = useState<ConfirmDialog>(CLOSED_DIALOG);
   
-  // Pagination state
+  // Pagination state dong bo voi query page/limit tren backend.
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   
@@ -50,6 +50,7 @@ export default function AdminRules() {
 
   const fetchData = async () => {
     try {
+      // Fetch song song ingredients (cho dropdown) va rules (cho table) de trang tai nhanh hon.
       const [ingRes, rulesRes] = await Promise.all([
         fetch(`${API_URL}/admin/ingredients`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(buildListUrl('/admin/rules', {
@@ -68,6 +69,7 @@ export default function AdminRules() {
       setRules(getItems<Rule>(rulesData));
       setTotalItems(getPaginationMeta<Rule>(rulesData).total);
       
+      // Neu form chua chon ingredient, gan mac dinh ingredient dau tien de submit hop le.
       const ingredientItems = getItems<Ingredient>(ingData);
       if (ingredientItems.length > 0 && !formData.ingredientId) {
         setFormData(prev => ({ ...prev, ingredientId: ingredientItems[0].id.toString() }));
@@ -91,6 +93,7 @@ export default function AdminRules() {
     setSuccess('');
 
     try {
+      // Backend createRule thuc chat upsert theo ingredientId + skinType.
       const res = await fetch(`${API_URL}/admin/rules`, {
         method: 'POST',
         headers: {
@@ -110,13 +113,15 @@ export default function AdminRules() {
       }
 
       setSuccess('Rule created/updated successfully!');
-      fetchData(); // Refresh rules
+      // Refresh rules de table hien effect moi sau khi backend upsert.
+      fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
     }
   };
 
   const handleDelete = (id: number) => {
+    // Xoa rule chi xoa mapping ingredient-skinType, khong xoa ingredient goc.
     setDialog({
       open: true,
       message: 'Bạn có chắc chắn muốn xóa quy tắc này không?',

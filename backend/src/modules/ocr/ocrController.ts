@@ -3,10 +3,12 @@ import { parseImageForIngredients } from './ocrService';
 
 export async function extractIngredientsController(req: Request, res: Response) {
     try {
+        // File anh da duoc multer doc vao req.file.buffer trong ocrRoutes.
         if (!req.file) {
             return res.status(400).json({ error: "No image file uploaded" });
         }
 
+        // Service goi OCR.Space roi loc ra chuoi ingredient de frontend dien vao textarea.
         const ingredients = await parseImageForIngredients(req.file.buffer, req.file.mimetype);
         
         return res.status(200).json({ ingredients });

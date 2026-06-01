@@ -48,6 +48,7 @@ export default function CommunityReportsPage() {
     if (!token) return;
     setLoading(true);
     try {
+      // Lay report dang PENDING de cong dong vote, sort theo voteScore hoac moi nhat.
       const res = await fetch(`${API_URL}/reports/pending?sortBy=${sortBy}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -56,6 +57,7 @@ export default function CommunityReportsPage() {
       if (res.ok) {
         const data = await res.json();
         setReports(data.data);
+        // Map userVote theo reportId de button UP/DOWN biet trang thai hien tai cua user.
         const votes: Record<number, 'UP' | 'DOWN' | null> = {};
         data.data.forEach((report: Report) => {
           votes[report.id] = report.userVote ?? null;
@@ -77,15 +79,15 @@ export default function CommunityReportsPage() {
   const handleVote = async (reportId: number, voteType: 'UP' | 'DOWN') => {
     if (!token) return;
     
-    // Save current state for rollback
+    // Luu state cu de rollback neu API vote that bai.
     const prevVotes = { ...userVotes };
     const prevReports = [...reports];
     
-    // Determine new vote state (toggle if same)
+    // Bam lai cung vote thi toggle ve null, bam vote khac thi chuyen huong vote.
     const currentVote = userVotes[reportId];
     const newVote = currentVote === voteType ? null : voteType;
 
-    // Apply Optimistic Update Immediately
+    // Optimistic update de score thay doi ngay lap tuc tren UI.
     setUserVotes(prev => ({ ...prev, [reportId]: newVote }));
     setReports(prev => prev.map(r => {
       if (r.id === reportId) {
@@ -114,7 +116,7 @@ export default function CommunityReportsPage() {
       });
       
       if (res.ok) {
-        // Sync with exact server counts just in case
+        // Sync lai so lieu chinh xac tu server phong truong hop nhieu user vote cung luc.
         const result = await res.json();
         setUserVotes(prev => ({ ...prev, [reportId]: result.userVote }));
         setReports(prev => prev.map(r => r.id === reportId ? { ...r, up: result.up, down: result.down, voteScore: result.up - result.down } : r));
@@ -123,7 +125,7 @@ export default function CommunityReportsPage() {
       }
     } catch (err) {
       console.error(err);
-      // Revert optimistic update on failure
+      // Rollback neu backend tu choi request hoac mat ket noi.
       setUserVotes(prevVotes);
       setReports(prevReports);
     }

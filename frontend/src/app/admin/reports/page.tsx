@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { API_URL } from '@/lib/api';
 
 const AdminReportsCharts = dynamic(() => import('@/components/AdminReportsCharts'), {
+  // Recharts can browser layout, nen chart duoc load client-only.
   ssr: false,
   loading: () => <div className="h-full w-full animate-pulse rounded-3xl bg-rose-50/40" />,
 });
@@ -28,6 +29,7 @@ export default function AdminReports() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
+        // Admin reports API tra KPI va distribution de render card + pie chart.
         const res = await fetch(`${API_URL}/admin/reports`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -49,6 +51,7 @@ export default function AdminReports() {
   const downloadCSV = () => {
     if (!data) return;
     
+    // Tao CSV o client tu data dang co, khong can goi backend them.
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Type,Count\n";
     data.skinTypeDistribution.forEach(row => {

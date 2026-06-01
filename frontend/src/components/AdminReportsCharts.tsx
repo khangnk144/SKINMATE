@@ -19,6 +19,7 @@ interface AdminReportsChartsProps {
 const COLORS = ['#E11D48', '#10B981', '#6366F1', '#F59E0B', '#64748B', '#EC4899'];
 
 export default function AdminReportsCharts({ data }: AdminReportsChartsProps) {
+  // Chart tach thanh component client-only vi Recharts can DOM/kich thuoc container cua browser.
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>

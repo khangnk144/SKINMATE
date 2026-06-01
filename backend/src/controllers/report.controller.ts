@@ -13,11 +13,13 @@ export const createReport = async (req: AuthRequest, res: Response): Promise<voi
 
     const { ingredientId, skinType, reportedEffect, reason, evidenceUrl } = req.body;
 
+    // Report can ingredient, skinType, effect de sau nay admin duyet thanh IngredientRule.
     if (!ingredientId || !skinType || !reportedEffect || !reason) {
       res.status(400).json({ error: 'Missing required fields' });
       return;
     }
 
+    // Validate enum de tranh report tao ra du lieu khong the resolve vao rules.
     if (!Object.values(SkinType).includes(skinType as SkinType)) {
       res.status(400).json({ error: 'Invalid skin type' });
       return;
@@ -59,6 +61,7 @@ export const voteReport = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // VoteType chi chap nhan UP/DOWN; service se toggle neu user bam lai cung vote.
     if (!Object.values(VoteType).includes(voteType as VoteType)) {
       res.status(400).json({ error: 'Invalid vote type' });
       return;
@@ -78,6 +81,7 @@ export const voteReport = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getPendingReports = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    // Community va admin deu doc pending reports, sortBy quyet dinh uu tien theo vote hay moi nhat.
     const sortBy = (req.query.sortBy as 'votes' | 'newest') || 'newest';
     const limit = parseInt((req.query.limit as string) || '20');
     const offset = parseInt((req.query.offset as string) || '0');
@@ -115,7 +119,7 @@ export const getUserVote = async (req: AuthRequest, res: Response): Promise<void
 export const resolveReport = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const adminId = req.user?.userId;
-    // Assuming auth middleware + admin middleware have run, req.user is admin
+    // Route nay da qua authMiddleware + adminMiddleware, nen req.user la admin.
     if (!adminId) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
@@ -128,11 +132,13 @@ export const resolveReport = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    // Chi cho phep 2 trang thai ket thuc; PENDING khong duoc gui tu admin action.
     if (status !== ReportStatus.APPROVED && status !== ReportStatus.REJECTED) {
       res.status(400).json({ error: 'Invalid status. Must be APPROVED or REJECTED.' });
       return;
     }
 
+    // Neu APPROVED, service se cap nhat IngredientRule va gui notification cho user tao report.
     const result = await reportService.resolveReport(reportId, status, adminId, adminNote);
     res.status(200).json(result);
   } catch (error: any) {

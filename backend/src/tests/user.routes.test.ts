@@ -1,3 +1,4 @@
+// Test user routes: profile va doi mat khau phai di qua authMiddleware.
 import request from 'supertest';
 import express from 'express';
 import userRoutes from '../routes/user.routes';

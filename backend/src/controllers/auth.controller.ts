@@ -6,11 +6,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password, skinType, displayName } = req.body;
 
+    // Controller validate nhung field bat buoc truoc khi service hash password va ghi DB.
     if (!username || !password || !skinType) {
       res.status(400).json({ error: 'Tất cả các trường là bắt buộc.' });
       return;
     }
-    
+
+    // skinType phai nam trong enum Prisma de tranh luu gia tri khong co rule phan tich.
     if (!Object.values(SkinType).includes(skinType as SkinType)) {
       res.status(400).json({ error: 'Loại da không hợp lệ.' });
       return;
@@ -37,6 +39,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Service kiem tra password, trang thai tai khoan va tao JWT tra ve frontend.
     const authData = await loginUser(username, password);
     res.status(200).json(authData);
   } catch (error: any) {

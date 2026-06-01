@@ -1,8 +1,11 @@
 import { PrismaClient, SkinType } from '@prisma/client';
 
+// Scratch script de xem cach products duoc cham diem theo rules cua mot skinType.
+// Logic nay ho tro debug recommendation, khong duoc frontend goi truc tiep.
 const prisma = new PrismaClient();
 
 async function checkScores(skinType: SkinType) {
+  // Lay rules theo skinType de tinh GOOD/BAD cho tung ingredient trong san pham.
   const products = await prisma.product.findMany({
     include: {
       ingredients: {
@@ -22,6 +25,7 @@ async function checkScores(skinType: SkinType) {
   });
 
   const scored = products.map((product) => {
+    // Diem debug: GOOD +1, BAD -2 de thay san pham nao nen uu tien/tranh.
     let score = 0;
     product.ingredients.forEach((pi) => {
       const effect = pi.ingredient.rules[0]?.effect;

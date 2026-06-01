@@ -8,6 +8,7 @@ export const checkAnalysis = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const { inciString } = req.body;
 
+    // inciString la danh sach INCI nguoi dung nhap/OCR trich xuat, bat buoc la chuoi khong rong.
     if (!inciString || typeof inciString !== 'string') {
       res.status(400).json({ error: 'inciString is required and must be a non-empty string' });
       return;
@@ -18,7 +19,7 @@ export const checkAnalysis = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // Refresh skinType from DB to ensure it's up to date
+    // Refresh skinType tu DB de neu user vua cap nhat profile, phan tich dung gia tri moi nhat.
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
     if (!user) {
       res.status(401).json({ error: 'User not found' });
@@ -27,9 +28,10 @@ export const checkAnalysis = async (req: AuthRequest, res: Response): Promise<vo
 
     const skinType = user.skinType as SkinType | null;
 
+    // Service thuc hien parse INCI, tra rule co san, goi AI cho thanh phan chua co va cache ket qua.
     const results = await analyzeIngredients(inciString, skinType);
     
-    // Optional: save to history
+    // Luu lich su sau khi phan tich thanh cong de user co the chay lai tu trang History.
     await prisma.analysisHistory.create({
       data: {
         userId: user.id,

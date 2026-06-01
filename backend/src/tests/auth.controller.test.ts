@@ -1,3 +1,4 @@
+// Test auth controller o lop HTTP handler: mock service de kiem tra validation va status code.
 import { Request, Response } from 'express';
 import { register, login } from '../controllers/auth.controller';
 import * as authService from '../services/auth.service';

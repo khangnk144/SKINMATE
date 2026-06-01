@@ -1,3 +1,4 @@
+// Test admin routes o muc integration nhe: xac thuc middleware va cac endpoint CRUD admin.
 import request from 'supertest';
 import express from 'express';
 import adminRoutes from '../routes/admin.routes';

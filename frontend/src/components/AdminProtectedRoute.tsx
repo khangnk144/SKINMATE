@@ -9,6 +9,7 @@ export default function AdminProtectedRoute({ children }: { children: React.Reac
   const router = useRouter();
 
   useEffect(() => {
+    // Admin guard co hai lop: chua dang nhap -> login, dang nhap nhung khong ADMIN -> home.
     if (!isLoading) {
       if (!user) {
         router.replace('/login');
@@ -27,7 +28,8 @@ export default function AdminProtectedRoute({ children }: { children: React.Reac
   }
 
   if (!user || user.role !== 'ADMIN') {
-    return null; // Will redirect in useEffect
+    // Return null trong luc router.replace dang chuyen trang.
+    return null;
   }
 
   return <>{children}</>;

@@ -3,6 +3,7 @@ import { SkinType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 export const getUserProfile = async (userId: string) => {
+  // Profile API chi tra thong tin an toan, khong select passwordHash.
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -24,6 +25,7 @@ export const getUserProfile = async (userId: string) => {
 };
 
 export const updateUserSkinType = async (userId: string, skinType: SkinType) => {
+  // Helper cu chi doi skinType; updateUserProfile ben duoi la flow moi co them displayName.
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: { skinType },
@@ -42,6 +44,7 @@ export const updateUserSkinType = async (userId: string, skinType: SkinType) => 
 };
 
 export const updateUserProfile = async (userId: string, skinType: SkinType, displayName?: string) => {
+  // displayName chi update khi controller truyen field nay; cho phep giu nguyen neu undefined.
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -63,6 +66,7 @@ export const updateUserProfile = async (userId: string, skinType: SkinType, disp
 };
 
 export const changePassword = async (userId: string, oldPasswordRaw: string, newPasswordRaw: string) => {
+  // Validation password moi dat o service de tranh bo sot khi co UI/API moi.
   if (newPasswordRaw.length < 6) {
     throw new Error('New password must be at least 6 characters long.');
   }
@@ -76,6 +80,7 @@ export const changePassword = async (userId: string, oldPasswordRaw: string, new
     throw new Error('User not found');
   }
 
+  // Phai verify password hien tai truoc khi hash va luu password moi.
   const isMatch = await bcrypt.compare(oldPasswordRaw, user.passwordHash);
   if (!isMatch) {
     throw new Error('Invalid current password.');

@@ -1,3 +1,4 @@
+// Test product recommendation service: san pham co ingredient BAD bi loai, GOOD duoc uu tien.
 import { getSafeRecommendations } from '../services/product.service';
 import { SkinType } from '@prisma/client';
 

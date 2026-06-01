@@ -40,7 +40,7 @@ export default function AdminCommunityReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Resolve Modal State
+  // Resolve modal giu reportId + status admin chon truoc khi gui len backend.
   const [resolveModal, setResolveModal] = useState<{ isOpen: boolean; reportId: number | null; status: 'APPROVED' | 'REJECTED' | null }>({ isOpen: false, reportId: null, status: null });
   const [adminNote, setAdminNote] = useState('');
   const [isResolving, setIsResolving] = useState(false);
@@ -50,6 +50,7 @@ export default function AdminCommunityReportsPage() {
     if (!token) return;
     setLoading(true);
     try {
+      // Admin xem pending reports sort theo votes de uu tien cac report duoc cong dong ung ho.
       const res = await fetch(`${API_URL}/reports/pending?sortBy=votes`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -77,6 +78,7 @@ export default function AdminCommunityReportsPage() {
     setIsResolving(true);
     setResolveError(null);
     try {
+      // APPROVED se lam backend cap nhat IngredientRule; REJECTED chi doi status va gui notification.
       const res = await fetch(`${API_URL}/reports/resolve`, {
         method: 'POST',
         headers: {
@@ -91,6 +93,7 @@ export default function AdminCommunityReportsPage() {
       });
       
       if (res.ok) {
+        // Sau khi resolve, report khong con PENDING nen xoa khoi table hien tai.
         setReports(prev => prev.filter(r => r.id !== resolveModal.reportId));
         setResolveModal({ isOpen: false, reportId: null, status: null });
         setAdminNote('');

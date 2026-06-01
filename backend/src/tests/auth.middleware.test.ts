@@ -1,3 +1,4 @@
+// Test auth middleware: verify Bearer token hop le/khong hop le va req.user duoc gan dung.
 import { Request, Response, NextFunction } from 'express';
 import { authMiddleware, AuthRequest } from '../middlewares/auth.middleware';
 import jwt from 'jsonwebtoken';

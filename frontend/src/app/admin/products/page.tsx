@@ -35,7 +35,7 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   const [totalItems, setTotalItems] = useState(0);
   
-  // Pagination state
+  // Pagination state dong bo voi query page/limit tren backend.
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   
@@ -50,6 +50,7 @@ export default function AdminProducts() {
 
   const fetchData = async () => {
     try {
+      // Product list include ingredients de table co the hien chuoi INCI ngay.
       const prodRes = await fetch(buildListUrl('/admin/products', {
         page: currentPage,
         limit: itemsPerPage,
@@ -83,6 +84,7 @@ export default function AdminProducts() {
   };
 
   const handleEdit = (product: Product) => {
+    // Dua product len form edit va ghep ingredients thanh chuoi phan cach dau phay cho textarea.
     setEditingId(product.id);
     setFormData({
       name: product.name,
@@ -98,6 +100,7 @@ export default function AdminProducts() {
     setError('');
     setSuccess('');
 
+    // editingId quyet dinh create hay update, giu chung mot form cho hai flow CRUD.
     const url = editingId 
       ? `${API_URL}/admin/products/${editingId}`
       : `${API_URL}/admin/products`;
@@ -113,6 +116,7 @@ export default function AdminProducts() {
           name: formData.name,
           brand: formData.brand,
           imageUrl: formData.imageUrl || undefined,
+          // Backend nhan mang ingredientNames; service se find-or-create va luu position theo thu tu.
           ingredientNames: ingredientString.split(',').map(i => i.trim()).filter(i => i.length > 0)
         })
       });
@@ -131,6 +135,7 @@ export default function AdminProducts() {
   };
 
   const handleDelete = (id: string) => {
+    // Delete product co cascade ProductIngredient, nen mo confirm truoc khi goi API.
     setDialog({
       open: true,
       message: 'Bạn có chắc chắn muốn xóa sản phẩm này không?',

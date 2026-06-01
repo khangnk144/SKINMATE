@@ -8,6 +8,7 @@ import Image from "next/image";
 import { API_URL } from "@/lib/api";
 
 const SKIN_TYPES = [
+  // value phai trung enum Prisma SkinType; label chi de hien thi cho nguoi dung.
   { value: "NORMAL", label: "Bình thường" },
   { value: "OILY", label: "Dầu" },
   { value: "DRY", label: "Khô" },
@@ -30,6 +31,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
+    // Validate client-side de user thay loi nhanh, backend van validate lai de dam bao an toan.
     if (password !== confirmPassword) {
       setError("Mật khẩu không khớp.");
       return;
@@ -55,7 +57,7 @@ export default function RegisterPage() {
         throw new Error(data.error || "Đăng ký thất bại");
       }
 
-      // Automatically login after registration
+      // Dang ky thanh cong xong dang nhap ngay de user khong phai nhap lai thong tin.
       const loginRes = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

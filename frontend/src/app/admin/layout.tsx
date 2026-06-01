@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Sidebar dung chung cho moi trang /admin; pathname quyet dinh item dang active.
   const navigation = [
     { name: 'Bảng điều khiển', href: '/admin' },
     { name: 'Thành phần', href: '/admin/ingredients' },

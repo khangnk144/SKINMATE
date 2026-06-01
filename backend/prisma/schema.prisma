@@ -1,4 +1,8 @@
-// This is your Prisma schema file
+// Prisma schema la ban do database cua SKINMATE.
+// Flow chinh: User phan tich INCI -> AnalysisHistory luu input,
+// Ingredient + IngredientRule quyet dinh GOOD/BAD/NEUTRAL theo skinType,
+// Product + ProductIngredient phuc vu recommendation,
+// IngredientReport + ReportVote + Notification phuc vu dong gop cong dong.
 
 datasource db {
   provider = "postgresql"
@@ -10,6 +14,7 @@ generator client {
 }
 
 enum SkinType {
+  // Loai da cua user; dung de chon dung IngredientRule khi phan tich.
   OILY
   DRY
   SENSITIVE
@@ -23,6 +28,7 @@ enum UserRole {
 }
 
 enum SafetyEffect {
+  // Danh gia do phu hop cua ingredient voi mot SkinType cu the.
   GOOD
   BAD
   NEUTRAL
@@ -40,6 +46,7 @@ enum VoteType {
 }
 
 model User {
+  // Tai khoan nguoi dung va admin. passwordHash la hash bcrypt, khong luu password goc.
   id            String            @id @default(uuid())
   username      String            @unique
   displayName   String?
@@ -56,6 +63,7 @@ model User {
 }
 
 model Ingredient {
+  // Ingredient.name luu lowercase de match voi INCI input/OCR/import.
   id          Int                 @id @default(autoincrement())
   name        String              @unique // INCI Name in lowercase for matching
   description String?             @db.Text
@@ -65,6 +73,7 @@ model Ingredient {
 }
 
 model IngredientRule {
+  // Mot ingredient co the GOOD voi loai da nay nhung BAD voi loai da khac.
   id           Int          @id @default(autoincrement())
   ingredientId Int
   skinType     SkinType
@@ -76,6 +85,7 @@ model IngredientRule {
 }
 
 model Product {
+  // San pham goi y cho user; ingredient list nam o bang noi ProductIngredient.
   id          String              @id @default(uuid())
   name        String
   brand       String
@@ -85,6 +95,7 @@ model Product {
 }
 
 model ProductIngredient {
+  // Bang noi many-to-many giua Product va Ingredient, kem position de giu thu tu INCI.
   productId    String
   ingredientId Int
   position     Int // Order of ingredient in the list
@@ -96,6 +107,7 @@ model ProductIngredient {
 }
 
 model AnalysisHistory {
+  // Luu chuoi INCI user da phan tich de trang History co the chay lai nhanh.
   id        String   @id @default(uuid())
   userId    String
   rawInput  String   @db.Text
@@ -105,6 +117,7 @@ model AnalysisHistory {
 }
 
 model IngredientReport {
+  // Dong gop cua user khi nghi rule hien tai sai; admin resolve de cap nhat IngredientRule.
   id             Int            @id @default(autoincrement())
   ingredientId   Int
   ingredient     Ingredient     @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
@@ -123,6 +136,7 @@ model IngredientReport {
 }
 
 model ReportVote {
+  // Vote giup admin uu tien report duoc cong dong dong tinh nhieu.
   id           Int        @id @default(autoincrement())
   reportId     Int
   report       IngredientReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
@@ -135,6 +149,7 @@ model ReportVote {
 }
 
 model Notification {
+  // Thong bao trong app, vi du khi report cua user duoc duyet/tu choi.
   id        String   @id @default(uuid())
   userId    String   // user who receives the notification
   type      String   // e.g., "REPORT_RESOLVED", "ADMIN_MESSAGE"

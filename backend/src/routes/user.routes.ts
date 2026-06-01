@@ -4,7 +4,8 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Protect all user routes with authMiddleware
+// Moi endpoint trong file nay deu la thao tac tren ho so cua user dang dang nhap.
+// Dat authMiddleware o dau router de controller co req.user.userId.
 router.use(authMiddleware);
 
 router.get('/profile', getProfile);

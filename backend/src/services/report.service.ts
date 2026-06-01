@@ -12,6 +12,7 @@ export const reportService = {
     reason: string,
     evidenceUrl?: string
   ) {
+    // Moi report bat dau o PENDING de admin va community vote/xem xet truoc khi cap nhat rule chinh.
     return await prisma.ingredientReport.create({
       data: {
         userId,
@@ -26,6 +27,7 @@ export const reportService = {
   },
 
   async vote(reportId: number, userId: string, voteType: VoteType) {
+    // Kiem tra report ton tai truoc de vote khong tao ban ghi orphan.
     const report = await prisma.ingredientReport.findUnique({ where: { id: reportId } });
     if (!report) {
       throw new Error('Report not found');
@@ -42,19 +44,19 @@ export const reportService = {
 
     if (existingVote) {
       if (existingVote.voteType === voteType) {
-        // Toggle vote off if same
+        // Bam lai cung chieu vote se huy vote.
         await prisma.reportVote.delete({
           where: { id: existingVote.id },
         });
       } else {
-        // Update vote
+        // Doi tu UP sang DOWN hoac nguoc lai.
         await prisma.reportVote.update({
           where: { id: existingVote.id },
           data: { voteType },
         });
       }
     } else {
-      // Create new vote
+      // User chua vote report nay thi tao vote moi.
       await prisma.reportVote.create({
         data: {
           reportId,
@@ -64,7 +66,7 @@ export const reportService = {
       });
     }
 
-    // Return current vote counts and user's vote
+    // Tra count moi nhat de frontend dong bo sau optimistic update.
     const [upVotes, downVotes, userVoteRec] = await Promise.all([
       prisma.reportVote.count({ where: { reportId, voteType: VoteType.UP } }),
       prisma.reportVote.count({ where: { reportId, voteType: VoteType.DOWN } }),
@@ -94,7 +96,7 @@ export const reportService = {
       },
     });
 
-    // Compute up, down, voteScore
+    // Prisma khong sap xep truc tiep theo voteScore tinh toan, nen tinh up/down trong memory.
     const computedReports = reports.map(report => {
       let up = 0;
       let down = 0;
@@ -111,14 +113,14 @@ export const reportService = {
       };
     });
 
-    // Sort
+    // Community page co the sort theo dong gop noi bat hoac moi nhat.
     if (sortBy === 'votes') {
       computedReports.sort((a, b) => b.voteScore - a.voteScore);
     } else {
       computedReports.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
 
-    // Pagination
+    // Pagination sau khi sort vi voteScore la gia tri tinh toan.
     const paginated = computedReports.slice(offset, offset + limit);
 
     return {
@@ -133,6 +135,7 @@ export const reportService = {
     if (report.status !== ReportStatus.PENDING) throw new Error('Report is not pending');
 
     if (status === ReportStatus.APPROVED) {
+      // Duyet report dong nghia cap nhat rule chinh thuc cho ingredient + skinType.
       await adminService.createOrUpdateRule(report.ingredientId, report.skinType, report.reportedEffect);
     }
 

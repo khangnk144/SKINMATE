@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 interface DashboardStats {
+  // Shape khop voi GET /admin/stats tu backend admin.controller.
   ingredients: number;
   rules: number;
   products: number;
@@ -85,6 +86,7 @@ export default function AdminDashboard() {
     if (!token) return;
     const fetchStats = async () => {
       try {
+        // Dashboard chi doc count tong quan, moi card link sang trang CRUD chi tiet.
         const res = await fetch(`${API_URL}/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -100,6 +102,7 @@ export default function AdminDashboard() {
     fetchStats();
   }, [token]);
 
+  // Cau hinh card tach khoi JSX de them/bot KPI chi can sua data object.
   const kpiCards = [
     {
       icon: FlaskConical,
@@ -137,6 +140,7 @@ export default function AdminDashboard() {
     },
   ];
 
+  // Quick actions la shortcut den cac flow admin hay dung nhat.
   const quickActions = [
     {
       icon: Plus,
