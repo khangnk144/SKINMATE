@@ -1,4 +1,4 @@
-import { PrismaClient, SkinType, SafetyEffect } from '@prisma/client';
+import { PrismaClient, SkinType, SafetyEffect, ReportStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +6,10 @@ export interface ListQuery {
   page?: number;
   limit?: number;
   search?: string;
+}
+
+export interface AiSuggestionListQuery extends ListQuery {
+  status?: ReportStatus;
 }
 
 // Chuan hoa pagination cho cac trang admin.
@@ -31,6 +35,12 @@ const paginated = <T>(items: T[], total: number, page: number, limit: number) =>
   page,
   limit,
 });
+
+const buildPendingAiSuggestionKey = (ingredientName: string, skinType: SkinType) =>
+  `${ingredientName.trim().toLowerCase()}::${skinType}::PENDING`;
+
+const buildResolvedAiSuggestionKey = (id: number, status: ReportStatus) =>
+  `AI_SUGGESTION::${status}::${id}`;
 
 export const adminService = {
   async getIngredients(query?: ListQuery) {
@@ -170,6 +180,129 @@ export const adminService = {
 
   async deleteAllRules() {
     return await prisma.ingredientRule.deleteMany();
+  },
+
+  async createOrUpdateAiSuggestion(
+    ingredientName: string,
+    skinType: SkinType,
+    suggestedEffect: SafetyEffect,
+    suggestedDescription?: string | null,
+    source = 'GEMINI'
+  ) {
+    const normalizedName = ingredientName.trim().toLowerCase();
+    if (!normalizedName) return null;
+
+    return await prisma.aiIngredientSuggestion.upsert({
+      where: { pendingKey: buildPendingAiSuggestionKey(normalizedName, skinType) },
+      update: {
+        suggestedEffect,
+        suggestedDescription,
+        source,
+        occurrenceCount: { increment: 1 },
+      },
+      create: {
+        ingredientName: normalizedName,
+        skinType,
+        suggestedEffect,
+        suggestedDescription,
+        source,
+        pendingKey: buildPendingAiSuggestionKey(normalizedName, skinType),
+      },
+    });
+  },
+
+  async getAiSuggestions(query?: AiSuggestionListQuery) {
+    const status = query?.status || ReportStatus.PENDING;
+    const pagination = getPagination(query);
+    const where = {
+      status,
+      ...(pagination?.search
+        ? { ingredientName: { contains: pagination.search, mode: 'insensitive' as const } }
+        : {}),
+    };
+
+    const include = {
+      reviewer: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+        },
+      },
+    };
+
+    if (pagination) {
+      const [items, total] = await Promise.all([
+        prisma.aiIngredientSuggestion.findMany({
+          where,
+          include,
+          orderBy: { createdAt: 'desc' },
+          skip: pagination.skip,
+          take: pagination.limit,
+        }),
+        prisma.aiIngredientSuggestion.count({ where }),
+      ]);
+
+      return paginated(items, total, pagination.page, pagination.limit);
+    }
+
+    return await prisma.aiIngredientSuggestion.findMany({
+      where,
+      include,
+      orderBy: { createdAt: 'desc' },
+    });
+  },
+
+  async resolveAiSuggestion(id: number, status: ReportStatus, adminId: string, adminNote?: string) {
+    return await prisma.$transaction(async (tx) => {
+      const suggestion = await tx.aiIngredientSuggestion.findUnique({ where: { id } });
+      if (!suggestion) throw new Error('AI suggestion not found');
+      if (suggestion.status !== ReportStatus.PENDING) throw new Error('AI suggestion is not pending');
+
+      if (status === ReportStatus.APPROVED) {
+        const ingredient = await tx.ingredient.upsert({
+          where: { name: suggestion.ingredientName },
+          update: {},
+          create: {
+            name: suggestion.ingredientName,
+            description: suggestion.suggestedDescription,
+          },
+        });
+
+        if (!ingredient.description && suggestion.suggestedDescription) {
+          await tx.ingredient.update({
+            where: { id: ingredient.id },
+            data: { description: suggestion.suggestedDescription },
+          });
+        }
+
+        await tx.ingredientRule.upsert({
+          where: {
+            ingredientId_skinType: {
+              ingredientId: ingredient.id,
+              skinType: suggestion.skinType,
+            },
+          },
+          update: { effect: suggestion.suggestedEffect },
+          create: {
+            ingredientId: ingredient.id,
+            skinType: suggestion.skinType,
+            effect: suggestion.suggestedEffect,
+          },
+        });
+      }
+
+      return await tx.aiIngredientSuggestion.update({
+        where: { id },
+        data: {
+          status,
+          reviewedAt: new Date(),
+          reviewedBy: adminId,
+          adminNote,
+          pendingKey: buildResolvedAiSuggestionKey(id, status),
+        },
+      });
+    });
   },
   
   async findOrCreateIngredients(names: string[]) {

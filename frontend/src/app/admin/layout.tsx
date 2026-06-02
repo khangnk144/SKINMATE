@@ -12,6 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Bảng điều khiển', href: '/admin' },
     { name: 'Thành phần', href: '/admin/ingredients' },
     { name: 'Quy tắc an toàn', href: '/admin/rules' },
+    { name: 'Duyệt đề xuất AI', href: '/admin/ai-suggestions' },
     { name: 'Sản phẩm', href: '/admin/products' },
     { name: 'Người dùng', href: '/admin/users' },
     { name: 'Báo cáo', href: '/admin/reports' },

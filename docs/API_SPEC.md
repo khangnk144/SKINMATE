@@ -58,7 +58,9 @@ Result item:
   "mappedName": "water",
   "effect": "GOOD",
   "description": "optional text",
-  "ingredientId": 1
+  "ingredientId": 1,
+  "source": "DATABASE",
+  "isVerified": true
 }
 ```
 
@@ -67,6 +69,9 @@ Notes:
 - Uses `authMiddleware` then `analysisRateLimiter`.
 - Saves raw input to `AnalysisHistory`.
 - Unknown ingredients can trigger Gemini fallback.
+- Official DB results return `source: "DATABASE"` and `isVerified: true`.
+- Gemini results return `source: "AI"` and `isVerified: false`, and are saved as pending admin suggestions.
+- Missing DB/AI results return `source: "FALLBACK"` and `isVerified: false`.
 
 ## Products
 
@@ -178,6 +183,20 @@ All routes require auth and admin.
 | `DELETE` | `/rules/:id` | None |
 
 `POST /rules` creates or updates the unique `(ingredientId, skinType)` rule.
+
+### AI Suggestions
+
+| Method | Path | Body/Query |
+| --- | --- | --- |
+| `GET` | `/ai-suggestions` | optional `status=PENDING|APPROVED|REJECTED`, `page`, `limit`, `search` |
+| `POST` | `/ai-suggestions/:id/approve` | optional `adminNote` |
+| `POST` | `/ai-suggestions/:id/reject` | optional `adminNote` |
+
+AI suggestions are generated from Gemini when analysis finds ingredients missing from the official database.
+
+Approving a pending suggestion creates or updates the official `Ingredient`, upserts the `(ingredientId, skinType)` `IngredientRule`, and marks the suggestion `APPROVED`.
+
+Rejecting a pending suggestion marks it `REJECTED` without mutating official ingredient or rule data.
 
 ### Products
 

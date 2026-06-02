@@ -21,6 +21,9 @@ interface AnalysisResult {
   mappedName: string;
   effect: 'GOOD' | 'BAD' | 'NEUTRAL';
   description?: string | null;
+  ingredientId?: number | null;
+  source: 'DATABASE' | 'AI' | 'FALLBACK';
+  isVerified: boolean;
 }
 
 interface RecommendedProduct {
@@ -168,6 +171,10 @@ function AnalysisContent() {
 
   const handleReportSubmit = async () => {
     if (!selectedIngredient) return;
+    if (!selectedIngredient.isVerified || !selectedIngredient.ingredientId) {
+      setReportFormError('Thanh phan nay la de xuat AI chua duoc admin xac nhan, nen chua the bao cao phan loai.');
+      return;
+    }
     // Ly do can du dai toi thieu de admin co ngu canh khi duyet report.
     if (reportReason.length < 20) {
       setReportFormError('Vui lòng nhập lý do ít nhất 20 ký tự.');
@@ -357,11 +364,16 @@ function AnalysisContent() {
                   <button
                     key={idx}
                     onClick={() => setSelectedIngredient(result)}
-                    className={`px-8 py-3 rounded-full border text-xs font-semibold tracking-widest uppercase transition-all duration-500 hover:-translate-y-1 hover:shadow-md active:scale-95 ${getEffectClasses(
+                    className={`inline-flex items-center gap-2 px-8 py-3 rounded-full border text-xs font-semibold tracking-widest uppercase transition-all duration-500 hover:-translate-y-1 hover:shadow-md active:scale-95 ${getEffectClasses(
                       result.effect
                     )}`}
                   >
-                    {result.originalName}
+                    <span>{result.originalName}</span>
+                    {!result.isVerified && (
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-black text-amber-700">
+                        AI
+                      </span>
+                    )}
                   </button>
                 ))}
                 {results.length === 0 && (
@@ -437,11 +449,17 @@ function AnalysisContent() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
+                        if (!selectedIngredient.isVerified || !selectedIngredient.ingredientId) return;
                         setReportEffect(selectedIngredient.effect);
                         setShowReportModal(true);
                       }}
-                      className="text-slate-400 hover:text-rose-500 transition-colors p-3 rounded-full hover:bg-rose-50 flex items-center gap-2"
-                      title="Báo cáo phân loại sai"
+                      disabled={!selectedIngredient.isVerified || !selectedIngredient.ingredientId}
+                      className={`transition-colors p-3 rounded-full flex items-center gap-2 ${
+                        selectedIngredient.isVerified && selectedIngredient.ingredientId
+                          ? 'text-slate-400 hover:text-rose-500 hover:bg-rose-50'
+                          : 'text-slate-300 cursor-not-allowed'
+                      }`}
+                      title={selectedIngredient.isVerified ? 'Báo cáo phân loại sai' : 'Ket qua AI dang cho admin xac nhan'}
                     >
                       <Flag className="w-5 h-5" />
                       <span className="text-xs font-semibold uppercase tracking-wider hidden sm:inline">Báo cáo</span>
@@ -455,7 +473,7 @@ function AnalysisContent() {
                   </div>
                 </div>
 
-                <div className="mb-10">
+                <div className="mb-10 flex flex-wrap gap-3">
                   <span className={`inline-flex items-center px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase border ${
                     selectedIngredient.effect === 'GOOD' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
                     selectedIngredient.effect === 'BAD' ? 'bg-rose-50 text-rose-700 border-rose-100' : 
@@ -463,6 +481,11 @@ function AnalysisContent() {
                   }`}>
                     Đánh giá an toàn: {selectedIngredient.effect === 'GOOD' ? 'Tốt' : selectedIngredient.effect === 'BAD' ? 'Xấu' : 'Trung bình'}
                   </span>
+                  {!selectedIngredient.isVerified && (
+                    <span className="inline-flex items-center px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.16em] uppercase border border-amber-200 bg-amber-50 text-amber-700">
+                      AI đề xuất, chờ admin xác nhận
+                    </span>
+                  )}
                 </div>
 
                 <div className="space-y-6">
@@ -473,7 +496,8 @@ function AnalysisContent() {
                   <div className="pt-8 mt-8 border-t border-stone-100">
                     <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.1em]">Hành Động Khuyến Nghị</p>
                     <p className="text-slate-500 text-sm mt-2">
-                      {selectedIngredient.effect === 'BAD' ? 'Bạn nên cân nhắc tránh các sản phẩm chứa thành phần này vì nó có thể không phù hợp với tình trạng da của bạn.' : 
+                      {!selectedIngredient.isVerified ? 'Đây là kết quả AI tạm thời để bạn tham khảo. SKINMATE đã đưa đề xuất này vào hàng chờ admin kiểm tra trước khi cập nhật database chính thức.' :
+                       selectedIngredient.effect === 'BAD' ? 'Bạn nên cân nhắc tránh các sản phẩm chứa thành phần này vì nó có thể không phù hợp với tình trạng da của bạn.' : 
                        selectedIngredient.effect === 'GOOD' ? 'Thành phần này rất tương thích và mang lại nhiều lợi ích tuyệt vời cho làn da của bạn.' : 
                        'Thành phần này lành tính và hoàn toàn an toàn cho tình trạng da hiện tại của bạn.'}
                     </p>

@@ -35,8 +35,9 @@ Service behavior:
 - Lowercases names for DB matching.
 - Fetches known ingredients and rules for the user's skin type.
 - Calls Gemini for missing ingredients when a skin type exists.
-- Upserts Gemini results into `Ingredient` and `IngredientRule`.
-- Returns `NEUTRAL` when no DB rule or AI result exists.
+- Returns Gemini results to the user with `source: "AI"` and `isVerified: false`.
+- Upserts Gemini results into pending `AiIngredientSuggestion` records for admin review, not into official `Ingredient` or `IngredientRule`.
+- Returns `NEUTRAL` with `source: "FALLBACK"` when no DB rule or AI result exists.
 
 ## Frontend
 

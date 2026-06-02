@@ -85,7 +85,7 @@ POST /api/v1/analysis/check
 4. Deduplicates lookup names.
 5. Fetches known ingredients and rules for the current skin type.
 6. Calls Gemini for missing names when `skinType` exists.
-7. Caches Gemini results with Prisma upserts.
+7. Saves Gemini results as pending `AiIngredientSuggestion` rows for admin review.
 8. Returns results in original input order.
 
 ## Recommendation Flow

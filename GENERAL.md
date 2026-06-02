@@ -9,7 +9,7 @@ SKINMATE is a skincare ingredient analysis web app.
 
 Users can register, choose a skin type, paste an INCI ingredient list or upload a product label image, receive per-ingredient safety results, view recommendations, save history, report incorrect ingredient classifications, vote on community reports, and receive in-app notifications.
 
-Admins can manage ingredients, safety rules, products, users, community reports, notifications, and Excel import/export data.
+Admins can manage ingredients, safety rules, AI ingredient suggestions, products, users, community reports, notifications, and Excel import/export data.
 
 ## 3-Day Onboarding Plan
 
@@ -172,13 +172,14 @@ Two areas intentionally use inline Prisma instead of a separate service:
 
 ## Database Models
 
-The live schema is `backend/prisma/schema.prisma`. It defines 9 models:
+The live schema is `backend/prisma/schema.prisma`. It defines 10 models:
 
 | Model | Purpose |
 | --- | --- |
 | `User` | Accounts, roles, profile skin type, lock status |
 | `Ingredient` | Normalized lowercase INCI ingredient names |
 | `IngredientRule` | `ingredientId + skinType -> GOOD/BAD/NEUTRAL` |
+| `AiIngredientSuggestion` | Pending Gemini classifications awaiting admin review |
 | `Product` | Recommended products |
 | `ProductIngredient` | Product-to-ingredient join table with INCI position |
 | `AnalysisHistory` | Raw INCI strings submitted by users |
@@ -206,7 +207,7 @@ Enums:
 8. Backend refreshes the user's current skin type from DB.
 9. `analysis.service.ts` splits the INCI string by comma, trims entries, lowercases names for matching, and looks up known ingredients.
 10. Missing ingredients are sent to Gemini only when a skin type exists.
-11. Gemini results are cached into `Ingredient` and `IngredientRule`.
+11. Gemini results are returned as unverified AI suggestions and stored in `AiIngredientSuggestion`.
 12. Backend saves the raw input into `AnalysisHistory`.
 13. Frontend renders results and calls `GET /api/v1/products/recommendations`.
 
@@ -249,6 +250,7 @@ Live routes under `frontend/src/app`:
 | `/admin` | `app/admin/page.tsx` |
 | `/admin/ingredients` | `app/admin/ingredients/page.tsx` |
 | `/admin/rules` | `app/admin/rules/page.tsx` |
+| `/admin/ai-suggestions` | `app/admin/ai-suggestions/page.tsx` |
 | `/admin/products` | `app/admin/products/page.tsx` |
 | `/admin/users` | `app/admin/users/page.tsx` |
 | `/admin/reports` | `app/admin/reports/page.tsx` |

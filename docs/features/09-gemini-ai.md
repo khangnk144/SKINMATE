@@ -43,14 +43,17 @@ The helper expects JSON array items shaped as:
 
 `effect` must match `GOOD`, `BAD`, or `NEUTRAL`.
 
-## Caching
+## Admin Review Queue
 
 For each AI result, `analysis.service.ts`:
 
-1. Upserts the lowercase ingredient.
-2. Upserts the `IngredientRule` for the current skin type.
+1. Returns the classification to the current user with `source: "AI"` and `isVerified: false`.
+2. Upserts a pending `AiIngredientSuggestion` for the lowercase ingredient and current skin type.
+3. Increments `occurrenceCount` when the same pending suggestion appears again.
 
-If caching fails, analysis still returns available AI results for the current request.
+If saving the suggestion fails, analysis still returns available AI results for the current request.
+
+Official `Ingredient` and `IngredientRule` rows are updated only after an admin approves the pending suggestion.
 
 ## Failure Behavior
 

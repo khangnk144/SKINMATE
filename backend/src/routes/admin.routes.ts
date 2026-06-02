@@ -35,6 +35,11 @@ router.post('/rules', adminController.createRule);
 router.delete('/rules/all', adminController.deleteAllRules);
 router.delete('/rules/:id', adminController.deleteRule);
 
+// AI suggestions: Gemini results wait here until admin approves official DB updates.
+router.get('/ai-suggestions', adminController.getAiSuggestions);
+router.post('/ai-suggestions/:id/approve', adminController.approveAiSuggestion);
+router.post('/ai-suggestions/:id/reject', adminController.rejectAiSuggestion);
+
 // Products: CRUD san pham va danh sach ingredient theo thu tu INCI.
 router.get('/products', adminController.getProducts);
 router.post('/products', adminController.createProduct);

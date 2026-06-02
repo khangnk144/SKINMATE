@@ -228,7 +228,7 @@ npm run lint
 | Admin CRUD | Implemented | `admin.*`, `/admin/*` |
 | Admin stats | Implemented | `/admin/stats`, `/admin/reports` |
 | Design system | Implemented in Tailwind classes and global CSS |
-| Gemini fallback | Implemented | `utils/gemini.ts`, `analysis.service.ts` |
+| Gemini fallback + admin review queue | Implemented | `utils/gemini.ts`, `analysis.service.ts`, `admin.service.ts` |
 | Excel import/export | Implemented | `excel.*`, `/admin/import-export` |
 | OCR scanning | Implemented | `modules/ocr`, `ImageOCRUploader.tsx` |
 | Community reporting | Implemented | `report.*`, community/admin report pages |

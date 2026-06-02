@@ -62,7 +62,7 @@ enum VoteType {
 | `createdAt` | `DateTime` | Defaults to `now()` |
 | `updatedAt` | `DateTime` | Auto-updated |
 
-Relations: histories, ingredientReports, reportVotes, notifications.
+Relations: histories, ingredientReports, reportVotes, notifications, reviewedAiSuggestions.
 
 ### Ingredient
 
@@ -86,7 +86,37 @@ Relations: rules, products, reports.
 Constraints:
 
 - `@@unique([ingredientId, skinType])`
-- Ingredient relation uses `onDelete: Cascade`
+
+Ingredient relation uses `onDelete: Cascade`.
+
+### AiIngredientSuggestion
+
+Pending review queue for Gemini classifications. These rows are not official ingredient data until an admin approves them.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | `Int` | Auto-increment primary key |
+| `ingredientName` | `String` | Normalized lowercase INCI name |
+| `skinType` | `SkinType` | Target skin type |
+| `suggestedEffect` | `SafetyEffect` | Gemini's suggested classification |
+| `suggestedDescription` | `String?` | Gemini explanation shown to admin |
+| `status` | `ReportStatus` | Defaults to `PENDING` |
+| `source` | `String` | Defaults to `GEMINI` |
+| `occurrenceCount` | `Int` | Incremented when the same pending suggestion appears again |
+| `pendingKey` | `String` | Unique internal key for pending upsert behavior |
+| `createdAt` | `DateTime` | Defaults to `now()` |
+| `updatedAt` | `DateTime` | Auto-updated |
+| `reviewedAt` | `DateTime?` | Set when admin approves/rejects |
+| `reviewedBy` | `String?` | Admin user id |
+| `adminNote` | `String?` | Optional review note |
+
+Indexes:
+
+- Unique `pendingKey`
+- `@@index([status, createdAt])`
+- `@@index([ingredientName])`
+
+Approval creates or updates `Ingredient` and upserts `IngredientRule`. Rejection only updates suggestion status.
 
 ### Product
 
@@ -180,6 +210,7 @@ User 1--N AnalysisHistory
 User 1--N IngredientReport
 User 1--N ReportVote
 User 1--N Notification
+User 1--N AiIngredientSuggestion as reviewer
 
 Ingredient 1--N IngredientRule
 Ingredient 1--N IngredientReport
@@ -192,6 +223,7 @@ IngredientReport 1--N ReportVote
 
 - Normalize ingredient names to lowercase before save/search.
 - Use `IngredientRule` for skin-type-specific safety.
+- Keep AI classifications in `AiIngredientSuggestion` until admin approval.
 - Do not duplicate rules for the same `(ingredientId, skinType)`.
 - Deleting users, ingredients, reports, or products cascades through dependent rows.
 - Use `prisma db push` only after confirming schema changes with the user/team.

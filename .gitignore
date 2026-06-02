@@ -42,6 +42,10 @@ desktop.ini
 logs
 *.log
 
+# Local agent/tooling artifacts
+.skill-staging/
+.understand-anything/
+
 # Prisma
 /backend/prisma/dev.db
 /backend/prisma/dev.db-journal

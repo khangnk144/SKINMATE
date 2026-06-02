@@ -8,7 +8,12 @@ export interface AnalysisResult {
   effect: 'GOOD' | 'BAD' | 'NEUTRAL';
   description?: string | null;
   ingredientId?: number | null;
+  source: 'DATABASE' | 'AI' | 'FALLBACK';
+  isVerified: boolean;
 }
+
+const buildPendingAiSuggestionKey = (ingredientName: string, skinType: SkinType) =>
+  `${ingredientName.trim().toLowerCase()}::${skinType}::PENDING`;
 
 export const analyzeIngredients = async (inciString: string, skinType: SkinType | null): Promise<AnalysisResult[]> => {
   // Tach danh sach INCI theo dau phay, giu originalName de UI hien thi nhu nguoi dung da nhap.
@@ -55,36 +60,25 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
     try {
       for (const res of aiResults) {
         const lowerName = res.mappedName.toLowerCase();
-        // Create ingredient if it doesn't exist
-        const ingredient = await prisma.ingredient.upsert({
-          where: { name: lowerName },
-          update: {},
-          create: {
-            name: lowerName,
-            description: res.description,
-          },
-        });
-
-        // Create or update rule for this skinType
-        await prisma.ingredientRule.upsert({
-          where: {
-            ingredientId_skinType: {
-              ingredientId: ingredient.id,
-              skinType: skinType,
-            },
-          },
+        await prisma.aiIngredientSuggestion.upsert({
+          where: { pendingKey: buildPendingAiSuggestionKey(lowerName, skinType) },
           update: {
-            effect: res.effect as SafetyEffect,
+            suggestedEffect: res.effect as SafetyEffect,
+            suggestedDescription: res.description,
+            occurrenceCount: { increment: 1 },
           },
           create: {
-            ingredientId: ingredient.id,
-            skinType: skinType,
-            effect: res.effect as SafetyEffect,
+            ingredientName: lowerName,
+            skinType,
+            suggestedEffect: res.effect as SafetyEffect,
+            suggestedDescription: res.description,
+            source: 'GEMINI',
+            pendingKey: buildPendingAiSuggestionKey(lowerName, skinType),
           },
         });
       }
     } catch (dbError) {
-      console.error('Error caching AI results to DB:', dbError);
+      console.error('Error saving AI suggestions for admin review:', dbError);
     }
   }
 
@@ -104,6 +98,8 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
         effect,
         description: foundIngredient.description,
         ingredientId: foundIngredient.id,
+        source: 'DATABASE',
+        isVerified: true,
       };
     }
 
@@ -115,6 +111,9 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
         mappedName: mappedName,
         effect: aiRes.effect,
         description: aiRes.description,
+        ingredientId: null,
+        source: 'AI',
+        isVerified: false,
       };
     }
 
@@ -124,6 +123,9 @@ export const analyzeIngredients = async (inciString: string, skinType: SkinType 
       mappedName,
       effect: 'NEUTRAL',
       description: null,
+      ingredientId: null,
+      source: 'FALLBACK',
+      isVerified: false,
     };
   });
 

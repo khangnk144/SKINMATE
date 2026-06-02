@@ -60,6 +60,7 @@ model User {
   ingredientReports IngredientReport[]
   reportVotes   ReportVote[]
   notifications Notification[]
+  reviewedAiSuggestions AiIngredientSuggestion[] @relation("AiSuggestionReviewer")
 }
 
 model Ingredient {
@@ -82,6 +83,29 @@ model IngredientRule {
   ingredient   Ingredient   @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 
   @@unique([ingredientId, skinType]) // One rule per ingredient per skin type
+}
+
+model AiIngredientSuggestion {
+  // Hang cho ket qua Gemini: chi admin duyet moi day vao Ingredient/IngredientRule chinh thuc.
+  id                   Int          @id @default(autoincrement())
+  ingredientName       String
+  skinType             SkinType
+  suggestedEffect      SafetyEffect
+  suggestedDescription String?      @db.Text
+  status               ReportStatus @default(PENDING)
+  source               String       @default("GEMINI")
+  occurrenceCount      Int          @default(1)
+  pendingKey           String       @unique
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  reviewedAt           DateTime?
+  reviewedBy           String?
+  adminNote            String?      @db.Text
+
+  reviewer             User?        @relation("AiSuggestionReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([ingredientName])
 }
 
 model Product {

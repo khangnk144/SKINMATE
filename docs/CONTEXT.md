@@ -59,7 +59,8 @@ Login as ADMIN
 - Ingredient names are stored and matched in lowercase.
 - One ingredient can have different effects for different skin types.
 - Missing ingredients are sent to Gemini only during analysis and only when a skin type is available.
-- Gemini results are cached as `Ingredient` plus `IngredientRule` rows.
+- Gemini results are returned as unverified AI suggestions and stored in `AiIngredientSuggestion` for admin review.
+- Admin approval of an AI suggestion is required before it updates `Ingredient` and `IngredientRule`.
 - If AI fails or no rule exists, the ingredient result falls back to `NEUTRAL`.
 - Product recommendations exclude products with any `BAD` ingredient for the user's skin type.
 - Safe products are scored by number of `GOOD` ingredients; the service returns 3 randomly shuffled products from the top 6.

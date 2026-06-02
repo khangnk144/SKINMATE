@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
-import { SkinType, SafetyEffect } from '@prisma/client';
+import { SkinType, SafetyEffect, ReportStatus } from '@prisma/client';
 
 // Chuyen query string page/limit/search thanh object dung chung cho cac list API.
 // Neu frontend khong gui query, service tra ve mang cu de giu tuong thich voi code cu/test cu.
@@ -152,6 +152,72 @@ export const adminController = {
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ error: 'Failed to delete all rules' });
+    }
+  },
+
+  getAiSuggestions: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const status = (req.query.status as ReportStatus | undefined) || ReportStatus.PENDING;
+      if (!Object.values(ReportStatus).includes(status)) {
+        res.status(400).json({ error: 'Invalid status' });
+        return;
+      }
+
+      const suggestions = await adminService.getAiSuggestions({
+        ...getListQuery(req),
+        status,
+      });
+      res.json(suggestions);
+    } catch (error: any) {
+      res.status(500).json({ error: 'Failed to fetch AI suggestions' });
+    }
+  },
+
+  approveAiSuggestion: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const adminId = (req as any).user?.userId;
+      if (isNaN(id) || !adminId) {
+        res.status(400).json({ error: 'Invalid ID or admin user missing' });
+        return;
+      }
+
+      const suggestion = await adminService.resolveAiSuggestion(id, ReportStatus.APPROVED, adminId, req.body?.adminNote);
+      res.json(suggestion);
+    } catch (error: any) {
+      if (error.message === 'AI suggestion not found') {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      if (error.message === 'AI suggestion is not pending') {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      res.status(500).json({ error: 'Failed to approve AI suggestion' });
+    }
+  },
+
+  rejectAiSuggestion: async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const adminId = (req as any).user?.userId;
+      if (isNaN(id) || !adminId) {
+        res.status(400).json({ error: 'Invalid ID or admin user missing' });
+        return;
+      }
+
+      const suggestion = await adminService.resolveAiSuggestion(id, ReportStatus.REJECTED, adminId, req.body?.adminNote);
+      res.json(suggestion);
+    } catch (error: any) {
+      if (error.message === 'AI suggestion not found') {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      if (error.message === 'AI suggestion is not pending') {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      res.status(500).json({ error: 'Failed to reject AI suggestion' });
     }
   },
 
