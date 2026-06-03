@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 // AuthContext la client-side state dung chung cho navbar, route guards va cac page goi API.
 // Token/user duoc hydrate tu localStorage vi Next.js render lai client sau khi reload trang.
-
+//
 type UserRole = 'USER' | 'ADMIN';
 type SkinType = 'OILY' | 'DRY' | 'SENSITIVE' | 'COMBINATION' | 'NORMAL';
 
