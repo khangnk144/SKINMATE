@@ -34,3 +34,4 @@ export default function AdminProtectedRoute({ children }: { children: React.Reac
 
   return <>{children}</>;
 }
+//component
